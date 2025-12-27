@@ -67,6 +67,7 @@ public class Mapper {
 
     public MobileMoneyAccountsEntity toMobileMoneyEntity(MobileMoneyAccount momo) {
         var entitMomo = new MobileMoneyAccountsEntity();
+        entitMomo.setId(momo.getAccountId());
         entitMomo.setAccountBalance(momo.getAccountBalance().getValue());
         entitMomo.setAccountType(momo.getAccountType());
         entitMomo.setDailyLimit(momo.getDailyLimit());

@@ -11,34 +11,18 @@ public class MatchDto {
     private String away;
     private List<MatchEventPickDto> matchOutComes;
 
-    public Match(long matchId, List<MatchEventPick> matchOutComes, String home, String away) {
-        this.matchId = matchId;
-        this.matchOutComes = matchOutComes;
-        this.home = home;
-        this.away = away;
-    }
 
-    public void createPick(double odds, String outcome) {
-        MatchEventPick pick = new MatchEventPick(outcome, odds);
-        pick.setMatchKey(getHome()+" vs "+getAway());
-        addPick(pick);
-    }
 
-    public void addPick(MatchEventPick pick) {
-        Objects.requireNonNull(pick, "error while adding pick to match");
-        this.matchOutComes.add(pick);
-
-    }
 
     public long getMatchId() {
         return matchId;
     }
 
-    public List<MatchEventPick> getMatchOutComes() {
+    public List<MatchEventPickDto> getMatchOutComes() {
         return matchOutComes;
     }
 
-    public void setMatchOutComes(List<MatchEventPick> matchOutComes) {
+    public void setMatchOutComes(List<MatchEventPickDto> matchOutComes) {
         this.matchOutComes = matchOutComes;
     }
 

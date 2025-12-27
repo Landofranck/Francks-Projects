@@ -1,21 +1,17 @@
 package project.adapter.in.web;
 
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import project.domain.model.BetSlip;
-import project.domain.model.Match;
 import project.domain.model.Money;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Objects;
 
 @XmlRootElement
 public class ReducerDto {
     private Long id;
     @NotNull(message = "TotalStake must have a value")
-    private Money totalStake;
+    private BigDecimal totalStake;
     @NotNull(message = "betMatches must not be null")
     private List<MatchDto> betMatches;
     @NotNull(message = "slips must not be null")
@@ -23,12 +19,7 @@ public class ReducerDto {
     @NotNull(message = "bonus amount must not be null")
     private Money bonusAmount;
 
-    public ReducerDto(Money stake, Money bonusAmount) {
-        this.totalStake = Objects.requireNonNull(stake);
-        this.bonusAmount = Objects.requireNonNull(bonusAmount);
-        this.slips = new ArrayList<>();
-        this.betMatches = new ArrayList<>();
-    }
+
 
 
 
@@ -51,7 +42,7 @@ public class ReducerDto {
         return betMatches;
     }
 
-    public Money getTotalStake() {
+    public BigDecimal getTotalStake() {
         return totalStake;
     }
 
@@ -71,7 +62,7 @@ public class ReducerDto {
         this.slips = slips;
     }
 
-    public void setTotalStake(Money totalStake) {
+    public void setTotalStake(BigDecimal totalStake) {
         this.totalStake = totalStake;
     }
 }

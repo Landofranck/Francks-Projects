@@ -14,6 +14,7 @@ public class MomoAccountTransactionEntity {
     private BigDecimal transactionAmmount;
     private BigDecimal accountBalanceAfterTransaction;
     private Instant createdAt;
+    @Enumerated(EnumType.STRING)
     private TransactionType type;
 
     @ManyToOne

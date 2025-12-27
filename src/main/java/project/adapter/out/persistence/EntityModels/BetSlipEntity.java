@@ -1,5 +1,6 @@
 package project.adapter.out.persistence.EntityModels;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import net.bytebuddy.dynamic.loading.InjectionClassLoader;
@@ -20,6 +21,7 @@ public class BetSlipEntity {
     private Long id;
     @OneToMany(mappedBy = "parentBetSlipEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MatchEventPickEntity> picks = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
     private BetStatus status;
     private String category;
 

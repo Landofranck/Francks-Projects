@@ -10,8 +10,8 @@ import java.util.List;
 @Entity
 public class MobileMoneyAccountsEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @Enumerated(EnumType.STRING)
     public AccountType accountType;
     private BigDecimal accountBalance;
     private Boolean dailyLimit;
@@ -88,4 +88,7 @@ public class MobileMoneyAccountsEntity {
         this.accountType = accountType;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

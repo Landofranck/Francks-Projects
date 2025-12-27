@@ -14,6 +14,7 @@ public class BettingAccountEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id; // generated
     private String accountName;
+    @Enumerated(EnumType.STRING)
     private AccountType brokerType;
     private BigDecimal balance;
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -11,20 +11,20 @@ public class BetSlip {
     private List<MatchEventPick> picks;
     private BetStatus status;
     private final String category;
-    private final Instant createdAt;
+    private Instant createdAt;
     //int the reducer method betslips will be created without parent accounts
     private BettingAccount parentAccount;
     private Money stake;
     private double totalOdds;
 
-    public BetSlip(String category, Money stake, Instant presentMoment) {
+    public BetSlip(String category) {
         this.category = category;
         this.picks = new ArrayList<>();
         this.status = BetStatus.PENDING;
-        this.createdAt = presentMoment;
+        this.totalOdds=0;
     }
 
-    private void makeTotalOdds() {
+    public void makeTotalOdds() {
         double output = 1;
         for (MatchEventPick m : picks) {
             output *= m.getOdd();
@@ -74,9 +74,20 @@ public class BetSlip {
         this.picks = picks;
     }
 
+    public void setStake(Money stake) {
+        this.stake = stake;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public BettingAccount getParentAccount() {
         return parentAccount;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 
     public Instant getCreatedAt() {

@@ -9,18 +9,33 @@ public class Reducer implements Account {
     private Long id;
     private Money totalStake;
     private List<Match> betMatches;
+    private BetSlip newSlip;
     private List<BetSlip> slips;
     private Money bonusAmount;
 
     public Reducer(Money stake, Money bonusAmount) {
         this.totalStake = Objects.requireNonNull(stake);
         this.bonusAmount = Objects.requireNonNull(bonusAmount);
-        this.slips=new ArrayList<>();
-        this.betMatches=new ArrayList<>();
+        this.slips = new ArrayList<>();
+        this.betMatches = new ArrayList<>();
     }
-public void addSlip(){
 
-}
+    public void addEventToSlip(BetSlip slip, MatchEventPick pick) {
+        slip.addMatchEventPick(pick);
+        slip.makeTotalOdds();
+    }
+
+    public void createBetSlip(String category) {
+        Objects.requireNonNull(category);
+        BetSlip newBetslip = new BetSlip(category);
+        addBetSlip(newBetslip);
+    }
+
+    public void addBetSlip(BetSlip b) {
+        Objects.requireNonNull(b);
+        this.slips.add(b);
+    }
+
     @Override
     public Long getAccountId() {
         return this.id;

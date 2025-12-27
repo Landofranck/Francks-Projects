@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 public class MatchEventPick {
-    private Long id;
     private final String matchKey;
     private final String outcomeName;
     private final double odd;
@@ -34,7 +33,5 @@ public class MatchEventPick {
 
     public double getOdd() { return odd; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+
 }

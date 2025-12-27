@@ -25,7 +25,7 @@ public class BettingAccount implements Account {
     }
 
     public void addBetSlip(BetSlip newBetslip) {
-        newBetslip.setOwner(this);
+        newBetslip.setParentAccount(this);
         this.betHistory.add(newBetslip);
         //advicable to use the
         addTransaction(new Transaction(newBetslip.getStake(), new Money(balance.getValue()), newBetslip.getCreatedAt(), TransactionType.BET_PLACED));

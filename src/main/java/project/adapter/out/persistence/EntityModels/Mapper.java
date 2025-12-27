@@ -84,6 +84,7 @@ public class Mapper {
     public BettingAccount toBettingAccountDomain(BettingAccountEntity entityModel) {
         var domainModel = new BettingAccount(entityModel.getAccountName(),entityModel.getBrokerType());
         domainModel.setBalance(new Money(entityModel.getBalance()));
+        domainModel.setId(entityModel.getId());
         if (entityModel.getTransactionHistory() != null) {
             for (BettingAccountTransactionEntity T : entityModel.getTransactionHistory()) {
                 domainModel.addTransaction(toBettingTransactionDomain(T));
@@ -111,7 +112,9 @@ public class Mapper {
     }
 
     public BetSlip toBetslipDomain(BetSlipEntity betSlipEntity) {
-        var betSlipDomain = new BetSlip(betSlipEntity.getCategory(),new Money(betSlipEntity.getStake()),betSlipEntity.getCreatedAt());
+        var betSlipDomain = new BetSlip(betSlipEntity.getCategory());
+        betSlipDomain.setCreatedAt(betSlipEntity.getCreatedAt());
+        betSlipDomain.setStake(new Money(betSlipEntity.getStake()));
         betSlipDomain.setStatus(betSlipEntity.getStatus());
         betSlipDomain.setId(betSlipEntity.getId());
         if (betSlipEntity.getPicks() != null) {
@@ -130,6 +133,7 @@ public class Mapper {
 
     public MobileMoneyAccount toMobileMoneyDomain(MobileMoneyAccountsEntity m) {
         var domainMomo = new MobileMoneyAccount(m.getAccountType());
+        domainMomo.setId(m.getId());
         domainMomo.setAccountBalance(new Money(m.getAccountBalance()));
         domainMomo.setDailyLimit(m.getDailyLimit());
         domainMomo.setMonthlyLimit(m.getMonthlyLimit());

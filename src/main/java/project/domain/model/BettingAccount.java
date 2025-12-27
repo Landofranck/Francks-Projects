@@ -22,6 +22,7 @@ public class BettingAccount implements Account {
         this.balance = new Money(BigDecimal.ZERO);
         this.transactionHistory = new ArrayList<>();
         this.betHistory = new ArrayList<>();
+        this.balance=new Money(BigDecimal.ZERO);
     }
 
     public void addBetSlip(BetSlip newBetslip) {

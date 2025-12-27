@@ -2,9 +2,8 @@ package project.adapter.in.web;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import project.adapter.in.web.TransactionDTO.TransactionDto;
 import project.domain.model.Enums.AccountType;
-import project.domain.model.Money;
-import project.domain.model.Transaction;
 
 import java.math.BigDecimal;
 import java.util.List;

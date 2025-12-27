@@ -1,42 +1,19 @@
 package project.adapter.in.web;
 
-import project.domain.model.BetSlip;
 
 public class MatchEventPickDto {
     private String matchKey;
-    private  String outcomeName;
-    private  double odd;
-    private BetSlipDto owner;
+    private String outcomeName;
+    private double odd;
 
-    public void setMatchKey(String matchKey) {
-        this.matchKey = matchKey;
-    }
+    public MatchEventPickDto() {}
 
-    public void setOwner(BetSlipDto owner) {
-        this.owner = owner;
-    }
+    public String getMatchKey() { return matchKey; }
+    public void setMatchKey(String matchKey) { this.matchKey = matchKey; }
 
-    public void setOdd(double odd) {
-        this.odd = odd;
-    }
+    public String getOutcomeName() { return outcomeName; }
+    public void setOutcomeName(String outcomeName) { this.outcomeName = outcomeName; }
 
-    public void setOutcomeName(String outcomeName) {
-        this.outcomeName = outcomeName;
-    }
-
-    public BetSlipDto getOwner() {
-        return owner;
-    }
-
-    public double getOdd() {
-        return odd;
-    }
-
-    public String getMatchKey() {
-        return matchKey;
-    }
-
-    public String getOutcomeName() {
-        return outcomeName;
-    }
+    public double getOdd() { return odd; }
+    public void setOdd(double odd) { this.odd = odd; }
 }

@@ -18,7 +18,7 @@ public class MobileMoneyAccountsEntity {
     private Boolean weeklyLimit;
     private Boolean monthlyLimit;
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BettingAccountTransactionEntity> transactionHistory=new ArrayList<>();
+    private List<MomoAccountTransactionEntity> transactionHistory=new ArrayList<>();
 
     public MobileMoneyAccountsEntity() {
     }
@@ -31,16 +31,16 @@ public class MobileMoneyAccountsEntity {
         this.monthlyLimit = false;
     }
 
-    public void addBettingaccoutTransactionEntity(BettingAccountTransactionEntity transaction) {
+    public void addBettingaccoutTransactionEntity(MomoAccountTransactionEntity transaction) {
         this.transactionHistory.add(transaction);
-        transaction.setP(this);
+        transaction.setOwner(this);
     }
 
-    public void setTransactionEntityHistory(List<BettingAccountTransactionEntity> transactionHistory) {
+    public void setTransactionEntityHistory(List<MomoAccountTransactionEntity> transactionHistory) {
         this.transactionHistory = transactionHistory;
     }
 
-    public List<BettingAccountTransactionEntity> getTransactionHistory() {
+    public List<MomoAccountTransactionEntity> getTransactionHistory() {
         return transactionHistory;
     }
 
@@ -78,11 +78,6 @@ public class MobileMoneyAccountsEntity {
 
     public void setMonthlyLimit(Boolean monthlyLimit) {
         this.monthlyLimit = monthlyLimit;
-    }
-
-    @Override
-    public Long getAccountId() {
-        return this.id;
     }
 
     public Long getId() {

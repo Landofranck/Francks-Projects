@@ -27,7 +27,7 @@ public class BettingAccountEntity {
 
     public void addBetSlipEntity(BetSlipEntity betSlip) {
         this.betHistory.add(betSlip);
-        betSlip.setOwner(this);
+        betSlip.setParentAccount(this);
     }
 
     public void addTransactionEntity(BettingAccountTransactionEntity transaction) {

@@ -74,7 +74,7 @@ public class Mapper {
         entitMomo.setWeeklyLimit(momo.getWeeklyLimit());
         if (momo.getTransactionHistory() != null) {
             for (Transaction t : momo.getTransactionHistory()) {
-                entitMomo.addBettingaccoutTransactionEntity(toBettingTransactionEntity(t));
+                entitMomo.addBettingaccoutTransactionEntity(toMomoTransactionEntity(t));
             }
         }
         return entitMomo;
@@ -86,7 +86,7 @@ public class Mapper {
         domainModel.setBalance(new Money(entityModel.getBalance()));
         if (entityModel.getTransactionHistory() != null) {
             for (BettingAccountTransactionEntity T : entityModel.getTransactionHistory()) {
-                domainModel.addTransaction(toTransactionDomain(T));
+                domainModel.addTransaction(toBettingTransactionDomain(T));
             }
         }
         if (entityModel.getBetHistory() != null) {
@@ -103,7 +103,7 @@ public class Mapper {
         transacttionDomain.setId(e.getId());
         return transacttionDomain;
     }
-    private Transaction toMTransactionDomain(MomoAccountTransactionEntity e) {
+    private Transaction toMomoTransactionDomain(MomoAccountTransactionEntity e) {
         var transacttionDomain = new Transaction(new Money(e.getTransactionAmmount()),new Money(e.getAccountBalanceAfterTransaction()),e.getCreatedAt(),e.getType());
         //set owner not created because this is done in parent class already with setParent(this)
         transacttionDomain.setId(e.getId());
@@ -136,7 +136,7 @@ public class Mapper {
         domainMomo.setWeeklyLimit(m.getWeeklyLimit());
         if (m.getTransactionHistory() != null) {
             for (MomoAccountTransactionEntity t : m.getTransactionHistory()) {
-                domainMomo.addTransaction(toMTransactionDomain(t));
+                domainMomo.addTransaction(toMomoTransactionDomain(t));
             }
         }
         return domainMomo;

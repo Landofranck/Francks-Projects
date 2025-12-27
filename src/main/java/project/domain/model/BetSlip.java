@@ -74,9 +74,6 @@ public class BetSlip {
         this.picks = picks;
     }
 
-    public void setOwner(BettingAccount bettingAccount) {
-        this.parentAccount = bettingAccount;
-    }
 
     public BettingAccount getParentAccount() {
         return parentAccount;

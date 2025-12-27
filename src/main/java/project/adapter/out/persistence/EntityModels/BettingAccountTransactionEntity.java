@@ -18,7 +18,7 @@ public class BettingAccountTransactionEntity {
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
-    private AccountEntity owner;
+    private BettingAccountEntity owner;
 
     protected BettingAccountTransactionEntity() {
 
@@ -52,11 +52,11 @@ public class BettingAccountTransactionEntity {
         return transactionAmmount;
     }
 
-    public void setOwner(AccountEntity owner) {
+    public void setOwner(BettingAccountEntity owner) {
         this.owner = owner;
     }
 
-    public AccountEntity getOwner() {
+    public BettingAccountEntity getOwner() {
         return owner;
     }
 

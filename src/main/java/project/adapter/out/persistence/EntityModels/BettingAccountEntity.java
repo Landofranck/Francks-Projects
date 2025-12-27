@@ -16,7 +16,7 @@ public class BettingAccountEntity {
     private String accountName;
     private AccountType brokerType;
     private BigDecimal balance;
-    @OneToMany(mappedBy = "parentAccountEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BettingAccountTransactionEntity> transactionHistory= new ArrayList<>();
 
     @OneToMany(mappedBy = "parentAccountEntity", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -25,7 +25,7 @@ public class BetSlipEntity {
     private double totalOdd;
 
     @ManyToOne(optional = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "bettingAccountEntity_id", nullable = true)
+    @JoinColumn(name = "parentAccountEntity_id", nullable = true)
     private BettingAccountEntity parentAccountEntity;
 
     private BigDecimal stake;

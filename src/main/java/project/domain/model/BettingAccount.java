@@ -38,7 +38,7 @@ public class BettingAccount implements Account {
     }
 
     public void deposit(Money money) {
-        this.balance.add(money);
+        this.balance=this.balance.add(money);
         addTransaction(new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.DEPOSIT));
 
     }
@@ -47,7 +47,7 @@ public class BettingAccount implements Account {
         if (!this.balance.isGreaterThan(money)) {
             throw new RuntimeException("you cannot make withdrwal of " + money.getValue());
         }
-        balance.subtract(money);
+        this.balance=balance.subtract(money);
         addTransaction(new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.WITHDRAWAL));
     }
 

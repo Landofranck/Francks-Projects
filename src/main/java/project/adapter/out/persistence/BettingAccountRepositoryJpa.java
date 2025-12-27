@@ -10,12 +10,16 @@ import project.adapter.out.persistence.EntityModels.MobileMoneyAccountsEntity;
 import project.application.port.out.*;
 import project.domain.model.BettingAccount;
 import project.domain.model.MobileMoneyAccount;
+import project.application.port.out.ReadMomoAccountByIdPort;
+import project.application.port.out.UpdateBettingAccountBalancePort;
+import project.application.port.out.UpdateMobileMoneyBalancePort;
+import project.domain.model.Transaction;
 
 import java.util.List;
 import java.util.Objects;
 
 @ApplicationScoped
-public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadAccountByIdPort, PersistMobileMoneyAccount, ReadAllBettingAccountsPort, ReadAllMomoAccounts {
+public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadAccountByIdPort, PersistMobileMoneyAccount, ReadAllBettingAccountsPort, ReadAllMomoAccounts , ReadMomoAccountByIdPort, UpdateBettingAccountBalancePort, UpdateMobileMoneyBalancePort, AppendBettingAccountTransactionPort, AppendMobileMoneyTransactionPort{
     @Inject
     EntityManager entityManager;
     @Inject
@@ -78,4 +82,61 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
             throw new RuntimeException("error, while getting all accounts" + e.getMessage());
         }
     }
+    @Override
+    public MobileMoneyAccount getMomoAccount(Long id) {
+        var entity = entityManager.find(MobileMoneyAccountsEntity.class, id);
+        if (entity == null) throw new IllegalArgumentException("Momo account not found: " + id);
+        return mapper.toMobileMoneyDomain(entity);
+    }
+
+    @Transactional
+    @Override
+    public void updateBalance(BettingAccount account) {
+        var entity = entityManager.find(BettingAccountEntity.class, account.getAccountId());
+        if (entity == null) throw new IllegalArgumentException("Betting account not found: " + account.getAccountId());
+
+        entity.setBalance(account.getBalance().getValue()); // only update balance
+    }
+
+
+    @Transactional
+    @Override
+    public void updateBalance(MobileMoneyAccount account) {
+        var entity = entityManager.find(MobileMoneyAccountsEntity.class, account.getAccountId());
+        if (entity == null) throw new IllegalArgumentException("Momo account not found: " + account.getAccountId());
+
+        entity.setAccountBalance(account.getAccountBalance().getValue());
+        entity.setDailyLimit(account.getDailyLimit());
+        entity.setWeeklyLimit(account.getWeeklyLimit());
+        entity.setMonthlyLimit(account.getMonthlyLimit());
+    }
+
+
+    @Transactional
+    @Override
+    public void appendToBettingAccount(Long bettingAccountId, Transaction transaction) {
+        var owner = entityManager.find(BettingAccountEntity.class, bettingAccountId);
+        if (owner == null) throw new IllegalArgumentException("Betting account not found: " + bettingAccountId);
+
+        var txEntity = mapper.toBettingAccountTransactionEntity(transaction);
+        txEntity.setOwner(owner); // or owner field name
+        entityManager.persist(txEntity);
+
+        // Optional: if you maintain bidirectional list in entity:
+        owner.getTransactionHistory().add(txEntity);
+    }
+
+    @Transactional
+    @Override
+    public void appendToMobileMoney(Long momoAccountId, Transaction transaction) {
+        var owner = entityManager.find(MobileMoneyAccountsEntity.class, momoAccountId);
+        if (owner == null) throw new IllegalArgumentException("Momo account not found: " + momoAccountId);
+
+        var txEntity = mapper.toMomoTransactionEntity(transaction);
+        txEntity.setOwner(owner); // whatever the field is called
+        entityManager.persist(txEntity);
+
+        owner.getTransactionHistory().add(txEntity); // optional if bidirectional
+    }
+
 }

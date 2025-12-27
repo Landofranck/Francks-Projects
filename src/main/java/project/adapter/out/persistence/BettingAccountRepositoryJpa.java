@@ -29,7 +29,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
             var entity = mapper.toBettingAccountEntity(account);
             entityManager.persist(entity);
             entityManager.flush();
-            return entity.getAccountId();
+            return entity.getId();
         } catch (Exception e) {
             throw new RuntimeException("error while persisting bankAccount" + e.getMessage());
         }
@@ -50,7 +50,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
         var entity =mapper.toMobileMoneyEntity(account);
         entityManager.persist(entity);
         entityManager.flush();
-        return entity.getAccountId();
+        return entity.getId();
     }
 
     @Transactional

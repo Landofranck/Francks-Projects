@@ -7,6 +7,7 @@ import project.domain.model.Enums.BetStatus;
 import project.domain.model.MatchEventPick;
 import project.domain.model.Money;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,18 +18,17 @@ public class BetSlipEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @OneToMany(mappedBy = "parentBetSlipEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MatchEventPickEntity> picks;
+    private List<MatchEventPickEntity> picks=new ArrayList<>();
     private BetStatus status;
     private String category;
     private Instant createdAt;
     private double totalOdd;
 
     @ManyToOne(optional = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "bettingAccountEntity_id", nullable = false)
-    private AccountEntity parentAccountEntity;
+    @JoinColumn(name = "bettingAccountEntity_id", nullable = true)
+    private BettingAccountEntity parentAccountEntity;
 
-    @Embedded
-    private Money stake;
+    private BigDecimal stake;
 
     protected BetSlipEntity() {
     }
@@ -81,11 +81,8 @@ public class BetSlipEntity {
         this.picks = picks;
     }
 
-    public void setOwner(AccountEntity bettingAccount) {
-        this.parentAccountEntity = bettingAccount;
-    }
 
-    public AccountEntity getParentAccount() {
+    public BettingAccountEntity getParentAccount() {
         return parentAccountEntity;
     }
 
@@ -93,7 +90,7 @@ public class BetSlipEntity {
         return createdAt;
     }
 
-    public Money getStake() {
+    public BigDecimal getStake() {
         return stake;
     }
 
@@ -106,11 +103,11 @@ public class BetSlipEntity {
         this.createdAt = createdAt;
     }
 
-    public void setParentAccount(AccountEntity parentAccount) {
+    public void setParentAccount(BettingAccountEntity parentAccount) {
         this.parentAccountEntity = parentAccount;
     }
 
-    public void setStake(Money stake) {
+    public void setStake(BigDecimal stake) {
         this.stake = stake;
     }
 

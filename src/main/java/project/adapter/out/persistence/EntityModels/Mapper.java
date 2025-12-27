@@ -1,20 +1,22 @@
 package project.adapter.out.persistence.EntityModels;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import project.domain.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@ApplicationScoped
 public class Mapper {
     public BettingAccountEntity toBettingAccountEntity(BettingAccount domainModel) {
         var entityModel = new BettingAccountEntity();
-        entityModel.setBalance(domainModel.getBalance());
+        entityModel.setBalance(domainModel.getBalance().getValue());
         entityModel.setBrokerType(domainModel.getBrokerType());
         entityModel.setAccountName(domainModel.getAccountName());
         if (domainModel.getTransactionHistory() != null) {
             for (Transaction T : domainModel.getTransactionHistory()) {
-                entityModel.addTransactionEntity(toTransactionEntity(T));
+                entityModel.addTransactionEntity(toBettingTransactionEntity(T));
             }
         }
         if (domainModel.getBetHistory() != null) {
@@ -25,10 +27,18 @@ public class Mapper {
         return entityModel;
     }
 
-    private TransactionEntity toTransactionEntity(Transaction domainTransaction) {
-        var transactionEntity = new TransactionEntity();
-        transactionEntity.setAccountBalanceAfterTransaction(domainTransaction.getAccountBalanceAfterTransaction());
-        transactionEntity.setTransactionAmmount(domainTransaction.getTransactionAmmount());
+    private BettingAccountTransactionEntity toBettingTransactionEntity(Transaction domainTransaction) {
+        var transactionEntity = new BettingAccountTransactionEntity();
+        transactionEntity.setAccountBalanceAfterTransaction(domainTransaction.getAccountBalanceAfterTransaction().getValue());
+        transactionEntity.setTransactionAmmount(domainTransaction.getTransactionAmmount().getValue());
+        transactionEntity.setCreatedAt(domainTransaction.getCreatedAt());
+        //set owner not created because this is done in parent class already with setParent(this)
+        return transactionEntity;
+    }
+    private MomoAccountTransactionEntity toMomoTransactionEntity(Transaction domainTransaction) {
+        var transactionEntity = new MomoAccountTransactionEntity();
+        transactionEntity.setAccountBalanceAfterTransaction(domainTransaction.getAccountBalanceAfterTransaction().getValue());
+        transactionEntity.setTransactionAmmount(domainTransaction.getTransactionAmmount().getValue());
         transactionEntity.setCreatedAt(domainTransaction.getCreatedAt());
         //set owner not created because this is done in parent class already with setParent(this)
         return transactionEntity;
@@ -37,7 +47,7 @@ public class Mapper {
     public BetSlipEntity toBetslipEntity(BetSlip betSlip) {
         var betSlipentity = new BetSlipEntity();
         betSlipentity.setCategory(betSlip.getCategory());
-        betSlipentity.setStatus(betSlipentity.getStatus());
+        betSlipentity.setStatus(betSlip.getStatus());
         betSlipentity.setCreatedAt(betSlip.getCreatedAt());
         if (betSlip.getPicks() != null) {
             for (MatchEventPick p : betSlip.getPicks()) {
@@ -57,14 +67,14 @@ public class Mapper {
 
     public MobileMoneyAccountsEntity toMobileMoneyEntity(MobileMoneyAccount momo) {
         var entitMomo = new MobileMoneyAccountsEntity();
-        entitMomo.setAccountBalance(momo.getAccountBalance());
+        entitMomo.setAccountBalance(momo.getAccountBalance().getValue());
         entitMomo.setAccountType(momo.getAccountType());
         entitMomo.setDailyLimit(momo.getDailyLimit());
         entitMomo.setMonthlyLimit(momo.getMonthlyLimit());
         entitMomo.setWeeklyLimit(momo.getWeeklyLimit());
         if (momo.getTransactionHistory() != null) {
             for (Transaction t : momo.getTransactionHistory()) {
-                entitMomo.addTransactionEntity(toTransactionEntity(t));
+                entitMomo.addBettingaccoutTransactionEntity(toBettingTransactionEntity(t));
             }
         }
         return entitMomo;
@@ -73,13 +83,13 @@ public class Mapper {
 
     public BettingAccount toBettingAccountDomain(BettingAccountEntity entityModel) {
         var domainModel = new BettingAccount(entityModel.getAccountName(),entityModel.getBrokerType());
-        domainModel.setBalance(entityModel.getBalance());
+        domainModel.setBalance(new Money(entityModel.getBalance()));
         if (entityModel.getTransactionHistory() != null) {
-            for (TransactionEntity T : entityModel.getTransactionHistory()) {
+            for (BettingAccountTransactionEntity T : entityModel.getTransactionHistory()) {
                 domainModel.addTransaction(toTransactionDomain(T));
             }
         }
-        if (domainModel.getBetHistory() != null) {
+        if (entityModel.getBetHistory() != null) {
             for (BetSlipEntity b : entityModel.getBetHistory()) {
                 domainModel.addBetSlip(toBetslipDomain(b));
             }
@@ -87,15 +97,21 @@ public class Mapper {
         return domainModel;
     }
 
-    private Transaction toTransactionDomain(TransactionEntity e) {
-        var transacttionDomain = new Transaction(e.getTransactionAmmount(),e.getAccountBalanceAfterTransaction(),e.getCreatedAt(),e.getType());
+    private Transaction toBettingTransactionDomain(BettingAccountTransactionEntity e) {
+        var transacttionDomain = new Transaction(new Money(e.getTransactionAmmount()),new Money(e.getAccountBalanceAfterTransaction()),e.getCreatedAt(),e.getType());
+        //set owner not created because this is done in parent class already with setParent(this)
+        transacttionDomain.setId(e.getId());
+        return transacttionDomain;
+    }
+    private Transaction toMTransactionDomain(MomoAccountTransactionEntity e) {
+        var transacttionDomain = new Transaction(new Money(e.getTransactionAmmount()),new Money(e.getAccountBalanceAfterTransaction()),e.getCreatedAt(),e.getType());
         //set owner not created because this is done in parent class already with setParent(this)
         transacttionDomain.setId(e.getId());
         return transacttionDomain;
     }
 
     public BetSlip toBetslipDomain(BetSlipEntity betSlipEntity) {
-        var betSlipDomain = new BetSlip(betSlipEntity.getCategory(),betSlipEntity.getStake(),betSlipEntity.getCreatedAt());
+        var betSlipDomain = new BetSlip(betSlipEntity.getCategory(),new Money(betSlipEntity.getStake()),betSlipEntity.getCreatedAt());
         betSlipDomain.setStatus(betSlipEntity.getStatus());
         betSlipDomain.setId(betSlipEntity.getId());
         if (betSlipEntity.getPicks() != null) {
@@ -113,20 +129,23 @@ public class Mapper {
     }
 
     public MobileMoneyAccount toMobileMoneyDomain(MobileMoneyAccountsEntity m) {
-        var domainMomo = new MobileMoneyAccount(m.accountType);
-        domainMomo.setAccountBalance(m.getAccountBalance());
+        var domainMomo = new MobileMoneyAccount(m.getAccountType());
+        domainMomo.setAccountBalance(new Money(m.getAccountBalance()));
         domainMomo.setDailyLimit(m.getDailyLimit());
         domainMomo.setMonthlyLimit(m.getMonthlyLimit());
         domainMomo.setWeeklyLimit(m.getWeeklyLimit());
         if (m.getTransactionHistory() != null) {
-            for (TransactionEntity t : m.getTransactionHistory()) {
-                domainMomo.addTransaction(toTransactionDomain(t));
+            for (MomoAccountTransactionEntity t : m.getTransactionHistory()) {
+                domainMomo.addTransaction(toMTransactionDomain(t));
             }
         }
         return domainMomo;
     }
     public List<BettingAccount> toListOfAccountDomains(List<BettingAccountEntity> list){
         return list.stream().map(this::toBettingAccountDomain).collect(Collectors.toCollection(ArrayList::new));
+    }
+    public List<MobileMoneyAccount> toListOfMOMOtDomains(List<MobileMoneyAccountsEntity> list){
+        return list.stream().map(this::toMobileMoneyDomain).collect(Collectors.toCollection(ArrayList::new));
     }
 
 }

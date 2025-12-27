@@ -2,48 +2,45 @@ package project.adapter.out.persistence.EntityModels;
 
 import jakarta.persistence.*;
 import project.domain.model.Enums.AccountType;
-import project.domain.model.Enums.TransactionType;
-import project.domain.model.Money;
-import project.domain.model.Transaction;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class MobileMoneyAccountsEntity implements AccountEntity {
+public class MobileMoneyAccountsEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     public AccountType accountType;
-    private Money accountBalance;
+    private BigDecimal accountBalance;
     private Boolean dailyLimit;
     private Boolean weeklyLimit;
     private Boolean monthlyLimit;
-    @OneToMany(mappedBy = "MobileMoneyAccountsEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TransactionEntity> transactionHistory;
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BettingAccountTransactionEntity> transactionHistory=new ArrayList<>();
 
     public MobileMoneyAccountsEntity() {
     }
 
     public MobileMoneyAccountsEntity(AccountType accountType) {
         this.accountType = accountType;
-        this.accountBalance = new Money(BigDecimal.ZERO);
+        this.accountBalance = BigDecimal.ZERO;
         this.dailyLimit = false;
         this.weeklyLimit = false;
         this.monthlyLimit = false;
     }
 
-    public void addTransactionEntity(TransactionEntity transaction) {
+    public void addBettingaccoutTransactionEntity(BettingAccountTransactionEntity transaction) {
         this.transactionHistory.add(transaction);
-        transaction.setOwner(this);
+        transaction.setP(this);
     }
 
-    public void setTransactionEntityHistory(List<TransactionEntity> transactionHistory) {
+    public void setTransactionEntityHistory(List<BettingAccountTransactionEntity> transactionHistory) {
         this.transactionHistory = transactionHistory;
     }
 
-    public List<TransactionEntity> getTransactionHistory() {
+    public List<BettingAccountTransactionEntity> getTransactionHistory() {
         return transactionHistory;
     }
 
@@ -51,7 +48,7 @@ public class MobileMoneyAccountsEntity implements AccountEntity {
         return accountType;
     }
 
-    public Money getAccountBalance() {
+    public BigDecimal getAccountBalance() {
         return accountBalance;
     }
 
@@ -59,7 +56,7 @@ public class MobileMoneyAccountsEntity implements AccountEntity {
         return dailyLimit;
     }
 
-    public void setAccountBalance(Money accountBalance) {
+    public void setAccountBalance(BigDecimal accountBalance) {
         this.accountBalance = accountBalance;
     }
 

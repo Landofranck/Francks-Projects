@@ -1,7 +1,5 @@
 package project.domain.model;
 
-import project.adapter.out.persistence.EntityModels.AccountEntity;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

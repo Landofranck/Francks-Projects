@@ -6,13 +6,12 @@ import jakarta.persistence.Embeddable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
-@Embeddable
 public final class Money {
 
     private static final int SCALE = 2; // cents
     private static final RoundingMode ROUNDING = RoundingMode.HALF_EVEN;
 
-    private final BigDecimal value;
+    private BigDecimal value;
 
     public Money(BigDecimal value) {
         Objects.requireNonNull(value, "money value must not be null");

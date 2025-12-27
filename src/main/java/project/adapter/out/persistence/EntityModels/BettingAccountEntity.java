@@ -1,7 +1,6 @@
 package project.adapter.out.persistence.EntityModels;
 
 import project.domain.model.Enums.AccountType;
-import project.domain.model.Money;
 
 import jakarta.persistence.*;
 
@@ -10,16 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class BettingAccountEntity implements AccountEntity {
+public class BettingAccountEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id; // generated
     private String accountName;
     private AccountType brokerType;
-    @Embedded
-    private Money balance;
+    private BigDecimal balance;
     @OneToMany(mappedBy = "parentAccountEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TransactionEntity> transactionHistory= new ArrayList<>();
+    private List<BettingAccountTransactionEntity> transactionHistory= new ArrayList<>();
 
     @OneToMany(mappedBy = "parentAccountEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BetSlipEntity> betHistory=new ArrayList<>();
@@ -32,15 +30,16 @@ public class BettingAccountEntity implements AccountEntity {
         betSlip.setOwner(this);
     }
 
-    public void addTransactionEntity(TransactionEntity transaction) {
+    public void addTransactionEntity(BettingAccountTransactionEntity transaction) {
         this.transactionHistory.add(transaction);
+        transaction.setOwner(this);
     }
 
     public BettingAccountEntity(Long id, String accountName, AccountType brokerType) {
         this.id = id;
         this.accountName = accountName;
         this.brokerType = brokerType;
-        this.balance = new Money(BigDecimal.ZERO);
+        this.balance = BigDecimal.ZERO;
     }
 
 
@@ -56,11 +55,11 @@ public class BettingAccountEntity implements AccountEntity {
         return brokerType;
     }
 
-    public Money getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(Money balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 
@@ -72,18 +71,14 @@ public class BettingAccountEntity implements AccountEntity {
         this.betHistory = betHistory;
     }
 
-    public List<TransactionEntity> getTransactionHistory() {
+    public List<BettingAccountTransactionEntity> getTransactionHistory() {
         return transactionHistory;
     }
 
-    public void setTransactionHistory(List<TransactionEntity> transactionHistory) {
+    public void setTransactionHistory(List<BettingAccountTransactionEntity> transactionHistory) {
         this.transactionHistory = transactionHistory;
     }
 
-    @Override
-    public Long getAccountId() {
-        return this.id;
-    }
 
     public void setBrokerType(AccountType brokerType) {
         this.brokerType = brokerType;

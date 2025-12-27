@@ -4,5 +4,5 @@ import project.domain.model.BettingAccount;
 
 public interface PersistBettingAccountPort {
     //the long id the account id
-    public Long saveB(BettingAccount newAccount);
+    public Long saveBettingAccount(BettingAccount newAccount);
 }

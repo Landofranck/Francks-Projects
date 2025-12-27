@@ -1,31 +1,30 @@
 package project.adapter.out.persistence.EntityModels;
 
 import jakarta.persistence.*;
-import project.domain.model.Account;
 import project.domain.model.Enums.TransactionType;
-import project.domain.model.Money;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
-public class TransactionEntity {
+public class MomoAccountTransactionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    private Money transactionAmmount;
-    private Money accountBalanceAfterTransaction;
+    private BigDecimal transactionAmmount;
+    private BigDecimal accountBalanceAfterTransaction;
     private Instant createdAt;
     private TransactionType type;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
-    private AccountEntity owner;
+    private MobileMoneyAccountsEntity owner;
 
-    protected TransactionEntity() {
+    protected MomoAccountTransactionEntity() {
 
     }
 
-    public TransactionEntity(Money transactionAmmount, Money accountBalanceAfterTransaction, Instant createdAt, TransactionType transactionType) {
+    public MomoAccountTransactionEntity(BigDecimal transactionAmmount, BigDecimal accountBalanceAfterTransaction, Instant createdAt, TransactionType transactionType) {
 
         this.transactionAmmount = transactionAmmount;
         this.accountBalanceAfterTransaction = accountBalanceAfterTransaction;
@@ -37,7 +36,7 @@ public class TransactionEntity {
         return id;
     }
 
-    public Money getAccountBalanceAfterTransaction() {
+    public BigDecimal getAccountBalanceAfterTransaction() {
         return accountBalanceAfterTransaction;
     }
 
@@ -49,15 +48,15 @@ public class TransactionEntity {
         return type;
     }
 
-    public Money getTransactionAmmount() {
+    public BigDecimal getTransactionAmmount() {
         return transactionAmmount;
     }
 
-    public void setOwner(AccountEntity owner) {
+    public void setOwner(MobileMoneyAccountsEntity owner) {
         this.owner = owner;
     }
 
-    public AccountEntity getOwner() {
+    public MobileMoneyAccountsEntity getOwner() {
         return owner;
     }
 
@@ -65,11 +64,11 @@ public class TransactionEntity {
         this.createdAt = createdAt;
     }
 
-    public void setAccountBalanceAfterTransaction(Money accountBalanceAfterTransaction) {
+    public void setAccountBalanceAfterTransaction(BigDecimal accountBalanceAfterTransaction) {
         this.accountBalanceAfterTransaction = accountBalanceAfterTransaction;
     }
 
-    public void setTransactionAmmount(Money transactionAmmount) {
+    public void setTransactionAmmount(BigDecimal transactionAmmount) {
         this.transactionAmmount = transactionAmmount;
     }
 

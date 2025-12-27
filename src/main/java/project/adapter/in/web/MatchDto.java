@@ -1,13 +1,15 @@
-package project.domain.model;
+package project.adapter.in.web;
+
+import project.domain.model.MatchEventPick;
 
 import java.util.List;
 import java.util.Objects;
 
-public class Match {
+public class MatchDto {
     private Long matchId;
     private String home;
     private String away;
-    private List<MatchEventPick> matchOutComes;
+    private List<MatchEventPickDto> matchOutComes;
 
     public Match(long matchId, List<MatchEventPick> matchOutComes, String home, String away) {
         this.matchId = matchId;
@@ -60,3 +62,4 @@ public class Match {
         return away;
     }
 }
+

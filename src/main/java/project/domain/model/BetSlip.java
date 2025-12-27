@@ -10,7 +10,7 @@ public class BetSlip {
     private Long id;
     private List<MatchEventPick> picks;
     private BetStatus status;
-    private final String category;
+    private String category;
     private Instant createdAt;
     //int the reducer method betslips will be created without parent accounts
     private BettingAccount parentAccount;
@@ -88,6 +88,10 @@ public class BetSlip {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public void setTotalOdds(double totalOdds) {
+        this.totalOdds = totalOdds;
     }
 
     public Instant getCreatedAt() {

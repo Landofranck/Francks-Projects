@@ -58,6 +58,17 @@ public final class Money {
         Objects.requireNonNull(other);
         return this.value.compareTo(other.value) >= 0;
     }
+    public Money divide(BigDecimal divisor) {
+        Objects.requireNonNull(divisor, "divisor");
+        if (divisor.signum() <= 0) throw new IllegalArgumentException("divisor must be > 0");
+
+        return new Money(this.value.divide(divisor, SCALE, ROUNDING));
+    }
+
+    public Money divide(double divisor) {
+        if (divisor <= 0) throw new IllegalArgumentException("divisor must be > 0");
+        return divide(BigDecimal.valueOf(divisor));
+    }
 
     public boolean isZero() {
         return value.signum() == 0;

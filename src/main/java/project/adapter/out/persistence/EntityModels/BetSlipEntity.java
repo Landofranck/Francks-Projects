@@ -1,6 +1,7 @@
 package project.adapter.out.persistence.EntityModels;
 
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import net.bytebuddy.dynamic.loading.InjectionClassLoader;
 import project.domain.model.BettingAccount;
 import project.domain.model.Enums.BetStatus;
@@ -18,9 +19,10 @@ public class BetSlipEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @OneToMany(mappedBy = "parentBetSlipEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MatchEventPickEntity> picks=new ArrayList<>();
+    private List<MatchEventPickEntity> picks = new ArrayList<>();
     private BetStatus status;
     private String category;
+
     private Instant createdAt;
     private double totalOdd;
 
@@ -33,12 +35,17 @@ public class BetSlipEntity {
     protected BetSlipEntity() {
     }
 
-    public BetSlipEntity(String category, Instant createdAt) {
+    public BetSlipEntity(String category) {
         this.picks = new ArrayList<>();
         this.category = category;
-        this.createdAt = createdAt;
     }
 
+    @PrePersist
+    public void onCreate() {
+        if (createdAt == null) {
+            createdAt = Instant.now();
+        }
+    }
 
     public void setTotalOdd(double totalOdd) {
         this.totalOdd = totalOdd;
@@ -48,7 +55,7 @@ public class BetSlipEntity {
         return totalOdd;
     }
 
-    public void addMatchEventPickEntity(MatchEventPickEntity entity){
+    public void addMatchEventPickEntity(MatchEventPickEntity entity) {
         this.picks.add(entity);
         entity.setParent(this);
     }

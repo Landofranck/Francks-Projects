@@ -4,13 +4,13 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 public class MatchEventPick {
-    private final String matchKey;
+    private String matchKey;
     private final String outcomeName;
     private final double odd;
     private BetSlip owner;
 
-    public MatchEventPick(String matchKey, String outcomeName, double odd) {
-        this.matchKey = Objects.requireNonNull(matchKey, "matchKey");
+    //when a pick is created we should only know the outcome  and odds first, match key and owner is added later
+    public MatchEventPick(String outcomeName, double odd) {
         this.outcomeName = Objects.requireNonNull(outcomeName, "outcomeName");
         this.odd = Objects.requireNonNull(odd, "odd");
     }
@@ -30,6 +30,10 @@ public class MatchEventPick {
 
     public String getOutcomeName() { return outcomeName; }
     public double odd() { return odd; }
+
+    public void setMatchKey(String matchKey) {
+        this.matchKey = matchKey;
+    }
 
     public double getOdd() { return odd; }
 

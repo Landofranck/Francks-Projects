@@ -126,8 +126,8 @@ public class Mapper {
     }
 
     public MatchEventPick toMatchEventDomain(MatchEventPickEntity p) {
-        var matchEventPickDomain = new MatchEventPick(p.getMatchKey(), p.outcomeName(), p.getOdd());
-        matchEventPickDomain.setId(p.getId());
+        var matchEventPickDomain = new MatchEventPick(p.outcomeName(), p.getOdd());
+        matchEventPickDomain.setMatchKey(p.getMatchKey());
         return matchEventPickDomain;
     }
 

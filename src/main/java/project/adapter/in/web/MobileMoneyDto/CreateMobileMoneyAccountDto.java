@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import project.domain.model.Enums.AccountType;
 
 
-public class MobileMoneyAccountDto  {
+public class CreateMobileMoneyAccountDto {
     @NotNull(message = "you must put momo id")
     private Long id;
     @NotNull(message = "the account must have a type")

@@ -1,4 +1,4 @@
-package project.adapter.in.web.BetSlipDto;
+package project.adapter.in.web.BettinAccountDTO;
 
 
 import project.adapter.in.web.MatchDto;

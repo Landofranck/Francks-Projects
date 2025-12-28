@@ -1,7 +1,6 @@
 package project.adapter.in.web.BettinAccountDTO;
 
 
-import project.adapter.in.web.BetSlipDto.BetSlipDto;
 import project.adapter.in.web.TransactionDTO.TransactionDto;
 import project.domain.model.Enums.AccountType;
 import java.math.BigDecimal;

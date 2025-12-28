@@ -1,19 +1,20 @@
-package project.adapter.in.web.BetSlipDto;
+package project.adapter.in.web.BettinAccountDTO;
 
 import project.adapter.in.web.MatchEventPickDto;
 import project.domain.model.Enums.BetStatus;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
 public class BetSlipDto {
     private Long id;
-    private String category;
+    private List<MatchEventPickDto> picks;
     private BetStatus status;
+    private String category;
     private Instant createdAt;
     private BigDecimal stake;
     private double totalOdds;
-    private List<MatchEventPickDto> picks;
 
     public BetSlipDto() {}
 

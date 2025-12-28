@@ -13,7 +13,6 @@ import java.net.URI;
 import java.util.List;
 
 @Path("/betting-accounts")
-@Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class BettingAccountResource {
 
@@ -25,6 +24,7 @@ public class BettingAccountResource {
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response create(CreateBettingAccountDto dto) {
         Long id = serviceAdapter.createNewBettingAccount(dto);
 

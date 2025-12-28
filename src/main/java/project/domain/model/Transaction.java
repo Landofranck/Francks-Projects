@@ -51,4 +51,5 @@ public class Transaction {
     public void setId(long id) {
         this.id = id;
     }
+
 }

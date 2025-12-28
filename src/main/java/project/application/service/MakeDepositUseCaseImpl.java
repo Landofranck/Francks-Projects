@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import project.application.port.in.MakeDepositUseCase;
 import project.application.port.out.*;
+import project.config.TimeProvider;
 import project.domain.model.Enums.AccountType;
 import project.domain.model.Enums.TransactionType;
 import project.domain.model.Money;
@@ -17,15 +18,23 @@ import java.util.Objects;
 
 @ApplicationScoped
 public class MakeDepositUseCaseImpl implements MakeDepositUseCase {
+    @Inject
+    TimeProvider timeProvider;
 
-    @Inject ReadMomoAccountByIdPort momoReader;
-    @Inject ReadAccountByIdPort bettingReader;
+    @Inject
+    ReadMomoAccountByIdPort momoReader;
+    @Inject
+    ReadAccountByIdPort bettingReader;
 
-    @Inject UpdateMobileMoneyBalancePort momoBalanceUpdater;
-    @Inject UpdateBettingAccountBalancePort bettingBalanceUpdater;
+    @Inject
+    UpdateMobileMoneyBalancePort momoBalanceUpdater;
+    @Inject
+    UpdateBettingAccountBalancePort bettingBalanceUpdater;
 
-    @Inject AppendMobileMoneyTransactionPort momoTxAppender;
-    @Inject AppendBettingAccountTransactionPort bettingTxAppender;
+    @Inject
+    AppendMobileMoneyTransactionPort momoTxAppender;
+    @Inject
+    AppendBettingAccountTransactionPort bettingTxAppender;
 
     @Transactional
     @Override
@@ -34,18 +43,16 @@ public class MakeDepositUseCaseImpl implements MakeDepositUseCase {
         Objects.requireNonNull(bettingAccountId, "bettingAccountId");
         Objects.requireNonNull(amount, "amount");
         if (amount.signum() <= 0) throw new IllegalArgumentException("amount must be > 0");
-
         var momo = momoReader.getMomoAccount(momoAccountId);
         var betting = bettingReader.getAccount(bettingAccountId);
 
         Money transfer = new Money(amount);
         Money fee = calculateFee(momo.getAccountType(), transfer);
 
-        Instant now = Instant.now();
+        var now = Instant.now(timeProvider.clock());
 
         // 1) withdraw transfer from momo -> DOMAIN creates tx
         Transaction momoTransferTx = momo.withdraw(transfer, now);
-
 
 
         // 1) withdraw transfer from momo -> DOMAIN creates tx
@@ -59,13 +66,13 @@ public class MakeDepositUseCaseImpl implements MakeDepositUseCase {
         // --- STEP 4: append transactions (append-only) ---
         // You must append the SAME transactions the domain created OR recreate them consistently.
         // Here we recreate them consistently (same values and timestamp).
-        momoTxAppender.appendToMobileMoney(momoAccountId,momoTransferTx);
+        momoTxAppender.appendToMobileMoney(momoAccountId, momoTransferTx);
 
         if (!fee.isZero()) {
-            momoTxAppender.appendToMobileMoney(momoAccountId,momoFeeTx);
+            momoTxAppender.appendToMobileMoney(momoAccountId, momoFeeTx);
         }
 
-        bettingTxAppender.appendToBettingAccount(bettingAccountId,bettingDepositTx);
+        bettingTxAppender.appendToBettingAccount(bettingAccountId, bettingDepositTx);
 
         // --- Persist balances only (no history overwrite) ---
         momoBalanceUpdater.updateBalance(momo);

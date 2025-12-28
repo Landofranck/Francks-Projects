@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import project.application.port.in.LoadAllMomoAccountsUseCase;
+import project.application.port.out.ReadAllMomoAccounts;
 import project.domain.model.MobileMoneyAccount;
 
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
 public class GetAllMoMoAccountsUseCaseImpl implements LoadAllMomoAccountsUseCase {
 
     @Inject
-    LoadAllMomoAccountsUseCase loadAllM;
+    ReadAllMomoAccounts loadAllM;
 
 
 

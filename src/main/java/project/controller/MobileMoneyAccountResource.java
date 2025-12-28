@@ -5,25 +5,32 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import project.adapter.in.web.BettingServiceAdapter;
-import project.adapter.in.web.MobileMoneyDto.MobileMoneyAccountDto;
+import project.adapter.in.web.MobileMoneyDto.CreateMobileMoneyAccountDto;
 
 
 import java.net.URI;
 import java.util.List;
+
 import jakarta.validation.Valid;
 import project.adapter.in.web.MobileMoneyDto.MomoTopUpRequestDto;
 import project.adapter.in.web.MobileMoneyDto.MomoTransferRequestDto;
+import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
+import project.adapter.in.web.TransactionDTO.DepositDto;
+import project.application.port.in.MakeDepositUseCase;
 
 @Path("/mobile-money-accounts")
-@Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class MobileMoneyAccountResource {
 
     @Inject
     BettingServiceAdapter serviceAdapter;
+    @Inject
+    MakeDepositUseCase makeDepositUseCase;
+
 
     @POST
-    public Response create(MobileMoneyAccountDto dto) {
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response create(CreateMobileMoneyAccountDto dto) {
         Long id = serviceAdapter.createNewMobileMoneyAccount(dto.getId(), dto);
         return Response.created(URI.create("/mobile-money-accounts/" + id)).build();
     }
@@ -36,16 +43,28 @@ public class MobileMoneyAccountResource {
     }
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{id}/topups")
+
     public Response topUp(@PathParam("id") Long id, @Valid MomoTopUpRequestDto dto) {
         serviceAdapter.topUpMomo(id, dto);
         return Response.noContent().build();
     }
 
-
     @GET
-    public List<MobileMoneyAccountDto> getAll() {
+    public List<ReadMomoAccountDto> getAll() {
         return serviceAdapter.getAllMomoAccounts();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{momoId}/deposit-to-betting/{bettingId}")
+    public Response deposit(@PathParam("momoId") Long momoId,
+                            @PathParam("bettingId") Long bettingId,
+                            DepositDto dto) {
+
+        makeDepositUseCase.depositFromMobileMoneyToBettingAccount(momoId, bettingId, dto.getAmount());
+        return Response.ok().build();
     }
 
 }

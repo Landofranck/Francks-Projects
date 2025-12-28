@@ -11,7 +11,7 @@ public class TransactionDto {
     private TransactionType type;
     @NotNull(message = "accountType")
 
-    private BigDecimal amount;
+    private BigDecimal transactionAmount;
     @NotNull(message = "accountType")
 
     private BigDecimal balanceAfter;
@@ -19,7 +19,7 @@ public class TransactionDto {
 
     private Instant createdAt;
 
-    public TransactionDto() {}
+
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -27,8 +27,8 @@ public class TransactionDto {
     public TransactionType getType() { return type; }
     public void setType(TransactionType type) { this.type = type; }
 
-    public BigDecimal getAmount() { return amount; }
-    public void setAmount(BigDecimal amount) { this.amount = amount; }
+    public BigDecimal getTransactionAmount() { return transactionAmount; }
+    public void setTransactionAmount(BigDecimal transactionAmount) { this.transactionAmount = transactionAmount; }
 
     public BigDecimal getBalanceAfter() { return balanceAfter; }
     public void setBalanceAfter(BigDecimal balanceAfter) { this.balanceAfter = balanceAfter; }

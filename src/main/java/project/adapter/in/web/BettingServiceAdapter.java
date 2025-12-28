@@ -23,7 +23,6 @@ public class BettingServiceAdapter {
     LoadAllMomoAccountsUseCase getAllMomoAccountsUseCase;
     @Inject
     TransferMomoUseCase transferMomoUseCase;
-
     @Inject
     CreateMobileMoneyAccountUseCase createMobileMoneyAccountUseCase;
     @Inject

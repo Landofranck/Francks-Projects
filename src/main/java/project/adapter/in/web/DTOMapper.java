@@ -131,7 +131,6 @@ public class DTOMapper {
         var domain = new BetSlip(slip.getCategory());
         domain.setStake(new Money(slip.getStake()));
         domain.setTotalOdds(slip.getTotalOdds());
-        domain.setParentAccount(slip.getParentA);
         domain.setStatus(slip.getStatus());
         return domain;
     }

@@ -1,7 +1,6 @@
 package project.adapter.in.web;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.WebApplicationException;
 import project.adapter.in.web.bettinAccountDTO.AddPickRequestBetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.BettingAccountDto;
 import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
@@ -11,7 +10,6 @@ import project.adapter.in.web.MobileMoneyDto.MomoTransferRequestDto;
 import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.MakeBetRequestDto;
-import project.adapter.out.persistence.NotFoundException;
 import project.application.port.in.*;
 import jakarta.inject.Inject;
 import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;

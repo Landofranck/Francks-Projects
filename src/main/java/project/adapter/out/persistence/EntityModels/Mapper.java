@@ -32,6 +32,7 @@ public class Mapper {
         transactionEntity.setAccountBalanceAfterTransaction(domainTransaction.getAccountBalanceAfterTransaction().getValue());
         transactionEntity.setTransactionAmmount(domainTransaction.getTransactionAmmount().getValue());
         transactionEntity.setCreatedAt(domainTransaction.getCreatedAt());
+        transactionEntity.setType(domainTransaction.getType());
         //set owner not created because this is done in parent class already with setParent(this)
         return transactionEntity;
     }
@@ -40,6 +41,7 @@ public class Mapper {
         transactionEntity.setAccountBalanceAfterTransaction(domainTransaction.getAccountBalanceAfterTransaction().getValue());
         transactionEntity.setTransactionAmmount(domainTransaction.getTransactionAmmount().getValue());
         transactionEntity.setCreatedAt(domainTransaction.getCreatedAt());
+        transactionEntity.setType(domainTransaction.getType());
         //set owner not created because this is done in parent class already with setParent(this)
         return transactionEntity;
     }
@@ -49,6 +51,7 @@ public class Mapper {
         betSlipentity.setCategory(betSlip.getCategory());
         betSlipentity.setStatus(betSlip.getStatus());
         betSlipentity.setCreatedAt(betSlip.getCreatedAt());
+        betSlipentity.setStake(betSlip.getStake().getValue());
         if (betSlip.getPicks() != null) {
             for (MatchEventPick p : betSlip.getPicks()) {
                 betSlipentity.addMatchEventPickEntity(toMatchEventEntity(p));
@@ -117,7 +120,9 @@ public class Mapper {
         betSlipDomain.setCreatedAt(betSlipEntity.getCreatedAt());
         betSlipDomain.setStake(new Money(betSlipEntity.getStake()));
         betSlipDomain.setStatus(betSlipEntity.getStatus());
-        betSlipDomain.setId(betSlipEntity.getId());
+        if (betSlipEntity.getStake() != null) {
+            betSlipDomain.setStake(new Money(betSlipEntity.getStake()));
+        }
         if (betSlipEntity.getPicks() != null) {
             for (MatchEventPickEntity p : betSlipEntity.getPicks()) {
                 betSlipDomain.addMatchEventPick(toMatchEventDomain(p));
@@ -133,7 +138,7 @@ public class Mapper {
     }
 
     public MobileMoneyAccount toMobileMoneyDomain(MobileMoneyAccountsEntity m) {
-        var domainMomo = new MobileMoneyAccount(m.getAccountType());
+        var domainMomo = new MobileMoneyAccount(m.getId(), m.getAccountType());
         domainMomo.setId(m.getId());
         domainMomo.setAccountBalance(new Money(m.getAccountBalance()));
         domainMomo.setDailyLimit(m.getDailyLimit());

@@ -18,8 +18,8 @@ public class MobileMoneyAccountResource {
     BettingServiceAdapter serviceAdapter;
 
     @POST
-    public Response create(MobileMoneyAccountDto dto) {
-        Long id = serviceAdapter.createNewMobileMoneyAccount(dto);
+    public Response create(Long momoId, MobileMoneyAccountDto dto) {
+        Long id = serviceAdapter.createNewMobileMoneyAccount(momoId, dto);
         return Response.created(URI.create("/mobile-money-accounts/" + id)).build();
     }
 }

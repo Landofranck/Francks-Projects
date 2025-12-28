@@ -1,11 +1,13 @@
 package project.adapter.in.web;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import project.adapter.in.web.BettinAccountDTO.BettingAccountDto;
 import project.domain.model.BettingAccount;
 import project.domain.model.MobileMoneyAccount;
 
 import java.util.Objects;
 
+@ApplicationScoped
 public class DTOMapper {
     public BettingAccount toBettingAccountDomain(BettingAccountDto dto) {
         Objects.requireNonNull(dto, "dto");
@@ -15,10 +17,10 @@ public class DTOMapper {
         return new BettingAccount(dto.getAccountName(), dto.getBrokerType());
     }
 
-    public MobileMoneyAccount toMobileMoneyDomain(MobileMoneyAccountDto dto) {
+    public MobileMoneyAccount toMobileMoneyDomain(Long id,MobileMoneyAccountDto dto) {
         Objects.requireNonNull(dto, "dto");
         Objects.requireNonNull(dto.accountType, "accountType");
-        return new MobileMoneyAccount(dto.accountType);
+        return new MobileMoneyAccount(id, dto.accountType);
     }
 
 

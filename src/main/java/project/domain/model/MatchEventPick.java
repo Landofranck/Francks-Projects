@@ -11,7 +11,8 @@ public class MatchEventPick {
 
     //when a pick is created we should only know the outcome  and odds first, match key and owner is added later
     public MatchEventPick(String outcomeName, double odd) {
-        this.outcomeName = Objects.requireNonNull(outcomeName, "outcomeName");
+        if(odd <=0)throw new IllegalArgumentException("odd must be > 0");
+        this.outcomeName = outcomeName;
         this.odd = Objects.requireNonNull(odd, "odd");
     }
 

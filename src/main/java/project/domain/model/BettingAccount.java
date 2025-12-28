@@ -37,18 +37,28 @@ public class BettingAccount implements Account {
         this.transactionHistory.add(transaction);
     }
 
-    public void deposit(Money money) {
-        this.balance=this.balance.add(money);
-        addTransaction(new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.DEPOSIT));
+    public Transaction deposit(Money money, Instant createdAt) {
+        this.balance = this.balance.add(money);
 
+        Transaction doneTransaction = new Transaction(
+                money,
+                new Money(balance.getValue()),
+                createdAt,
+                TransactionType.DEPOSIT
+        );
+
+        addTransaction(doneTransaction);
+        return doneTransaction;
     }
 
-    public void withdraw(Money money) {
+
+    public Transaction withdraw(Money money) {
         if (!this.balance.isGreaterThan(money)) {
             throw new RuntimeException("you cannot make withdrwal of " + money.getValue());
         }
         this.balance=balance.subtract(money);
-        addTransaction(new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.WITHDRAWAL));
+        Transaction doneTransaction=new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.WITHDRAWAL);
+    return doneTransaction;
     }
 
     public String getAccountName() {

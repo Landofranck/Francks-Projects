@@ -43,28 +43,29 @@ public class MakeDepositUseCaseImpl implements MakeDepositUseCase {
 
         Instant now = Instant.now();
 
-        // --- STEP 1+2: take money + fee from momo (domain updates) ---
-        momo.withdraw(transfer, now);
-        if (!fee.isZero()) {
-            momo.withdraw(fee, now);
-        }
+        // 1) withdraw transfer from momo -> DOMAIN creates tx
+        Transaction momoTransferTx = momo.withdraw(transfer, now);
 
-        // --- STEP 3: deposit to betting account ---
-        betting.deposit(transfer); // ensure BettingAccount.deposit assigns back (Money immutable fix!)
+
+
+        // 1) withdraw transfer from momo -> DOMAIN creates tx
+        // 2) withdraw fee from momo -> DOMAIN creates tx
+        Transaction momoFeeTx = fee.isZero() ? null : momo.withdraw(fee, now);
+
+
+        // 3) deposit transfer into betting -> DOMAIN creates tx
+        Transaction bettingDepositTx = betting.deposit(transfer, now); // ensure BettingAccount.deposit assigns back (Money immutable fix!)
 
         // --- STEP 4: append transactions (append-only) ---
         // You must append the SAME transactions the domain created OR recreate them consistently.
         // Here we recreate them consistently (same values and timestamp).
-        momoTxAppender.appendToMobileMoney(momoAccountId,
-                new Transaction(transfer, new Money(momo.getAccountBalance().getValue()), now, TransactionType.WITHDRAWAL));
+        momoTxAppender.appendToMobileMoney(momoAccountId,momoTransferTx);
 
         if (!fee.isZero()) {
-            momoTxAppender.appendToMobileMoney(momoAccountId,
-                    new Transaction(fee, new Money(momo.getAccountBalance().getValue()), now, TransactionType.WITHDRAWAL));
+            momoTxAppender.appendToMobileMoney(momoAccountId,momoFeeTx);
         }
 
-        bettingTxAppender.appendToBettingAccount(bettingAccountId,
-                new Transaction(transfer, new Money(betting.getBalance().getValue()), now, TransactionType.DEPOSIT));
+        bettingTxAppender.appendToBettingAccount(bettingAccountId,bettingDepositTx);
 
         // --- Persist balances only (no history overwrite) ---
         momoBalanceUpdater.updateBalance(momo);

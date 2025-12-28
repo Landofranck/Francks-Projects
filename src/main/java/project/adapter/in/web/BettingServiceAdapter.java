@@ -22,8 +22,8 @@ public class BettingServiceAdapter {
     @Inject
     CreateMobileMoneyAccountUseCase createMobileMoneyAccountUseCase;
 
-    public Long createNewMobileMoneyAccount(MobileMoneyAccountDto dto) {
-        var domain = mapper.toMobileMoneyDomain(dto);
+    public Long createNewMobileMoneyAccount(Long id,MobileMoneyAccountDto dto) {
+        var domain = mapper.toMobileMoneyDomain(id , dto);
         return createMobileMoneyAccountUseCase.createNewMobileMoneyAccount(domain);
     }
 }

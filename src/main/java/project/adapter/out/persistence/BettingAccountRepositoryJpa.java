@@ -86,7 +86,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     public MobileMoneyAccount getMomoAccount(Long id) {
         var entity = entityManager.find(MobileMoneyAccountsEntity.class, id);
         if (entity == null) throw new IllegalArgumentException("Momo account not found: " + id);
-        return mapper.toMobileMoneyDomain(entity);
+        return mapper.toMobileMoneyDomain( entity);
     }
 
     @Transactional

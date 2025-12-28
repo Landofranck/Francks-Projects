@@ -12,10 +12,7 @@ public class ReducerDto {
     private Long id;
     @NotNull(message = "TotalStake must have a value")
     private BigDecimal totalStake;
-    @NotNull(message = "betMatches must not be null")
-    private List<MatchDto> betMatches;
-    @NotNull(message = "slips must not be null")
-    private List<BetSlipDto> slips;
+
     @NotNull(message = "bonus amount must not be null")
     private Money bonusAmount;
 
@@ -34,35 +31,20 @@ public class ReducerDto {
     }
 
 
-    public List<BetSlipDto> getSlips() {
-        return this.slips;
+    public void setBonusAmount(Money bonusAmount) {
+        this.bonusAmount = bonusAmount;
     }
 
-    public List<MatchDto> getBetMatches() {
-        return betMatches;
-    }
-
-    public BigDecimal getTotalStake() {
-        return totalStake;
+    public void setTotalStake(BigDecimal totalStake) {
+        this.totalStake = totalStake;
     }
 
     public Money getBonusAmount() {
         return bonusAmount;
     }
 
-    public void setBetMatches(List<MatchDto> betMatches) {
-        this.betMatches = betMatches;
+    public BigDecimal getTotalStake() {
+        return totalStake;
     }
 
-    public void setBonusAmount(Money bonusAmount) {
-        this.bonusAmount = bonusAmount;
-    }
-
-    public void setSlips(List<BetSlipDto> slips) {
-        this.slips = slips;
-    }
-
-    public void setTotalStake(BigDecimal totalStake) {
-        this.totalStake = totalStake;
-    }
 }

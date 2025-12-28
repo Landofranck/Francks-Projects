@@ -22,7 +22,7 @@ public class MobileMoneyAccount implements Account {
     private Boolean monthlyLimit;
     private List<Transaction> transactionHistory;
 
-    public MobileMoneyAccount(AccountType accountType) {
+    public MobileMoneyAccount(Long id, AccountType accountType) {
         this.accountType = accountType;
         this.accountBalance = new Money(BigDecimal.ZERO);
         this.dailyLimit = false;
@@ -37,28 +37,33 @@ public class MobileMoneyAccount implements Account {
         this.transactionHistory.add(transaction);
     }
 
-    public void deposit(Money money, Instant createdAt) {
+    public Transaction deposit(Money money, Instant createdAt) {
         Objects.requireNonNull(money);
         Objects.requireNonNull(createdAt);
         this.accountBalance = this.accountBalance.add(money);
-        addTransaction(new Transaction(money, this.accountBalance, createdAt, TransactionType.DEPOSIT));
-
+        Transaction done = new Transaction(money, this.accountBalance, createdAt, TransactionType.DEPOSIT);
+        addTransaction(done);
+        return done;
     }
 
-    public void withdraw(Money money, Instant createdAt) {
-        Objects.requireNonNull(money, "money");
-        Objects.requireNonNull(createdAt, "createdAt");
-
+    public Transaction withdraw(Money money, Instant createdAt) {
         if (!this.accountBalance.isGreaterOrEqual(money)) {
             throw new RuntimeException("you cannot make withdrawal of " + money.getValue());
         }
 
-        this.accountBalance = this.accountBalance.subtract(money); // ✅ fix #2
-        addTransaction(new Transaction(money, new Money(accountBalance.getValue()), createdAt, TransactionType.WITHDRAWAL));
+        this.accountBalance = this.accountBalance.subtract(money);
 
-        // After a withdrawal, update limits
-        updateLimits(createdAt, ZoneId.of("Europe/Berlin"));
+        Transaction doneTransaction = new Transaction(
+                money,
+                new Money(accountBalance.getValue()),
+                createdAt,
+                TransactionType.WITHDRAWAL
+        );
+
+        addTransaction(doneTransaction);
+        return doneTransaction;
     }
+
     /**
      * Recomputes daily/weekly/monthly withdrawal limits based on transactionHistory.
      */
@@ -96,6 +101,7 @@ public class MobileMoneyAccount implements Account {
         this.weeklyLimit = weeklyWithdrawals.compareTo(weeklyThreshold) >= 0;
         this.monthlyLimit = monthlyWithdrawals.compareTo(monthlyThreshold) >= 0;
     }
+
     private BigDecimal sumWithdrawalsSince(Instant startInclusive) {
         BigDecimal total = BigDecimal.ZERO;
 
@@ -107,7 +113,9 @@ public class MobileMoneyAccount implements Account {
         }
 
         return total;
-    } private static Instant startOfDay(Instant now, ZoneId zoneId) {
+    }
+
+    private static Instant startOfDay(Instant now, ZoneId zoneId) {
         LocalDate date = now.atZone(zoneId).toLocalDate();
         return date.atStartOfDay(zoneId).toInstant();
     }
@@ -123,6 +131,7 @@ public class MobileMoneyAccount implements Account {
         LocalDate firstDay = date.withDayOfMonth(1);
         return firstDay.atStartOfDay(zoneId).toInstant();
     }
+
     public void setTransactionHistory(List<Transaction> transactionHistory) {
         this.transactionHistory = transactionHistory;
     }

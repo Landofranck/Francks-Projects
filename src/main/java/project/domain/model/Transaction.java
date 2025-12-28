@@ -10,14 +10,16 @@ public class Transaction {
     private final Money accountBalanceAfterTransaction;
     private final Instant createdAt;
     private final TransactionType type;
+    private final String description;
 
     private Account owner;
 
-    public Transaction(Money transactionAmmount, Money accountBalanceAfterTransaction, Instant createdAt, TransactionType transactionType) {
+    public Transaction(Money transactionAmmount, Money accountBalanceAfterTransaction, Instant createdAt, TransactionType transactionType, String description) {
         this.transactionAmmount = transactionAmmount;
         this.accountBalanceAfterTransaction = accountBalanceAfterTransaction;
         this.createdAt = createdAt;
         this.type = transactionType;
+        this.description = (description == null) ? "" : description;
     }
 
     public long getId() {
@@ -52,4 +54,7 @@ public class Transaction {
         this.id = id;
     }
 
+    public String getDescription() {
+        return description;
+    }
 }

@@ -5,6 +5,15 @@ import java.math.BigDecimal;
 
 public class DepositDto {
     private BigDecimal amount;
+    private String description;
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 
     public DepositDto() {
     }

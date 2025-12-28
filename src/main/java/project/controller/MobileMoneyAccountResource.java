@@ -63,7 +63,7 @@ public class MobileMoneyAccountResource {
                             @PathParam("bettingId") Long bettingId,
                             DepositDto dto) {
 
-        makeDepositUseCase.depositFromMobileMoneyToBettingAccount(momoId, bettingId, dto.getAmount());
+        makeDepositUseCase.depositFromMobileMoneyToBettingAccount(momoId, bettingId, dto.getAmount(), dto.getDescription());
         return Response.ok().build();
     }
 

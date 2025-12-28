@@ -18,11 +18,7 @@ public class MatchEventPickEntity {
 
     public MatchEventPickEntity(){}
 
-    public MatchEventPickEntity(String matchKey, String outcomeName, double odd) {
-        this.matchKey = Objects.requireNonNull(matchKey, "matchKey");
-        this.outcomeName = Objects.requireNonNull(outcomeName, "outcomeName");
-        this.odd = Objects.requireNonNull(odd, "odd");
-    }
+
 
 
     public BetSlipEntity getParent() {

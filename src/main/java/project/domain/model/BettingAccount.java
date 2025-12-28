@@ -29,7 +29,7 @@ public class BettingAccount implements Account {
         newBetslip.setParentAccount(this);
         this.betHistory.add(newBetslip);
         //advicable to use the
-        addTransaction(new Transaction(newBetslip.getStake(), new Money(balance.getValue()), newBetslip.getCreatedAt(), TransactionType.BET_PLACED));
+        addTransaction(new Transaction(newBetslip.getStake(), new Money(balance.getValue()), newBetslip.getCreatedAt(), TransactionType.BET_PLACED,""));
     }
 
     public void addTransaction(Transaction transaction) {
@@ -37,14 +37,14 @@ public class BettingAccount implements Account {
         this.transactionHistory.add(transaction);
     }
 
-    public Transaction deposit(Money money, Instant createdAt) {
+    public Transaction deposit(Money money, Instant createdAt,String description) {
         this.balance = this.balance.add(money);
 
         Transaction doneTransaction = new Transaction(
                 money,
                 new Money(balance.getValue()),
                 createdAt,
-                TransactionType.DEPOSIT
+                TransactionType.DEPOSIT,description
         );
 
         addTransaction(doneTransaction);
@@ -52,12 +52,12 @@ public class BettingAccount implements Account {
     }
 
 
-    public Transaction withdraw(Money money) {
+    public Transaction withdraw(Money money, String description) {
         if (!this.balance.isGreaterThan(money)) {
             throw new RuntimeException("you cannot make withdrwal of " + money.getValue());
         }
         this.balance=balance.subtract(money);
-        Transaction doneTransaction=new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.WITHDRAWAL);
+        Transaction doneTransaction=new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.WITHDRAWAL,description);
     return doneTransaction;
     }
 

@@ -22,7 +22,7 @@ public class TransferMomoUseCaseImpl implements TransferMomoUseCase {
 
     @Transactional
     @Override
-    public void transfer(Long fromId, Long toId, BigDecimal amount) {
+    public void transfer(Long fromId, Long toId, BigDecimal amount, String description) {
         var from = readById.getMomoAccount(fromId);
         var to   = readById.getMomoAccount(toId);
 
@@ -30,10 +30,10 @@ public class TransferMomoUseCaseImpl implements TransferMomoUseCase {
         var now = Instant.now();
 
         // withdrawal creates a WITHDRAWAL transaction in domain
-        var outTx = from.withdraw(money, now);
+        var outTx = from.withdraw(money, now,description );
 
         // deposit creates a DEPOSIT transaction in domain
-        var inTx = to.deposit(money, now);
+        var inTx = to.deposit(money, now,description);
 
         // persist balances
         updateBalance.updateBalance(from);

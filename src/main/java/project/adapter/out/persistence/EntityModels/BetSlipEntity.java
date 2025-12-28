@@ -37,10 +37,7 @@ public class BetSlipEntity {
     protected BetSlipEntity() {
     }
 
-    public BetSlipEntity(String category) {
-        this.picks = new ArrayList<>();
-        this.category = category;
-    }
+
 
     @PrePersist
     public void onCreate() {

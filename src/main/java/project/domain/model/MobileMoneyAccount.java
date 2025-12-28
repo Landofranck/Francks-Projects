@@ -38,16 +38,16 @@ public class MobileMoneyAccount implements Account {
         this.transactionHistory.add(transaction);
     }
 
-    public Transaction deposit(Money money, Instant createdAt) {
+    public Transaction deposit(Money money, Instant createdAt, String description) {
         Objects.requireNonNull(money);
         Objects.requireNonNull(createdAt);
         this.accountBalance = this.accountBalance.add(money);
-        Transaction done = new Transaction(money, this.accountBalance, createdAt, TransactionType.DEPOSIT);
+        Transaction done = new Transaction(money, this.accountBalance, createdAt, TransactionType.DEPOSIT, description);
         addTransaction(done);
         return done;
     }
 
-    public Transaction withdraw(Money money, Instant createdAt) {
+    public Transaction withdraw(Money money, Instant createdAt,String description) {
         if (!this.accountBalance.isGreaterOrEqual(money)) {
             throw new RuntimeException("you cannot make withdrawal of " + money.getValue());
         }
@@ -58,7 +58,7 @@ public class MobileMoneyAccount implements Account {
                 money,
                 new Money(accountBalance.getValue()),
                 createdAt,
-                TransactionType.WITHDRAWAL
+                TransactionType.WITHDRAWAL,description
         );
 
         addTransaction(doneTransaction);

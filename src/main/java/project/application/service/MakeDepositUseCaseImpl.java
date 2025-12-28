@@ -8,7 +8,6 @@ import project.application.port.in.MakeDepositUseCase;
 import project.application.port.out.*;
 import project.config.TimeProvider;
 import project.domain.model.Enums.AccountType;
-import project.domain.model.Enums.TransactionType;
 import project.domain.model.Money;
 import project.domain.model.Transaction;
 
@@ -38,7 +37,7 @@ public class MakeDepositUseCaseImpl implements MakeDepositUseCase {
 
     @Transactional
     @Override
-    public void depositFromMobileMoneyToBettingAccount(Long momoAccountId, Long bettingAccountId, BigDecimal amount) {
+    public void depositFromMobileMoneyToBettingAccount(Long momoAccountId, Long bettingAccountId, BigDecimal amount, String description) {
         Objects.requireNonNull(momoAccountId, "momoAccountId");
         Objects.requireNonNull(bettingAccountId, "bettingAccountId");
         Objects.requireNonNull(amount, "amount");
@@ -52,16 +51,16 @@ public class MakeDepositUseCaseImpl implements MakeDepositUseCase {
         var now = Instant.now(timeProvider.clock());
 
         // 1) withdraw transfer from momo -> DOMAIN creates tx
-        Transaction momoTransferTx = momo.withdraw(transfer, now);
+        Transaction momoTransferTx = momo.withdraw(transfer, now,description );
 
 
         // 1) withdraw transfer from momo -> DOMAIN creates tx
         // 2) withdraw fee from momo -> DOMAIN creates tx
-        Transaction momoFeeTx = fee.isZero() ? null : momo.withdraw(fee, now);
+        Transaction momoFeeTx = fee.isZero() ? null : momo.withdraw(fee, now, description+" transaction fee");
 
 
         // 3) deposit transfer into betting -> DOMAIN creates tx
-        Transaction bettingDepositTx = betting.deposit(transfer, now); // ensure BettingAccount.deposit assigns back (Money immutable fix!)
+        Transaction bettingDepositTx = betting.deposit(transfer, now,description); // ensure BettingAccount.deposit assigns back (Money immutable fix!)
 
         // --- STEP 4: append transactions (append-only) ---
         // You must append the SAME transactions the domain created OR recreate them consistently.

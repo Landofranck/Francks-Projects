@@ -11,6 +11,7 @@ public class MomoAccountTransactionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+    private String description;
     private BigDecimal transactionAmmount;
     private BigDecimal accountBalanceAfterTransaction;
     private Instant createdAt;
@@ -25,13 +26,7 @@ public class MomoAccountTransactionEntity {
 
     }
 
-    public MomoAccountTransactionEntity(BigDecimal transactionAmmount, BigDecimal accountBalanceAfterTransaction, Instant createdAt, TransactionType transactionType) {
 
-        this.transactionAmmount = transactionAmmount;
-        this.accountBalanceAfterTransaction = accountBalanceAfterTransaction;
-        this.createdAt = createdAt;
-        this.type = transactionType;
-    }
 
     public long getId() {
         return id;
@@ -77,4 +72,11 @@ public class MomoAccountTransactionEntity {
         this.type = type;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

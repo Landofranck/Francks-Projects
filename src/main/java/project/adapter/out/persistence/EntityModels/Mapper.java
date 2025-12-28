@@ -103,13 +103,13 @@ public class Mapper {
     }
 
     public Transaction toBettingTransactionDomain(BettingAccountTransactionEntity e) {
-        var transacttionDomain = new Transaction(new Money(e.getTransactionAmmount()),new Money(e.getAccountBalanceAfterTransaction()),e.getCreatedAt(),e.getType());
+        var transacttionDomain = new Transaction(new Money(e.getTransactionAmmount()),new Money(e.getAccountBalanceAfterTransaction()),e.getCreatedAt(),e.getType(),e.getDescription());
         //set owner not created because this is done in parent class already with setParent(this)
         transacttionDomain.setId(e.getId());
         return transacttionDomain;
     }
     public Transaction toMomoTransactionDomain(MomoAccountTransactionEntity e) {
-        var transacttionDomain = new Transaction(new Money(e.getTransactionAmmount()),new Money(e.getAccountBalanceAfterTransaction()),e.getCreatedAt(),e.getType());
+        var transacttionDomain = new Transaction(new Money(e.getTransactionAmmount()),new Money(e.getAccountBalanceAfterTransaction()),e.getCreatedAt(),e.getType(),e.getDescription());
         //set owner not created because this is done in parent class already with setParent(this)
         transacttionDomain.setId(e.getId());
         return transacttionDomain;

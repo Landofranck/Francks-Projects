@@ -57,11 +57,11 @@ public class BettingServiceAdapter {
     }
 
     public void transferMomo(MomoTransferRequestDto dto) {
-        transferMomoUseCase.transfer(dto.fromAccountId, dto.toAccountId, dto.amount);
+        transferMomoUseCase.transfer(dto.fromAccountId, dto.toAccountId, dto.amount,dto.description);
     }
 
 
     public void topUpMomo(Long id, MomoTopUpRequestDto dto) {
-        topUpMomoUseCase.topUp(id, dto.amount);
+        topUpMomoUseCase.topUp(id, dto.amount, dto.description);
     }
 }

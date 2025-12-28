@@ -21,10 +21,10 @@ public class TopUpMomoUseCaseImpl implements TopUpMomoUseCase {
 
     @Transactional
     @Override
-    public void topUp(Long momoId, BigDecimal amount) {
+    public void topUp(Long momoId, BigDecimal amount, String description) {
         var acc = readById.getMomoAccount(momoId);
 
-        var tx = acc.deposit(new Money(amount), Instant.now());
+        var tx = acc.deposit(new Money(amount), Instant.now(),description);
 
         updateBalance.updateBalance(acc);
         appendTx.appendToMobileMoney(momoId, tx);

@@ -16,7 +16,7 @@ public class BettingAccountTransactionEntity {
     private Instant createdAt;
     @Enumerated(EnumType.STRING)
     private TransactionType type;
-
+    private String description;
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private BettingAccountEntity owner;
@@ -25,13 +25,6 @@ public class BettingAccountTransactionEntity {
 
     }
 
-    public BettingAccountTransactionEntity(BigDecimal transactionAmmount, BigDecimal accountBalanceAfterTransaction, Instant createdAt, TransactionType transactionType) {
-
-        this.transactionAmmount = transactionAmmount;
-        this.accountBalanceAfterTransaction = accountBalanceAfterTransaction;
-        this.createdAt = createdAt;
-        this.type = transactionType;
-    }
 
     public long getId() {
         return id;
@@ -77,4 +70,15 @@ public class BettingAccountTransactionEntity {
         this.type = type;
     }
 
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

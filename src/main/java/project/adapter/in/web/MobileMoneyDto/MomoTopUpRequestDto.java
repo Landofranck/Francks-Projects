@@ -10,5 +10,6 @@ public class MomoTopUpRequestDto {
     @NotNull
     @Positive
     public BigDecimal amount;
+    public String description;
 }
 

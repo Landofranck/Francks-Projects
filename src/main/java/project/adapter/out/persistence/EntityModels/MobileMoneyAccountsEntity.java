@@ -23,13 +23,6 @@ public class MobileMoneyAccountsEntity {
     public MobileMoneyAccountsEntity() {
     }
 
-    public MobileMoneyAccountsEntity(AccountType accountType) {
-        this.accountType = accountType;
-        this.accountBalance = BigDecimal.ZERO;
-        this.dailyLimit = false;
-        this.weeklyLimit = false;
-        this.monthlyLimit = false;
-    }
 
     public void addBettingaccoutTransactionEntity(MomoAccountTransactionEntity transaction) {
         this.transactionHistory.add(transaction);

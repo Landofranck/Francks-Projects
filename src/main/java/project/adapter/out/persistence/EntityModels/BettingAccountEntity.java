@@ -36,12 +36,7 @@ public class BettingAccountEntity {
         transaction.setOwner(this);
     }
 
-    public BettingAccountEntity(Long id, String accountName, AccountType brokerType) {
-        this.id = id;
-        this.accountName = accountName;
-        this.brokerType = brokerType;
-        this.balance = BigDecimal.ZERO;
-    }
+
 
 
     public Long getId() {

@@ -15,4 +15,5 @@ public class MomoTransferRequestDto {
     @NotNull
     @Positive
     public BigDecimal amount;
+    public String description;
 }

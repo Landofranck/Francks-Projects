@@ -29,6 +29,7 @@ public class MobileMoneyAccount implements Account {
         this.weeklyLimit = false;
         this.monthlyLimit = false;
         transactionHistory = new ArrayList<>();
+        this.id=id;
     }
 
     public void addTransaction(Transaction transaction) {

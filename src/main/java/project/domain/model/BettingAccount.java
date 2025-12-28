@@ -103,4 +103,7 @@ public class BettingAccount implements Account {
         this.id = id;
     }
 
+    public AccountType getAccountType() {
+        return this.brokerType;
+    }
 }

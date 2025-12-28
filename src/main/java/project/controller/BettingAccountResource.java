@@ -5,10 +5,12 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import project.adapter.in.web.BettinAccountDTO.BettingAccountDto;
 import project.adapter.in.web.BettinAccountDTO.CreateBettingAccountDto;
 import project.adapter.in.web.BettingServiceAdapter;
 
 import java.net.URI;
+import java.util.List;
 
 @Path("/betting-accounts")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -17,6 +19,10 @@ public class BettingAccountResource {
 
     @Inject
     BettingServiceAdapter serviceAdapter;
+    @GET
+    public List<BettingAccountDto> getAll() {
+        return serviceAdapter.getAllBettingAccounts();
+    }
 
     @POST
     public Response create(CreateBettingAccountDto dto) {

@@ -33,14 +33,17 @@ public class Mapper {
         transactionEntity.setTransactionAmmount(domainTransaction.getTransactionAmmount().getValue());
         transactionEntity.setCreatedAt(domainTransaction.getCreatedAt());
         transactionEntity.setType(domainTransaction.getType());
+        transactionEntity.setDescription(domainTransaction.getDescription());
         //set owner not created because this is done in parent class already with setParent(this)
         return transactionEntity;
     }
+
     public MomoAccountTransactionEntity toMomoTransactionEntity(Transaction domainTransaction) {
         var transactionEntity = new MomoAccountTransactionEntity();
         transactionEntity.setAccountBalanceAfterTransaction(domainTransaction.getAccountBalanceAfterTransaction().getValue());
         transactionEntity.setTransactionAmmount(domainTransaction.getTransactionAmmount().getValue());
         transactionEntity.setCreatedAt(domainTransaction.getCreatedAt());
+        transactionEntity.setDescription(domainTransaction.getDescription());
         transactionEntity.setType(domainTransaction.getType());
         //set owner not created because this is done in parent class already with setParent(this)
         return transactionEntity;
@@ -68,6 +71,29 @@ public class Mapper {
         return matchEventPickEntity;
     }
 
+    public MatchEntity toMatchEntity(Match domainPick) {
+        var matchEntity = new MatchEntity();
+        matchEntity.setAway(domainPick.getAway());
+        matchEntity.setHome(domainPick.getHome());
+        if (matchEntity.getOutcomes() == null) throw new RuntimeException("matchmust have outcomes");
+        for (MatchEventPick m : domainPick.getMatchOutComes()) {
+            matchEntity.addOutcome(toMatchOutcomeEntity(m));
+        }
+        return matchEntity;
+    }
+
+    public Match toMatchDomain(MatchEntity eM) {
+        var dom = new Match(eM.getId(), eM.getOutcomes().stream().map(this::toMatchOutcomeDomain).collect(Collectors.toCollection(ArrayList::new)), eM.getHome(), eM.getAway());
+        return dom;
+    }
+
+    private MatchOutcomeEntity toMatchOutcomeEntity(MatchEventPick m) {
+        var outcomeEntity = new MatchOutcomeEntity();
+        outcomeEntity.setOutcomeName(m.getOutcomeName());
+        outcomeEntity.setOdd(m.getOdd());
+        return outcomeEntity;
+    }
+
     public MobileMoneyAccountsEntity toMobileMoneyEntity(MobileMoneyAccount momo) {
         var entitMomo = new MobileMoneyAccountsEntity();
         entitMomo.setId(momo.getAccountId());
@@ -86,7 +112,7 @@ public class Mapper {
 
 
     public BettingAccount toBettingAccountDomain(BettingAccountEntity entityModel) {
-        var domainModel = new BettingAccount(entityModel.getAccountName(),entityModel.getBrokerType());
+        var domainModel = new BettingAccount(entityModel.getAccountName(), entityModel.getBrokerType());
         domainModel.setBalance(new Money(entityModel.getBalance()));
         domainModel.setId(entityModel.getId());
         if (entityModel.getTransactionHistory() != null) {
@@ -103,13 +129,14 @@ public class Mapper {
     }
 
     public Transaction toBettingTransactionDomain(BettingAccountTransactionEntity e) {
-        var transacttionDomain = new Transaction(new Money(e.getTransactionAmmount()),new Money(e.getAccountBalanceAfterTransaction()),e.getCreatedAt(),e.getType(),e.getDescription());
+        var transacttionDomain = new Transaction(new Money(e.getTransactionAmmount()), new Money(e.getAccountBalanceAfterTransaction()), e.getCreatedAt(), e.getType(), e.getDescription());
         //set owner not created because this is done in parent class already with setParent(this)
         transacttionDomain.setId(e.getId());
         return transacttionDomain;
     }
+
     public Transaction toMomoTransactionDomain(MomoAccountTransactionEntity e) {
-        var transacttionDomain = new Transaction(new Money(e.getTransactionAmmount()),new Money(e.getAccountBalanceAfterTransaction()),e.getCreatedAt(),e.getType(),e.getDescription());
+        var transacttionDomain = new Transaction(new Money(e.getTransactionAmmount()), new Money(e.getAccountBalanceAfterTransaction()), e.getCreatedAt(), e.getType(), e.getDescription());
         //set owner not created because this is done in parent class already with setParent(this)
         transacttionDomain.setId(e.getId());
         return transacttionDomain;
@@ -132,8 +159,14 @@ public class Mapper {
     }
 
     public MatchEventPick toMatchEventDomain(MatchEventPickEntity p) {
-        var matchEventPickDomain = new MatchEventPick(p.outcomeName(), p.getOdd());
+        var matchEventPickDomain = new MatchEventPick(p.getMatchKey(),p.outcomeName(), p.getOdd());
         matchEventPickDomain.setMatchKey(p.getMatchKey());
+        return matchEventPickDomain;
+    }
+
+    public MatchEventPick toMatchOutcomeDomain(MatchOutcomeEntity p) {
+        var matchEventPickDomain = new MatchEventPick(p.getMatchKey(),p.getOutcomeName(), p.getOdd());
+        matchEventPickDomain.setMatchKey(p.getOutcomeName());
         return matchEventPickDomain;
     }
 
@@ -151,12 +184,16 @@ public class Mapper {
         }
         return domainMomo;
     }
-    public List<BettingAccount> toListOfAccountDomains(List<BettingAccountEntity> list){
+
+    public List<BettingAccount> toListOfAccountDomains(List<BettingAccountEntity> list) {
         return list.stream().map(this::toBettingAccountDomain).collect(Collectors.toCollection(ArrayList::new));
     }
-    public List<MobileMoneyAccount> toListOfMOMOtDomains(List<MobileMoneyAccountsEntity> list){
+
+    public List<MobileMoneyAccount> toListOfMOMOtDomains(List<MobileMoneyAccountsEntity> list) {
         return list.stream().map(this::toMobileMoneyDomain).collect(Collectors.toCollection(ArrayList::new));
     }
-
+    public List<Match> toMatchDomains(List<MatchEntity> list) {
+        return list.stream().map(this::toMatchDomain).collect(Collectors.toCollection(ArrayList::new));
+    }
 
 }

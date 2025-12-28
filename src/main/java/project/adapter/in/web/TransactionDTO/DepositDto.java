@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 public class DepositDto {
     @NotNull
     private BigDecimal amount;
+    private String withdrawalDescription;
     private String description;
 
     public void setDescription(String description) {
@@ -27,6 +28,14 @@ public class DepositDto {
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    public void setWithdrawalDescription(String withdrawalDescription) {
+        this.withdrawalDescription = withdrawalDescription;
+    }
+
+    public String getWithdrawalDescription() {
+        return withdrawalDescription;
     }
 }
 

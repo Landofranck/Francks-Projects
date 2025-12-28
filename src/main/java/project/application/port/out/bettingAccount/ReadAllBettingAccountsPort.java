@@ -1,6 +1,5 @@
-package project.application.port.out;
+package project.application.port.out.bettingAccount;
 
-import project.domain.model.Account;
 import project.domain.model.BettingAccount;
 
 import java.util.List;

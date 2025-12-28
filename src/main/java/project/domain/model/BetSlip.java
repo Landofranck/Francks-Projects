@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BetSlip {
+public class BetSlip implements Event {
     private Long id;
     private List<MatchEventPick> picks;
     private BetStatus status;
@@ -16,12 +16,14 @@ public class BetSlip {
     private BettingAccount parentAccount;
     private Money stake;
     private double totalOdds;
+    private int numberOfEvents;
 
     public BetSlip(String category) {
         this.category = category;
         this.picks = new ArrayList<>();
         this.status = BetStatus.PENDING;
         this.totalOdds=0;
+        this.numberOfEvents=picks.size();
     }
 
     public void makeTotalOdds() {
@@ -36,6 +38,7 @@ public class BetSlip {
         this.picks.add(pick);
         pick.setOwner(this);
         makeTotalOdds();
+        this.numberOfEvents=picks.size();
     }
 
     public double getTotalOdds() {
@@ -65,6 +68,10 @@ public class BetSlip {
 
     public String getCategory() {
         return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public void setPicks(List<MatchEventPick> picks) {

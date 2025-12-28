@@ -4,7 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import project.application.port.in.LoadAllMomoAccountsUseCase;
-import project.application.port.out.ReadAllMomoAccounts;
+import project.application.port.out.mobilMoney.ReadAllMomoAccounts;
 import project.domain.model.MobileMoneyAccount;
 
 import java.util.List;

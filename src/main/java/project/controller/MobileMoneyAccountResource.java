@@ -37,6 +37,7 @@ public class MobileMoneyAccountResource {
 
     @POST
     @Path("/transfers")
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response transfer(@Valid MomoTransferRequestDto dto) {
         serviceAdapter.transferMomo(dto);
         return Response.noContent().build();

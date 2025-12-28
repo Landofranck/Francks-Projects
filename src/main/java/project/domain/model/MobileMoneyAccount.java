@@ -58,7 +58,8 @@ public class MobileMoneyAccount implements Account {
                 money,
                 new Money(accountBalance.getValue()),
                 createdAt,
-                TransactionType.WITHDRAWAL,description
+                TransactionType.WITHDRAWAL,
+                description
         );
 
         addTransaction(doneTransaction);

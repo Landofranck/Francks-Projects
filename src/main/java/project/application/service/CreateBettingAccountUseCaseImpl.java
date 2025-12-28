@@ -3,7 +3,7 @@ package project.application.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import project.application.port.in.CreateBettingAccountUseCase;
-import project.application.port.out.PersistBettingAccountPort;
+import project.application.port.out.bettingAccount.PersistBettingAccountPort;
 import project.domain.model.BettingAccount;
 
 import java.util.Objects;

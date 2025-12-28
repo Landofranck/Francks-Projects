@@ -22,6 +22,7 @@ public class MatchDto {
 
     public List<MatchEventPickDto> getMatchOutComes() { return matchOutComes; }
     public void setMatchOutComes(List<MatchEventPickDto> matchOutComes) { this.matchOutComes = matchOutComes; }
+
 }
 
 

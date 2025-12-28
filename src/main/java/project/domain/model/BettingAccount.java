@@ -52,7 +52,7 @@ public class BettingAccount implements Account {
     }
 
 
-    public Transaction withdraw(Money money, String description) {
+    public Transaction withdraw(Money money, Instant now, String description) {
         if (!this.balance.isGreaterThan(money)) {
             throw new RuntimeException("you cannot make withdrwal of " + money.getValue());
         }

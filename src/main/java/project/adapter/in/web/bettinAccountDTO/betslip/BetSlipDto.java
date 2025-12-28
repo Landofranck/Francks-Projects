@@ -1,4 +1,4 @@
-package project.adapter.in.web.BettinAccountDTO;
+package project.adapter.in.web.bettinAccountDTO.betslip;
 
 import project.adapter.in.web.MatchEventPickDto;
 import project.domain.model.Enums.BetStatus;
@@ -15,6 +15,7 @@ public class BetSlipDto {
     private Instant createdAt;
     private BigDecimal stake;
     private double totalOdds;
+
 
     public BetSlipDto() {}
 

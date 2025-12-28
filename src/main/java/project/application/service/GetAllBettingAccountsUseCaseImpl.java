@@ -3,7 +3,7 @@ package project.application.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import project.application.port.in.LoadAllBettingAccountsUseCase;
-import project.application.port.out.ReadAllBettingAccountsPort;
+import project.application.port.out.bettingAccount.ReadAllBettingAccountsPort;
 import project.domain.model.BettingAccount;
 
 import java.util.List;

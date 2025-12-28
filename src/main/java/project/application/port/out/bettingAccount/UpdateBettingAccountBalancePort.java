@@ -1,4 +1,4 @@
-package project.application.port.out;
+package project.application.port.out.bettingAccount;
 
 import project.domain.model.BettingAccount;
 

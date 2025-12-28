@@ -12,8 +12,8 @@ public class MatchEventPickEntity {
     private String matchKey;
     private String outcomeName;
     private double odd;
-    @ManyToOne
-    @JoinColumn(name = "parentBetSlipEntity_id")
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "parentBetSlipEntity_id",nullable = true)
     private BetSlipEntity parentBetSlipEntity;
 
     public MatchEventPickEntity(){}

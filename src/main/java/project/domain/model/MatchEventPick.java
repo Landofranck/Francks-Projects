@@ -7,20 +7,21 @@ public class MatchEventPick {
     private String matchKey;
     private final String outcomeName;
     private final double odd;
-    private BetSlip owner;
+    private Event owner;
 
     //when a pick is created we should only know the outcome  and odds first, match key and owner is added later
-    public MatchEventPick(String outcomeName, double odd) {
+    public MatchEventPick(String matchKey, String outcomeName, double odd) {
         if(odd <=0)throw new IllegalArgumentException("odd must be > 0");
         this.outcomeName = outcomeName;
         this.odd = Objects.requireNonNull(odd, "odd");
+        this.matchKey=matchKey;
     }
 
-    public void setOwner(BetSlip owner) {
+    public void setOwner(Event owner) {
         this.owner = owner;
     }
 
-    public BetSlip getOwner() {
+    public Event getOwner() {
         return owner;
     }
 

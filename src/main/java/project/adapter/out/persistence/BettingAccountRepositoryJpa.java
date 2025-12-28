@@ -7,20 +7,28 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import project.adapter.out.persistence.EntityModels.BettingAccountEntity;
 import project.adapter.out.persistence.EntityModels.Mapper;
+import project.adapter.out.persistence.EntityModels.MatchEntity;
 import project.adapter.out.persistence.EntityModels.MobileMoneyAccountsEntity;
 import project.application.port.out.*;
+import project.application.port.out.Match.PersistMatchPort;
+import project.application.port.out.Match.ReadAllMatchesPort;
+import project.application.port.out.Match.ReadMatchByIdPort;
+import project.application.port.out.bettingAccount.AppendBettingAccountTransactionPort;
+import project.application.port.out.bettingAccount.PersistBettingAccountPort;
+import project.application.port.out.bettingAccount.ReadAllBettingAccountsPort;
+import project.application.port.out.mobilMoney.*;
 import project.domain.model.BettingAccount;
+import project.domain.model.Match;
 import project.domain.model.MobileMoneyAccount;
-import project.application.port.out.ReadMomoAccountByIdPort;
-import project.application.port.out.UpdateBettingAccountBalancePort;
-import project.application.port.out.UpdateMobileMoneyBalancePort;
+import project.application.port.out.bettingAccount.UpdateBettingAccountBalancePort;
 import project.domain.model.Transaction;
 
 import java.util.List;
 import java.util.Objects;
 
 @ApplicationScoped
-public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadAccountByIdPort, PersistMobileMoneyAccount, ReadAllBettingAccountsPort, ReadAllMomoAccounts, ReadMomoAccountByIdPort, UpdateBettingAccountBalancePort, UpdateMobileMoneyBalancePort, AppendBettingAccountTransactionPort, AppendMobileMoneyTransactionPort {
+public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadAccountByIdPort, PersistMobileMoneyAccount, ReadAllBettingAccountsPort, ReadAllMomoAccounts, ReadMomoAccountByIdPort, UpdateBettingAccountBalancePort,
+        UpdateMobileMoneyBalancePort, AppendBettingAccountTransactionPort, AppendMobileMoneyTransactionPort , PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort {
     @Inject
     EntityManager entityManager;
     @Inject
@@ -145,5 +153,29 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
 
         owner.getTransactionHistory().add(txEntity); // optional if bidirectional
     }
+    @Transactional
+    @Override
+    public Long saveMatch(Match match) {
+        var entity = mapper.toMatchEntity(match);
+        entityManager.persist(entity);
+        entityManager.flush();
+        return entity.getId();
+    }
+
+    @Override
+    public Match getMatch(Long id) {
+        var entity = entityManager.find(MatchEntity.class, id);
+        if (entity == null) throw new IllegalArgumentException("Match not found: " + id);
+        return mapper.toMatchDomain(entity);
+    }
+
+    @Override
+    public List<Match> getAllMatches() {
+        var entities = entityManager
+                .createQuery("SELECT m FROM MatchEntity m", MatchEntity.class)
+                .getResultList();
+        return mapper.toMatchDomains(entities);
+    }
+
 
 }

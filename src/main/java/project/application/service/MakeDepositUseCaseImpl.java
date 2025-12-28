@@ -6,6 +6,11 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import project.application.port.in.MakeDepositUseCase;
 import project.application.port.out.*;
+import project.application.port.out.bettingAccount.AppendBettingAccountTransactionPort;
+import project.application.port.out.bettingAccount.UpdateBettingAccountBalancePort;
+import project.application.port.out.mobilMoney.AppendMobileMoneyTransactionPort;
+import project.application.port.out.mobilMoney.ReadMomoAccountByIdPort;
+import project.application.port.out.mobilMoney.UpdateMobileMoneyBalancePort;
 import project.config.TimeProvider;
 import project.domain.model.Enums.AccountType;
 import project.domain.model.Money;
@@ -51,16 +56,16 @@ public class MakeDepositUseCaseImpl implements MakeDepositUseCase {
         var now = Instant.now(timeProvider.clock());
 
         // 1) withdraw transfer from momo -> DOMAIN creates tx
-        Transaction momoTransferTx = momo.withdraw(transfer, now,description );
+        Transaction momoTransferTx = momo.withdraw(transfer, now,": "+description+" to "+betting.getAccountName() );
 
 
         // 1) withdraw transfer from momo -> DOMAIN creates tx
         // 2) withdraw fee from momo -> DOMAIN creates tx
-        Transaction momoFeeTx = fee.isZero() ? null : momo.withdraw(fee, now, description+" transaction fee");
+        Transaction momoFeeTx = fee.isZero() ? null : momo.withdraw(fee, now, ": "+description+" transaction fee");
 
 
         // 3) deposit transfer into betting -> DOMAIN creates tx
-        Transaction bettingDepositTx = betting.deposit(transfer, now,description); // ensure BettingAccount.deposit assigns back (Money immutable fix!)
+        Transaction bettingDepositTx = betting.deposit(transfer, now,description+" from "+ momo.getAccountId()); // ensure BettingAccount.deposit assigns back (Money immutable fix!)
 
         // --- STEP 4: append transactions (append-only) ---
         // You must append the SAME transactions the domain created OR recreate them consistently.

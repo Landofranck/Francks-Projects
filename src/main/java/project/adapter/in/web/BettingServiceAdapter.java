@@ -2,14 +2,18 @@ package project.adapter.in.web;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.WebApplicationException;
-import project.adapter.in.web.BettinAccountDTO.BettingAccountDto;
-import project.adapter.in.web.BettinAccountDTO.CreateBettingAccountDto;
+import project.adapter.in.web.bettinAccountDTO.AddPickRequestBetSlipDto;
+import project.adapter.in.web.bettinAccountDTO.BettingAccountDto;
+import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
 import project.adapter.in.web.MobileMoneyDto.CreateMobileMoneyAccountDto;
 import project.adapter.in.web.MobileMoneyDto.MomoTopUpRequestDto;
 import project.adapter.in.web.MobileMoneyDto.MomoTransferRequestDto;
 import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
+import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
 import project.application.port.in.*;
 import jakarta.inject.Inject;
+import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;
+import project.application.port.in.betSlip.CreateMatchUseCase;
 
 import java.util.List;
 
@@ -27,10 +31,14 @@ public class BettingServiceAdapter {
     CreateMobileMoneyAccountUseCase createMobileMoneyAccountUseCase;
     @Inject
     DTOMapper mapper;
-
-    @Inject TopUpMomoUseCase topUpMomoUseCase;
-
-
+    @Inject
+    TopUpMomoUseCase topUpMomoUseCase;
+    @Inject
+    CreateMatchUseCase createMatchUse;
+    @Inject
+    LoadAllMatchesUseCase loadAllMatches;
+    @Inject
+    AddEventPickToBetSlipUseCase addEventPick;
 
     public Long createNewBettingAccount(CreateBettingAccountDto dto) {
         var domain = mapper.toBettingAccountDomain(dto);
@@ -38,7 +46,7 @@ public class BettingServiceAdapter {
     }
 
     public Long createNewMobileMoneyAccount(Long id, CreateMobileMoneyAccountDto dto) {
-        if (dto.getId()==null){
+        if (dto.getId() == null) {
             throw new WebApplicationException("Momo id is required", 400);
         }
         var domain = mapper.toMobileMoneyDomain(id, dto);
@@ -56,11 +64,27 @@ public class BettingServiceAdapter {
     }
 
     public void transferMomo(MomoTransferRequestDto dto) {
-        transferMomoUseCase.transfer(dto.fromAccountId, dto.toAccountId, dto.amount,dto.description);
+        transferMomoUseCase.transfer(dto.fromAccountId, dto.toAccountId, dto.amount, dto.description);
     }
 
+    public Long createMatch(MatchDto dto) {
+        var domain = mapper.toMatchDomain(dto);
+        return createMatchUse.createMatch(domain);
+
+    }
 
     public void topUpMomo(Long id, MomoTopUpRequestDto dto) {
         topUpMomoUseCase.topUp(id, dto.amount, dto.description);
+    }
+
+    public List<MatchDto> getAllMatches() {
+        var matches=loadAllMatches.getAllMatches();
+        return mapper.toMatchDtos(matches);
+    }
+    public BetSlipDto addPickToBetSlip(AddPickRequestBetSlipDto dto) {
+
+        var slipDomain = mapper.toBetSlipDomain(dto.getSlip());
+        var updated = addEventPick.addPick(slipDomain, dto.getMatchId(), dto.getOutcomeName());
+        return mapper.toBetSlipDto(updated);
     }
 }

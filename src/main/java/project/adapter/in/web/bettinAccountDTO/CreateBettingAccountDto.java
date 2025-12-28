@@ -1,4 +1,4 @@
-package project.adapter.in.web.BettinAccountDTO;
+package project.adapter.in.web.bettinAccountDTO;
 
 import jakarta.validation.constraints.NotNull;
 import project.domain.model.Enums.AccountType;

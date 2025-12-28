@@ -3,7 +3,7 @@ package project.domain.model;
 import java.util.List;
 import java.util.Objects;
 
-public class Match {
+public class Match implements Event {
     private Long matchId;
     private String home;
     private String away;
@@ -16,7 +16,7 @@ public class Match {
         this.away = away;
     }
 
-    public void createPick(double odds, String outcome) {
+    public void createPick(double odds, String outcome, List<MatchEventPick> matchOutComes) {
         MatchEventPick pick = new MatchEventPick(outcome, odds);
         pick.setMatchKey(getHome()+" vs "+getAway());
         addPick(pick);
@@ -25,6 +25,8 @@ public class Match {
     public void addPick(MatchEventPick pick) {
         Objects.requireNonNull(pick, "error while adding pick to match");
         this.matchOutComes.add(pick);
+        pick.setMatchKey(home+" vs "+ away);
+        pick.setOwner(this);
 
     }
 

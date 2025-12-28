@@ -5,7 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import project.adapter.in.web.BettinAccountDTO.BettingAccountDto;
+import project.adapter.in.web.BettinAccountDTO.CreateBettingAccountDto;
 import project.adapter.in.web.BettingServiceAdapter;
 
 import java.net.URI;
@@ -19,7 +19,7 @@ public class BettingAccountResource {
     BettingServiceAdapter serviceAdapter;
 
     @POST
-    public Response create(BettingAccountDto dto) {
+    public Response create(CreateBettingAccountDto dto) {
         Long id = serviceAdapter.createNewBettingAccount(dto);
 
         // Either return created location only

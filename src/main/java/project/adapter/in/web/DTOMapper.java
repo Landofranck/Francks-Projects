@@ -1,7 +1,7 @@
 package project.adapter.in.web;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import project.adapter.in.web.BettinAccountDTO.BettingAccountDto;
+import project.adapter.in.web.BettinAccountDTO.CreateBettingAccountDto;
 import project.domain.model.BettingAccount;
 import project.domain.model.MobileMoneyAccount;
 
@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @ApplicationScoped
 public class DTOMapper {
-    public BettingAccount toBettingAccountDomain(BettingAccountDto dto) {
+    public BettingAccount toBettingAccountDomain(CreateBettingAccountDto dto) {
         Objects.requireNonNull(dto, "dto");
         Objects.requireNonNull(dto.getAccountName(), "accountName");
         Objects.requireNonNull(dto.getBrokerType(), "brokerType");

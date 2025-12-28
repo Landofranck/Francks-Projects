@@ -1,6 +1,7 @@
 package project.adapter.in.web;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import project.adapter.in.web.BettinAccountDTO.CreateBettingAccountDto;
 import project.application.port.in.CreateMobileMoneyAccountUseCase;
 import jakarta.inject.Inject;
 import project.adapter.in.web.BettinAccountDTO.BettingAccountDto;
@@ -14,7 +15,7 @@ public class BettingServiceAdapter {
     @Inject
     DTOMapper mapper;
 
-    public Long createNewBettingAccount(BettingAccountDto dto) {
+    public Long createNewBettingAccount(CreateBettingAccountDto dto) {
         var domain = mapper.toBettingAccountDomain(dto);
         return createBettingAccountUseCase.createNewBettingAccount(domain);
     }

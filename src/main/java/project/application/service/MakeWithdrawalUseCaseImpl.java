@@ -19,7 +19,8 @@ import java.time.Instant;
 @ApplicationScoped
 public class MakeWithdrawalUseCaseImpl implements MakeWithdrawalUseCase {
 
-    @Inject ReadAccountByIdPort readBetting;
+    @Inject
+    ReadAccountByIdPort readBetting;
     @Inject
     ReadMomoAccountByIdPort readMomo;
 
@@ -33,7 +34,8 @@ public class MakeWithdrawalUseCaseImpl implements MakeWithdrawalUseCase {
     @Inject
     AppendMobileMoneyTransactionPort appendMomoTx;
 
-    @Inject project.config.TimeProvider timeProvider;
+    @Inject
+    project.config.TimeProvider timeProvider;
 
     @Transactional
     @Override
@@ -49,17 +51,19 @@ public class MakeWithdrawalUseCaseImpl implements MakeWithdrawalUseCase {
         var money = new Money(amount);
 
         // 1) withdraw from betting
-        var bettingTx = betting.withdraw(money, now, description+": to "+momo.getAccountId());
+        var bettingTx = betting.withdraw(money, now, description + ": to " + momo.getAccountId());
 
         // 2) deposit to momo
-        var momoDepositTx = momo.deposit(money, now,description+": from"+betting.getAccountName());
+        var momoDepositTx = momo.deposit(money, now, description + ": from " + betting.getAccountName());
 
         // 3) fee deducted from momo AFTER deposit
         BigDecimal fee = momo.getAccountType().name().equals("MTN")
                 ? amount.multiply(new BigDecimal("0.01")).add(new BigDecimal("4"))
                 : amount.multiply(new BigDecimal("0.01"));
 
-        var feeTx = momo.withdraw(new Money(fee), now, description+": to "+betting.getAccountName());
+// optional: round fee to 2 decimals if you want currency behavior:
+        fee = fee.setScale(2, java.math.RoundingMode.HALF_UP);
+        var feeTx = momo.withdraw(new Money(fee), now, description + ": to " + betting.getAccountName());
 
         // persist balances
         updateBetting.updateBalance(betting);

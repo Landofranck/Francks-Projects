@@ -1,5 +1,7 @@
 package project.application.port.out.bettingAccount;
 
+import project.domain.model.BetSlip;
+
 public interface PersistBetSlipToAccountPort {
-    Long persistBetSlip(Long bettingAccountId, project.domain.model.BetSlip slip);
+    Long persistSlipToAccount(Long bettingAccountId, BetSlip slip);
 }

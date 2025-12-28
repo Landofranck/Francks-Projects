@@ -12,7 +12,13 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
     ReadMatchByIdPort readMatch;
 
     @Override
-    public BetSlip addPick(BetSlip slip, Long matchId, String outcomeName) {
+    public BetSlip addPick(Long bettingAccountId,BetSlip slip, Long matchId, String outcomeName) {
+        if (slip.getParentAccount() == null || slip.getParentAccount().getAccountId() == null) {
+            throw new IllegalArgumentException("BetSlip must have a parent betting account before adding picks");
+        }
+        if (!slip.getParentAccount().getAccountId().equals(bettingAccountId)) {
+            throw new IllegalArgumentException("BetSlip does not belong to betting account " + bettingAccountId);
+        }
         if (slip == null) {
             throw new IllegalArgumentException("bet slip must not be null");
         }

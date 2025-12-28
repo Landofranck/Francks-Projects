@@ -15,9 +15,13 @@ public class BetSlipDto {
     private Instant createdAt;
     private BigDecimal stake;
     private double totalOdds;
+    private Long parentBettingAccountId;
 
 
     public BetSlipDto() {}
+
+    public Long getParentBettingAccountId() { return parentBettingAccountId; }
+    public void setParentBettingAccountId(Long parentBettingAccountId) { this.parentBettingAccountId = parentBettingAccountId; }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

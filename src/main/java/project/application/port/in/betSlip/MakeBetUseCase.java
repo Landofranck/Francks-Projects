@@ -1,5 +1,8 @@
 package project.application.port.in.betSlip;
+import project.domain.model.BetSlip;
+import java.math.BigDecimal;
 
 public interface MakeBetUseCase {
-    project.domain.model.BetSlip addBet(Long bettingAccountId, project.domain.model.BetSlip slip);
+    Long makeBet(Long bettingAccountId, BetSlip slip, BigDecimal stake, String description);
 }
+

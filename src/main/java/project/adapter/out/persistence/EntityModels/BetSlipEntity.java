@@ -1,14 +1,7 @@
 package project.adapter.out.persistence.EntityModels;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import net.bytebuddy.dynamic.loading.InjectionClassLoader;
-import project.domain.model.BettingAccount;
 import project.domain.model.Enums.BetStatus;
-import project.domain.model.MatchEventPick;
-import project.domain.model.Money;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;

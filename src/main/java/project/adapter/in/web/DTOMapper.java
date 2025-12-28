@@ -42,6 +42,7 @@ public class DTOMapper {
 
     public BetSlipDto toBetSlipDto(BetSlip domain) {
         var dto = new BetSlipDto();
+        dto.setParentBettingAccountId(domain.getParentAccount() != null ? domain.getParentAccount().getAccountId() : null);
         dto.setId(domain.getId());
         dto.setStake(domain.getStake().getValue());
         dto.setCreatedAt(domain.getCreatedAt());
@@ -89,26 +90,27 @@ public class DTOMapper {
         return accounts.stream().map(this::toMobileMoneyDto).toList();
     }
 
-    public Match toMatchDomain(MatchDto dto){
-        if(dto.getMatchOutComes()==null)throw new IllegalArgumentException("match must have outcomes");
-        List<MatchEventPick> list= new ArrayList<>();
-        for (MatchEventPickDto o: dto.getMatchOutComes()){
+    public Match toMatchDomain(MatchDto dto) {
+        if (dto.getMatchOutComes() == null) throw new IllegalArgumentException("match must have outcomes");
+        List<MatchEventPick> list = new ArrayList<>();
+        for (MatchEventPickDto o : dto.getMatchOutComes()) {
             list.add(toMatchEventpick(o));
         }
-        var domain=new Match(dto.getMatchId(),list,dto.getHome(),dto.getAway());
+        var domain = new Match(dto.getMatchId(), list, dto.getHome(), dto.getAway());
         return domain;
     }
 
     private MatchEventPick toMatchEventpick(MatchEventPickDto eventDto) {
-        var pick=new MatchEventPick(eventDto.getMatchKey(),eventDto.getOutcomeName(),eventDto.getOdd());
+        var pick = new MatchEventPick(eventDto.getMatchKey(), eventDto.getOutcomeName(), eventDto.getOdd());
         return pick;
     }
+
     public List<MatchDto> toMatchDtos(List<Match> matches) {
         return matches.stream().map(this::toMatchDto).toList();
     }
 
     private MatchDto toMatchDto(Match match) {
-        var dto=new MatchDto();
+        var dto = new MatchDto();
         dto.setAway(match.getAway());
         dto.setMatchId(match.getMatchId());
         dto.setHome(match.getHome());
@@ -118,16 +120,19 @@ public class DTOMapper {
     }
 
     private MatchEventPickDto toMatchEventPickDto(MatchEventPick mP) {
-        var dto=new MatchEventPickDto();
+        var dto = new MatchEventPickDto();
         dto.setMatchKey(mP.getMatchKey());
         dto.setOdd(mP.getOdd());
         dto.setOutcomeName(mP.getOutcomeName());
         return null;
     }
 
-    public BetSlip toBetSlipDomain(CreateBetSlipsDto slip) {
-        var domain=new BetSlip(slip.getCategory());
-        domain.setCategory(slip.getCategory());
+    public BetSlip toBetSlipDomain(BetSlipDto slip) {
+        var domain = new BetSlip(slip.getCategory());
+        domain.setStake(new Money(slip.getStake()));
+        domain.setTotalOdds(slip.getTotalOdds());
+        domain.setParentAccount(slip.getParentA);
+        domain.setStatus(slip.getStatus());
         return domain;
     }
 }

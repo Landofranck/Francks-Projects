@@ -18,6 +18,7 @@ public class MatchResource {
 
     @GET
     public List<MatchDto> getAll() {
+
         return serviceAdapter.getAllMatches();
     }
 

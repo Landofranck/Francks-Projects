@@ -9,11 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(
+        name = "betting_account",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"account_name", "broker_type"}
+        )
+)
 public class BettingAccountEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id; // generated
+    @Column(name = "account_name", nullable = false)
     private String accountName;
+
+    @Column(name = "broker_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private AccountType brokerType;
     private BigDecimal balance;

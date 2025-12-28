@@ -16,6 +16,7 @@ import project.application.port.out.Match.ReadMatchByIdPort;
 import project.application.port.out.bettingAccount.*;
 import project.application.port.out.mobilMoney.*;
 import project.domain.model.BettingAccount;
+import project.domain.model.Enums.AccountType;
 import project.domain.model.Match;
 import project.domain.model.MobileMoneyAccount;
 import project.domain.model.Transaction;
@@ -32,23 +33,37 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     EntityManager entityManager;
     @Inject
     Mapper mapper;
+    private boolean existsByNameAndType(String name, AccountType type) {
+        Long count = entityManager.createQuery(
+                        "SELECT COUNT(b) FROM BettingAccountEntity b " +
+                                "WHERE b.accountName = :name AND b.brokerType = :type",
+                        Long.class
+                )
+                .setParameter("name", name)
+                .setParameter("type", type)
+                .getSingleResult();
 
+        return count > 0;
+    }
     @Transactional
     @Override
     public Long saveBettingAccount(BettingAccount account) {
-        try {
-            Objects.requireNonNull(account);
-            var entity = mapper.toBettingAccountEntity(account);
-            entityManager.persist(entity);
-            entityManager.flush();
-            return entity.getId();
-        } catch (EntityExistsException e) {
-            throw new EntityExistsException("error while persisting bankAccount", e);
-        } catch (Exception e) {
-            throw new RuntimeException("error while persisting bankAccount", e);
-        }
-    }
 
+
+        Objects.requireNonNull(account);
+        var entity = mapper.toBettingAccountEntity(account);
+        if (existsByNameAndType(entity.getAccountName(), entity.getBrokerType())) {
+            throw new IllegalArgumentException(
+                    "Betting account with name '" + entity.getAccountName() +
+                            "' already exists for broker " + entity.getBrokerType()
+            );
+        }
+
+        entityManager.persist(entity);
+        entityManager.flush();
+        return entity.getId();
+
+    }
     @Override
     public BettingAccount getAccount(Long id) {
         var entity = entityManager.find(BettingAccountEntity.class, id);
@@ -66,10 +81,9 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
             entityManager.persist(entity);
             entityManager.flush();
             return entity.getId();
-        } catch (EntityExistsException e) {
-            throw new EntityExistsException("error while persisting MobileMoneyAccount", e);
+
         } catch (Exception e) {
-            throw new RuntimeException("error while persisting MobileMoneyAccount", e);
+            throw new IllegalArgumentException("error while persisting MobileMoneyAccount:"+ e.getMessage());
         }
     }
 
@@ -155,7 +169,9 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     @Transactional
     @Override
     public Long saveMatch(Match match) {
+        if (match.getMatchOutComes()==null||match.getMatchOutComes().isEmpty()) throw new IllegalArgumentException("you need some outcomes BAR 172");
         var entity = mapper.toMatchEntity(match);
+        if (match.getMatchOutComes()==null||match.getMatchOutComes().isEmpty()) throw new IllegalArgumentException("you need some outcomes BAR 174");
         entityManager.persist(entity);
         entityManager.flush();
         return entity.getId();
@@ -173,6 +189,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
         var entities = entityManager
                 .createQuery("SELECT m FROM MatchEntity m", MatchEntity.class)
                 .getResultList();
+        if(entities.isEmpty())throw new IllegalArgumentException("no matches found in the database repositoryJpa 192");
         return mapper.toMatchDomains(entities);
     }
     @Transactional

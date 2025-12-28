@@ -59,12 +59,11 @@ public class MobileMoneyAccountResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{momoId}/deposit-to-betting/{bettingId}")
+    @Path("/{momoId}/deposit-to-betting")
     public Response deposit(@PathParam("momoId") Long momoId,
-                            @PathParam("bettingId") Long bettingId,
                             DepositDto dto) {
 
-        makeDepositUseCase.depositFromMobileMoneyToBettingAccount(momoId, bettingId, dto.getAmount(), dto.getDescription());
+        makeDepositUseCase.depositFromMobileMoneyToBettingAccount(momoId, dto.getBettingAccountId(), dto.getAmount(), dto.getDescription());
         return Response.ok().build();
     }
 

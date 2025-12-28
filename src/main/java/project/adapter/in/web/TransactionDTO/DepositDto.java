@@ -7,7 +7,10 @@ import java.math.BigDecimal;
 
 public class DepositDto {
     @NotNull
+    private Long bettingAccountId;
+    @NotNull
     private BigDecimal amount;
+
     private String withdrawalDescription;
     private String description;
 
@@ -36,6 +39,14 @@ public class DepositDto {
 
     public String getWithdrawalDescription() {
         return withdrawalDescription;
+    }
+
+    public void setBettingAccountId(Long bettingAccountId) {
+        this.bettingAccountId = bettingAccountId;
+    }
+
+    public Long getBettingAccountId() {
+        return bettingAccountId;
     }
 }
 

@@ -7,7 +7,6 @@ import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
 import project.adapter.in.web.MobileMoneyDto.CreateMobileMoneyAccountDto;
 import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
 import project.adapter.in.web.TransactionDTO.TransactionDto;
-import project.adapter.in.web.bettinAccountDTO.betslip.CreateBetSlipsDto;
 import project.domain.model.*;
 
 import java.util.ArrayList;
@@ -91,12 +90,14 @@ public class DTOMapper {
     }
 
     public Match toMatchDomain(MatchDto dto) {
-        if (dto.getMatchOutComes() == null) throw new IllegalArgumentException("match must have outcomes");
-        List<MatchEventPick> list = new ArrayList<>();
+        if (dto.getMatchOutComes() == null|| dto.getMatchOutComes().isEmpty()) throw new IllegalArgumentException("match must have outcomes :Dto mapper line 94");
+
+        var domain = new Match(dto.getHome(), dto.getAway());
         for (MatchEventPickDto o : dto.getMatchOutComes()) {
-            list.add(toMatchEventpick(o));
+            domain.addPick(toMatchEventpick(o));
         }
-        var domain = new Match(dto.getMatchId(), list, dto.getHome(), dto.getAway());
+
+        domain.setMatchId(dto.getId());
         return domain;
     }
 
@@ -111,8 +112,8 @@ public class DTOMapper {
 
     private MatchDto toMatchDto(Match match) {
         var dto = new MatchDto();
+        dto.setId(match.getMatchId());
         dto.setAway(match.getAway());
-        dto.setMatchId(match.getMatchId());
         dto.setHome(match.getHome());
         dto.setMatchOutComes(match.getMatchOutComes().stream().map(this::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new)));
 

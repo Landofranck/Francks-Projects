@@ -74,7 +74,10 @@ public class BettingServiceAdapter {
     }
 
     public Long createMatch(MatchDto dto) {
+        if(dto.getMatchOutComes().isEmpty()||dto.getMatchOutComes()==null) throw new IllegalArgumentException("you need outcomes BSA line 77");
         var domain = mapper.toMatchDomain(dto);
+        if(domain.getMatchOutComes().isEmpty()||domain.getMatchOutComes()==null) throw new IllegalArgumentException("you need outcomes BSA line 77");
+
         return createMatchUse.createMatch(domain);
 
     }

@@ -1,5 +1,6 @@
 package project.domain.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -7,20 +8,14 @@ public class Match implements Event {
     private Long matchId;
     private String home;
     private String away;
-    private List<MatchEventPick> matchOutComes;
+    private List<MatchEventPick> matchOutComes=new ArrayList<>();
 
-    public Match(long matchId, List<MatchEventPick> matchOutComes, String home, String away) {
-        this.matchId = matchId;
-        this.matchOutComes = matchOutComes;
+    public Match(String home, String away) {
         this.home = home;
         this.away = away;
     }
 
-    public void createPick(double odds, String outcome, List<MatchEventPick> matchOutComes) {
-        MatchEventPick pick = new MatchEventPick(outcome, odds);
-        pick.setMatchKey(getHome()+" vs "+getAway());
-        addPick(pick);
-    }
+
 
     public void addPick(MatchEventPick pick) {
         Objects.requireNonNull(pick, "error while adding pick to match");

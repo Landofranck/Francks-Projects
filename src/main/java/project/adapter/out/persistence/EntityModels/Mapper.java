@@ -75,7 +75,7 @@ public class Mapper {
         var matchEntity = new MatchEntity();
         matchEntity.setAway(domainPick.getAway());
         matchEntity.setHome(domainPick.getHome());
-        if (matchEntity.getOutcomes() == null) throw new RuntimeException("matchmust have outcomes");
+        if (domainPick.getMatchOutComes() == null||domainPick.getMatchOutComes().isEmpty()) throw new RuntimeException("matchmust have outcomes line 78 mapper");
         for (MatchEventPick m : domainPick.getMatchOutComes()) {
             matchEntity.addOutcome(toMatchOutcomeEntity(m));
         }
@@ -83,7 +83,8 @@ public class Mapper {
     }
 
     public Match toMatchDomain(MatchEntity eM) {
-        var dom = new Match(eM.getId(), eM.getOutcomes().stream().map(this::toMatchOutcomeDomain).collect(Collectors.toCollection(ArrayList::new)), eM.getHome(), eM.getAway());
+        var dom = new Match(eM.getHome(), eM.getAway());
+        dom.setMatchId(eM.getId());
         return dom;
     }
 
@@ -91,6 +92,7 @@ public class Mapper {
         var outcomeEntity = new MatchOutcomeEntity();
         outcomeEntity.setOutcomeName(m.getOutcomeName());
         outcomeEntity.setOdd(m.getOdd());
+        outcomeEntity.setMatchKey(m.getMatchKey());
         return outcomeEntity;
     }
 

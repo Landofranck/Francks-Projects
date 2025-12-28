@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 public class TransactionDto {
+    @NotNull
     private Long id;
     @NotNull(message = "accountType")
     private TransactionType type;
@@ -15,8 +16,8 @@ public class TransactionDto {
     @NotNull(message = "accountType")
 
     private BigDecimal balanceAfter;
-    @NotNull(message = "accountType")
 
+    @NotNull(message = "accountType")
     private Instant createdAt;
 
 

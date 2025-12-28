@@ -1,9 +1,12 @@
 package project.adapter.in.web.TransactionDTO;
 
 
+import jakarta.validation.constraints.NotNull;
+
 import java.math.BigDecimal;
 
 public class DepositDto {
+    @NotNull
     private BigDecimal amount;
     private String description;
 

@@ -2,6 +2,7 @@ package project.adapter.out.persistence;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import project.adapter.out.persistence.EntityModels.BettingAccountEntity;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Objects;
 
 @ApplicationScoped
-public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadAccountByIdPort, PersistMobileMoneyAccount, ReadAllBettingAccountsPort, ReadAllMomoAccounts , ReadMomoAccountByIdPort, UpdateBettingAccountBalancePort, UpdateMobileMoneyBalancePort, AppendBettingAccountTransactionPort, AppendMobileMoneyTransactionPort{
+public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadAccountByIdPort, PersistMobileMoneyAccount, ReadAllBettingAccountsPort, ReadAllMomoAccounts, ReadMomoAccountByIdPort, UpdateBettingAccountBalancePort, UpdateMobileMoneyBalancePort, AppendBettingAccountTransactionPort, AppendMobileMoneyTransactionPort {
     @Inject
     EntityManager entityManager;
     @Inject
@@ -34,15 +35,17 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
             entityManager.persist(entity);
             entityManager.flush();
             return entity.getId();
+        } catch (EntityExistsException e) {
+            throw new EntityExistsException("error while persisting bankAccount", e);
         } catch (Exception e) {
-            throw new RuntimeException("error while persisting bankAccount" + e.getMessage());
+            throw new RuntimeException("error while persisting bankAccount", e);
         }
     }
 
     @Override
     public BettingAccount getAccount(Long id) {
         var entity = entityManager.find(BettingAccountEntity.class, id);
-        if (entity==null)throw new IllegalArgumentException("Account not found: "+ id);
+        if (entity == null) throw new NotFoundException("Account not found: " + id);
         var output = mapper.toBettingAccountDomain(entity);
         return output;
     }
@@ -51,42 +54,46 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     @Override
     public Long saveMomoAccountToDataBase(MobileMoneyAccount account) {
         Objects.requireNonNull(account);
-        var entity =mapper.toMobileMoneyEntity(account);
-        entityManager.persist(entity);
-        entityManager.flush();
-        return entity.getId();
+        var entity = mapper.toMobileMoneyEntity(account);
+        try {
+            entityManager.persist(entity);
+            entityManager.flush();
+            return entity.getId();
+        } catch (EntityExistsException e) {
+            throw new EntityExistsException("error while persisting MobileMoneyAccount", e);
+        } catch (Exception e) {
+            throw new RuntimeException("error while persisting MobileMoneyAccount", e);
+        }
     }
 
     @Transactional
     @Override
     public List<BettingAccount> getAllBettingAcounts() {
-        try {
-            List<BettingAccountEntity> entities = entityManager
-                    .createQuery("SELECT d FROM BettingAccountEntity d", BettingAccountEntity.class).getResultList();
 
-            List<BettingAccount> accounts = mapper.toListOfAccountDomains(entities);
-            return accounts;
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        List<BettingAccountEntity> entities = entityManager
+                .createQuery("SELECT d FROM BettingAccountEntity d", BettingAccountEntity.class).getResultList();
+
+        List<BettingAccount> accounts = mapper.toListOfAccountDomains(entities);
+
+        return accounts;
+
     }
 
     @Override
     public List<MobileMoneyAccount> getAllMomoAccounts() {
-        try {
-            List<MobileMoneyAccountsEntity> entities = entityManager.
-                    createQuery("SELECT d FROM MobileMoneyAccountsEntity d", MobileMoneyAccountsEntity.class).getResultList();
-            List<MobileMoneyAccount> accounts = mapper.toListOfMOMOtDomains(entities);
-            return accounts;
-        } catch (Exception e) {
-            throw new RuntimeException("error, while getting all accounts" + e.getMessage());
-        }
+
+        List<MobileMoneyAccountsEntity> entities = entityManager.
+                createQuery("SELECT d FROM MobileMoneyAccountsEntity d", MobileMoneyAccountsEntity.class).getResultList();
+        List<MobileMoneyAccount> accounts = mapper.toListOfMOMOtDomains(entities);
+        return accounts;
+
     }
+
     @Override
     public MobileMoneyAccount getMomoAccount(Long id) {
         var entity = entityManager.find(MobileMoneyAccountsEntity.class, id);
-        if (entity == null) throw new IllegalArgumentException("Momo account not found: " + id);
-        return mapper.toMobileMoneyDomain( entity);
+        if (entity == null) throw new NotFoundException("Momo account not found: " + id);
+        return mapper.toMobileMoneyDomain(entity);
     }
 
     @Transactional

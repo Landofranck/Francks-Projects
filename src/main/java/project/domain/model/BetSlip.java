@@ -46,13 +46,10 @@ public class BetSlip {
         this.parentAccount = parentAccount;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public BetStatus getStatus() {
         return status;

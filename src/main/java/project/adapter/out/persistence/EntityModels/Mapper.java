@@ -118,8 +118,8 @@ public class Mapper {
     public BetSlip toBetslipDomain(BetSlipEntity betSlipEntity) {
         var betSlipDomain = new BetSlip(betSlipEntity.getCategory());
         betSlipDomain.setCreatedAt(betSlipEntity.getCreatedAt());
-        betSlipDomain.setStake(new Money(betSlipEntity.getStake()));
         betSlipDomain.setStatus(betSlipEntity.getStatus());
+        betSlipDomain.setTotalOdds(betSlipEntity.getTotalOdd());
         if (betSlipEntity.getStake() != null) {
             betSlipDomain.setStake(new Money(betSlipEntity.getStake()));
         }

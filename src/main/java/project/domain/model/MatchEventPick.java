@@ -24,14 +24,10 @@ public class MatchEventPick {
         return owner;
     }
 
-    public String matchKey() { return matchKey; }
 
     public String getMatchKey() { return matchKey; }
-    public String outcomeName() { return outcomeName; }
 
     public String getOutcomeName() { return outcomeName; }
-    public double odd() { return odd; }
-
     public void setMatchKey(String matchKey) {
         this.matchKey = matchKey;
     }

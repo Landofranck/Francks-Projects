@@ -7,7 +7,6 @@ import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
 import project.adapter.in.web.MobileMoneyDto.CreateMobileMoneyAccountDto;
 import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
 import project.adapter.in.web.TransactionDTO.TransactionDto;
-import project.adapter.in.web.bettinAccountDTO.betslip.EmptyBetSlipDto;
 import project.domain.model.*;
 
 import java.util.ArrayList;
@@ -40,15 +39,6 @@ public class DTOMapper {
         return dto;
     }
 
-    public EmptyBetSlipDto toEmptyBetSlipDto(BetSlip domain) {
-        var dto = new EmptyBetSlipDto();
-        dto.setCategory(domain.getCategory());
-        dto.setId(domain.getId());
-        dto.setStatus(domain.getStatus());
-        dto.setStake(domain.getStake().getValue());
-        dto.setTotalOdds(domain.getTotalOdds());
-        return dto;
-    }
 
     public BetSlipDto toBetSlipDto(BetSlip domain) {
         var dto = new BetSlipDto();
@@ -58,6 +48,7 @@ public class DTOMapper {
         dto.setCreatedAt(domain.getCreatedAt());
         dto.setTotalOdds(domain.getTotalOdds());
         dto.setCategory(domain.getCategory());
+        dto.setPicks(domain.getPicks().stream().map(this::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new)));
         return dto;
     }
 

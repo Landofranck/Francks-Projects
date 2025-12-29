@@ -5,8 +5,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import project.application.port.in.MakeDepositUseCase;
-import project.application.port.out.*;
 import project.application.port.out.bettingAccount.AppendBettingAccountTransactionPort;
+import project.application.port.out.bettingAccount.ReadBettingAccountByIdPort;
 import project.application.port.out.bettingAccount.UpdateBettingAccountBalancePort;
 import project.application.port.out.mobilMoney.AppendMobileMoneyTransactionPort;
 import project.application.port.out.mobilMoney.ReadMomoAccountByIdPort;
@@ -28,7 +28,7 @@ public class MakeDepositUseCaseImpl implements MakeDepositUseCase {
     @Inject
     ReadMomoAccountByIdPort momoReader;
     @Inject
-    ReadAccountByIdPort bettingReader;
+    ReadBettingAccountByIdPort bettingReader;
 
     @Inject
     UpdateMobileMoneyBalancePort momoBalanceUpdater;
@@ -48,7 +48,7 @@ public class MakeDepositUseCaseImpl implements MakeDepositUseCase {
         Objects.requireNonNull(amount, "amount");
         if (amount.signum() <= 0) throw new IllegalArgumentException("amount must be > 0");
         var momo = momoReader.getMomoAccount(momoAccountId);
-        var betting = bettingReader.getAccount(bettingAccountId);
+        var betting = bettingReader.getBettingAccount(bettingAccountId);
 
         Money transfer = new Money(amount);
         Money fee = calculateFee(momo.getAccountType(), transfer);
@@ -56,7 +56,7 @@ public class MakeDepositUseCaseImpl implements MakeDepositUseCase {
         var now = Instant.now(timeProvider.clock());
 
         // 1) withdraw transfer from momo -> DOMAIN creates tx
-        Transaction momoTransferTx = momo.withdraw(transfer, now,": "+description+" to "+betting.getAccountName() );
+        Transaction momoTransferTx = momo.withdraw(transfer, now,": "+description+" from "+momo.getAccountId() );
 
 
         // 1) withdraw transfer from momo -> DOMAIN creates tx

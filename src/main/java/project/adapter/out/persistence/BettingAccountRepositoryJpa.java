@@ -2,32 +2,28 @@ package project.adapter.out.persistence;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import project.adapter.out.persistence.EntityModels.BettingAccountEntity;
 import project.adapter.out.persistence.EntityModels.Mapper;
 import project.adapter.out.persistence.EntityModels.MatchEntity;
 import project.adapter.out.persistence.EntityModels.MobileMoneyAccountsEntity;
-import project.application.port.out.*;
 import project.application.port.out.Match.PersistMatchPort;
 import project.application.port.out.Match.ReadAllMatchesPort;
 import project.application.port.out.Match.ReadMatchByIdPort;
 import project.application.port.out.bettingAccount.*;
 import project.application.port.out.mobilMoney.*;
-import project.domain.model.BettingAccount;
+import project.domain.model.*;
 import project.domain.model.Enums.AccountType;
-import project.domain.model.Match;
-import project.domain.model.MobileMoneyAccount;
-import project.domain.model.Transaction;
 
 import java.util.List;
 import java.util.Objects;
 
 @ApplicationScoped
-public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadAccountByIdPort, PersistMobileMoneyAccount, ReadAllBettingAccountsPort, ReadAllMomoAccounts,
+public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadBettingAccountByIdPort, PersistMobileMoneyAccount, ReadAllBettingAccountsPort, ReadAllMomoAccounts,
         ReadMomoAccountByIdPort, UpdateBettingAccountBalancePort, UpdateMobileMoneyBalancePort, AppendBettingAccountTransactionPort,
-        AppendMobileMoneyTransactionPort, PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort {
+        AppendMobileMoneyTransactionPort, PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort, PersistEmptyBetSlipPort,
+        ReadEmptSlipByParenPort {
     @Inject
     EntityManager entityManager;
     @Inject
@@ -52,6 +48,8 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
 
 
         Objects.requireNonNull(account);
+
+
         var entity = mapper.toBettingAccountEntity(account);
         if (existsByNameAndType(entity.getAccountName(), entity.getBrokerType())) {
             throw new IllegalArgumentException(
@@ -60,14 +58,14 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
             );
         }
 
-        entityManager.persist(entity);
+            entityManager.persist(entity);
+
         entityManager.flush();
         return entity.getId();
-
     }
 
     @Override
-    public BettingAccount getAccount(Long id) {
+    public BettingAccount getBettingAccount(Long id) {
         var entity = entityManager.find(BettingAccountEntity.class, id);
         if (entity == null) throw new NotFoundException("Account not found: " + id);
         var output = mapper.toBettingAccountDomain(entity);
@@ -216,5 +214,27 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
         return slipEntity.getId();
     }
 
+    @Transactional
+    @Override
+    public Long persisEmptyslip(Long bettingAccountId, BetSlip betSlip) {
+        var emptySlipOwner = entityManager.find(BettingAccountEntity.class, bettingAccountId);
+        if (emptySlipOwner == null)
+            throw new IllegalArgumentException("Betting account not found jpa line 218: " + bettingAccountId);
+        var slipEntity = mapper.toBetslipEntity(betSlip);
+        emptySlipOwner.putNewBetSlip(slipEntity);
+        entityManager.persist(slipEntity);
+        return slipEntity.getId();
+    }
 
+    @Override
+    public BetSlip getAvailableBettingSlip(Long parentAccountId) {
+        var parentAccount = entityManager.find(BettingAccountEntity.class, parentAccountId);
+        if (parentAccount == null)
+            throw new IllegalArgumentException("Betting account not found jpa line 231: " + parentAccountId);
+        var slip = mapper.toBetslipDomain(parentAccount.getDraftBetSlip());
+        if (slip == null)
+            throw new IllegalArgumentException("Betting account " + parentAccount.getAccountName()
+                    + " does not have this and empty slip : " + parentAccountId);
+        return slip;
+    }
 }

@@ -1,33 +1,23 @@
 package project.adapter.in.web.bettinAccountDTO;
 
-import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
-
 public class AddPickRequestBetSlipDto {
-    private BetSlipDto slip;
     private Long matchId;
-    private String outcomeName;
+    private String outComeName;
 
-    public String getOutcomeName() {
-        return outcomeName;
-    }
-
-    public BetSlipDto getSlip() {
-        return slip;
+    public String getOutComeName() {
+        return outComeName;
     }
 
     public Long getMatchId() {
         return matchId;
     }
 
-    public void setOutcomeName(String outcomeName) {
-        this.outcomeName = outcomeName;
+    public void setOutComeName(String outComeName) {
+        this.outComeName = outComeName;
     }
 
     public void setMatchId(Long matchId) {
         this.matchId = matchId;
     }
 
-    public void setSlip(BetSlipDto slip) {
-        this.slip = slip;
-    }
 }

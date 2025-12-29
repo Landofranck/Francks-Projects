@@ -9,7 +9,6 @@ import project.adapter.in.web.MobileMoneyDto.MomoTopUpRequestDto;
 import project.adapter.in.web.MobileMoneyDto.MomoTransferRequestDto;
 import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
-import project.adapter.in.web.bettinAccountDTO.betslip.EmptyBetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.MakeBetRequestDto;
 import project.application.port.in.*;
 import jakarta.inject.Inject;
@@ -95,14 +94,13 @@ public class BettingServiceAdapter {
         return list;
     }
 
-    public EmptyBetSlipDto createEmptySlip(Long bettingAccountId, String category) {
+    public BetSlipDto createEmptySlip(Long bettingAccountId, String category) {
         var slip = createEmptyBetSlipUseCase.createEmpty(bettingAccountId, category);
-        return mapper.toEmptyBetSlipDto(slip);
+        return mapper.toBetSlipDto(slip);
     }
 
     public BetSlipDto addPickToBetSlip(Long bettingAccountId, AddPickRequestBetSlipDto dto) {
-        var slipDomain = mapper.toBetSlipDomain(dto.getSlip());
-        var updated = addEventPick.addPick(bettingAccountId, slipDomain, dto.getMatchId(), dto.getOutcomeName());
+        var updated = addEventPick.addPick(bettingAccountId, dto.getMatchId(), dto.getOutComeName());
         return mapper.toBetSlipDto(updated);
     }
 

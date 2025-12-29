@@ -17,15 +17,25 @@ public class BetSlipEntity {
     @Enumerated(EnumType.STRING)
     private BetStatus status;
     private String category;
-
     private Instant createdAt;
     private double totalOdd;
-
-    @ManyToOne(optional = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "parentAccountEntity_id", nullable = true)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "parentAccountEntity_id", nullable = false)
     private BettingAccountEntity parentAccountEntity;
 
+
+    @OneToOne(optional = true,fetch = FetchType.LAZY)
+    @JoinColumn(name = "betting_account_id",unique = true)
+    private BettingAccountEntity draftBetSlipOwner;
     private BigDecimal stake;
+
+    public BettingAccountEntity getNewBetslipParent() {
+        return draftBetSlipOwner;
+    }
+
+    public void setNewBetslipParent(BettingAccountEntity newBetslipParent) {
+        this.draftBetSlipOwner = newBetslipParent;
+    }
 
     protected BetSlipEntity() {
     }

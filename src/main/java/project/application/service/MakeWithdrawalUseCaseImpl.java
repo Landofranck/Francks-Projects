@@ -5,8 +5,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import project.application.port.in.MakeWithdrawalUseCase;
-import project.application.port.out.*;
 import project.application.port.out.bettingAccount.AppendBettingAccountTransactionPort;
+import project.application.port.out.bettingAccount.ReadBettingAccountByIdPort;
 import project.application.port.out.bettingAccount.UpdateBettingAccountBalancePort;
 import project.application.port.out.mobilMoney.AppendMobileMoneyTransactionPort;
 import project.application.port.out.mobilMoney.ReadMomoAccountByIdPort;
@@ -20,7 +20,7 @@ import java.time.Instant;
 public class MakeWithdrawalUseCaseImpl implements MakeWithdrawalUseCase {
 
     @Inject
-    ReadAccountByIdPort readBetting;
+    ReadBettingAccountByIdPort readBetting;
     @Inject
     ReadMomoAccountByIdPort readMomo;
 
@@ -44,7 +44,7 @@ public class MakeWithdrawalUseCaseImpl implements MakeWithdrawalUseCase {
             throw new IllegalArgumentException("amount must be > 0");
         }
 
-        var betting = readBetting.getAccount(bettingAccountId);
+        var betting = readBetting.getBettingAccount(bettingAccountId);
         var momo = readMomo.getMomoAccount(momoAccountId);
 
         Instant now = Instant.now(timeProvider.clock());

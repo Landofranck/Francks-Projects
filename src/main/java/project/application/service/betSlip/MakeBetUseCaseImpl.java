@@ -5,7 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import project.application.port.in.betSlip.MakeBetUseCase;
-import project.application.port.out.ReadAccountByIdPort;
+import project.application.port.out.bettingAccount.ReadBettingAccountByIdPort;
 import project.application.port.out.bettingAccount.AppendBettingAccountTransactionPort;
 import project.application.port.out.bettingAccount.PersistBetSlipToAccountPort;
 import project.application.port.out.bettingAccount.UpdateBettingAccountBalancePort;
@@ -19,7 +19,8 @@ import java.time.Instant;
 @ApplicationScoped
 public class MakeBetUseCaseImpl implements MakeBetUseCase {
 
-    @Inject ReadAccountByIdPort readAccount;
+    @Inject
+    ReadBettingAccountByIdPort readAccount;
     @Inject UpdateBettingAccountBalancePort updateBalance;
     @Inject AppendBettingAccountTransactionPort appendTx;
     @Inject PersistBetSlipToAccountPort persistSlip;
@@ -41,7 +42,7 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
         if (!slip.getParentAccount().getAccountId().equals(bettingAccountId))
             throw new IllegalArgumentException("BetSlip does not belong to betting account " + bettingAccountId);
 
-        var account = readAccount.getAccount(bettingAccountId);
+        var account = readAccount.getBettingAccount(bettingAccountId);
 
         Instant now = Instant.now(timeProvider.clock());
         Money stakeMoney = new Money(stake);

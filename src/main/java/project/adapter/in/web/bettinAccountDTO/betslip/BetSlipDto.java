@@ -9,13 +9,13 @@ import java.util.List;
 
 public class BetSlipDto {
     private Long id;
-    private List<MatchEventPickDto> picks;
-    private BetStatus status;
+    private Long parentBettingAccountId;
     private String category;
     private Instant createdAt;
-    private BigDecimal stake;
+    private List<MatchEventPickDto> picks;
+    private BetStatus status;
     private double totalOdds;
-    private Long parentBettingAccountId;
+    private BigDecimal stake;
 
 
     public BetSlipDto() {}

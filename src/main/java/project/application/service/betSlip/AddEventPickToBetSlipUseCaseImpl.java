@@ -4,6 +4,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;
 import project.application.port.out.Match.ReadMatchByIdPort;
+import project.application.port.out.bettingAccount.PersistEmptyBetSlipPort;
+import project.application.port.out.bettingAccount.ReadEmptSlipByParenPort;
 import project.domain.model.BetSlip;
 import project.domain.model.Match;
 import project.domain.model.MatchEventPick;
@@ -12,9 +14,14 @@ import project.domain.model.MatchEventPick;
 public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUseCase {
     @Inject
     ReadMatchByIdPort readMatch;
+    @Inject
+    ReadEmptSlipByParenPort readEmptSlip;
+    @Inject
+    PersistEmptyBetSlipPort putBetSlip;
 
     @Override
-    public BetSlip addPick(Long bettingAccountId,BetSlip slip, Long matchId, String outcomeName) {
+    public BetSlip addPick(Long bettingAccountId, Long matchId, String outcomeName) {
+        var slip = readEmptSlip.getAvailableBettingSlip(bettingAccountId);
         if (slip.getParentAccount() == null || slip.getParentAccount().getAccountId() == null) {
             throw new IllegalArgumentException("BetSlip must have a parent betting account before adding picks");
         }
@@ -47,7 +54,7 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
                 outcome.getOdd()
         );
         slip.addMatchEventPick(pick);
-
+        putBetSlip.persisEmptyslip(bettingAccountId, slip);
         // Recalculate slip odds if you store total odds
         // (depends on your BetSlip model)
         // slip.recalculateTotalOdds();

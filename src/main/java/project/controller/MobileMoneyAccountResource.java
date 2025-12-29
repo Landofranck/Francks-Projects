@@ -27,7 +27,9 @@ public class MobileMoneyAccountResource {
     @Inject
     MakeDepositUseCase makeDepositUseCase;
 
-
+    /**
+     * creates new mobile money account
+     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(CreateMobileMoneyAccountDto dto) {
@@ -43,6 +45,9 @@ public class MobileMoneyAccountResource {
         return Response.noContent().build();
     }
 
+    /**
+     * tops up the money in  mobilemoney account whithout taking from any externnal source, just increases the value
+     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{id}/topups")
@@ -52,11 +57,17 @@ public class MobileMoneyAccountResource {
         return Response.noContent().build();
     }
 
+    /**
+     * returns all mobili money accounts to the user
+     */
     @GET
     public List<ReadMomoAccountDto> getAll() {
         return serviceAdapter.getAllMomoAccounts();
     }
 
+    /**
+     * makes a deposit from mobile money to betting account
+     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{momoId}/deposit-to-betting")

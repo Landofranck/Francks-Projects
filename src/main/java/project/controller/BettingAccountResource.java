@@ -11,13 +11,12 @@ import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
 import project.adapter.in.web.BettingServiceAdapter;
 import project.adapter.in.web.TransactionDTO.WithdrawDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
-import project.adapter.in.web.bettinAccountDTO.betslip.EmptyBetSlipDto;
+import project.adapter.in.web.bettinAccountDTO.betslip.CreateBetSlipsDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.MakeBetRequestDto;
 import project.application.port.in.MakeWithdrawalUseCase;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 
 @Path("/betting-accounts")
 @Produces(MediaType.APPLICATION_JSON)
@@ -44,6 +43,9 @@ public class BettingAccountResource {
         // Or if you prefer returning JSON: return Response.status(201).entity(Map.of("id", id)).build();
     }
 
+    /**
+     * makes a withdrawal from a betting account to a designated mobile money account
+     */
     @POST
     @Path("/{bettingId}/withdraw-to-momo/{momoId}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -54,17 +56,22 @@ public class BettingAccountResource {
         return Response.noContent().build();
     }
 
+    /**
+     * creates a new empty bet slip
+     */
     @POST
     @Path("/{bettingId}/betslips/new")
     @Consumes(MediaType.APPLICATION_JSON)
-    public EmptyBetSlipDto createSlip(
+    public BetSlipDto createSlip(
             @PathParam("bettingId") Long bettingId,
-            Map<String, String> body // expects {"category":"ACCUMULATOR"}
+            CreateBetSlipsDto dto// expects {"category":"ACCUMULATOR"}
     ) {
-        String category = body.get("category");
-        return serviceAdapter.createEmptySlip(bettingId, category);
+        return serviceAdapter.createEmptySlip(bettingId, dto.getCategory());
     }
 
+    /**
+     * adds pick to an empty slip on an account
+     */
     @POST
     @Path("/{bettingId}/betslips/add-pick")
     @Consumes(MediaType.APPLICATION_JSON)

@@ -7,14 +7,16 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class BettingAccount implements Account {
-    private  Long id; // generated
+    private Long id; // generated
     private final String accountName;
     private final AccountType brokerType;
     private Money balance;
     private List<Transaction> transactionHistory;
     private List<BetSlip> betHistory;
+    private BetSlip newBetslip;
 
     public BettingAccount(String accountName, AccountType brokerType) {
         this.accountName = accountName;
@@ -22,14 +24,15 @@ public class BettingAccount implements Account {
         this.balance = new Money(BigDecimal.ZERO);
         this.transactionHistory = new ArrayList<>();
         this.betHistory = new ArrayList<>();
-        this.balance=new Money(BigDecimal.ZERO);
+        this.balance = new Money(BigDecimal.ZERO);
+        this.newBetslip=new BetSlip("DRAFT");
     }
 
     public void addBetSlip(BetSlip newBetslip) {
         newBetslip.setParentAccount(this);
         this.betHistory.add(newBetslip);
         //advicable to use the
-        addTransaction(new Transaction(newBetslip.getStake(), new Money(balance.getValue()), newBetslip.getCreatedAt(), TransactionType.BET_PLACED,""));
+        addTransaction(new Transaction(newBetslip.getStake(), new Money(balance.getValue()), newBetslip.getCreatedAt(), TransactionType.BET_PLACED, ""));
     }
 
     public void addTransaction(Transaction transaction) {
@@ -37,28 +40,39 @@ public class BettingAccount implements Account {
         this.transactionHistory.add(transaction);
     }
 
-    public Transaction deposit(Money money, Instant createdAt,String description) {
+    public Transaction deposit(Money money, Instant createdAt, String description) {
         this.balance = this.balance.add(money);
 
         Transaction doneTransaction = new Transaction(
                 money,
                 new Money(balance.getValue()),
                 createdAt,
-                TransactionType.DEPOSIT,description
+                TransactionType.DEPOSIT, description
         );
 
         addTransaction(doneTransaction);
         return doneTransaction;
     }
 
+    public BetSlip putEmptySlip(BetSlip betSlip) {
+        Objects.requireNonNull(betSlip);
+        betSlip.setParentAccount(this);
+        this.newBetslip=betSlip;
+        return betSlip;
+    }
+
+    public BetSlip getNewBetslip() {
+            return newBetslip;
+
+    }
 
     public Transaction withdraw(Money money, Instant now, String description) {
         if (!this.balance.isGreaterThan(money)) {
             throw new RuntimeException("you cannot make withdrwal of " + money.getValue());
         }
-        this.balance=balance.subtract(money);
-        Transaction doneTransaction=new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.WITHDRAWAL,description);
-    return doneTransaction;
+        this.balance = balance.subtract(money);
+        Transaction doneTransaction = new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.WITHDRAWAL, description);
+        return doneTransaction;
     }
 
     public String getAccountName() {

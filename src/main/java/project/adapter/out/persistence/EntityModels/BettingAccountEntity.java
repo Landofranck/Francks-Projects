@@ -22,17 +22,29 @@ public class BettingAccountEntity {
     @Column(name = "account_name", nullable = false)
     private String accountName;
 
+    @OneToOne(mappedBy = "draftBetSlipOwner", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    private BetSlipEntity draftBetSlip;
+
     @Column(name = "broker_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private AccountType brokerType;
     private BigDecimal balance;
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BettingAccountTransactionEntity> transactionHistory= new ArrayList<>();
+    private List<BettingAccountTransactionEntity> transactionHistory = new ArrayList<>();
 
     @OneToMany(mappedBy = "parentAccountEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BetSlipEntity> betHistory=new ArrayList<>();
+    private List<BetSlipEntity> betHistory = new ArrayList<>();
 
     protected BettingAccountEntity() {
+    }
+
+    public void putNewBetSlip(BetSlipEntity betSlip) {
+
+        this.draftBetSlip.setStatus(betSlip.getStatus());
+        this.draftBetSlip.setPicks(betSlip.getPicks());
+        this.draftBetSlip.setCategory(betSlip.getCategory());
+        this.draftBetSlip.setTotalOdd(betSlip.getTotalOdd());
+        betSlip.setParentAccount(this);
     }
 
     public void addBetSlipEntity(BetSlipEntity betSlip) {
@@ -40,12 +52,14 @@ public class BettingAccountEntity {
         betSlip.setParentAccount(this);
     }
 
+    public BetSlipEntity getDraftBetSlip() {
+        return draftBetSlip;
+    }
+
     public void addTransactionEntity(BettingAccountTransactionEntity transaction) {
         this.transactionHistory.add(transaction);
         transaction.setOwner(this);
     }
-
-
 
 
     public Long getId() {

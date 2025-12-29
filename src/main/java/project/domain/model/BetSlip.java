@@ -43,6 +43,10 @@ public class BetSlip implements Event {
         this.numberOfEvents=picks.size();
     }
 
+    public int getNumberOfEvents() {
+        return numberOfEvents;
+    }
+
     public double getTotalOdds() {
         return totalOdds;
     }

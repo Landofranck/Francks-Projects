@@ -44,7 +44,7 @@ public class DTOMapper {
 
     public BetSlipDto toDraftSlipDto(DraftBetSlip domain) {
         var dto = new BetSlipDto();
-        dto.setParentBettingAccountId(domain.getParentAccount() != null ? domain.getParentAccount().getAccountId() : null);
+        dto.setParentBettingAccountId(domain.getDraftSlipOwner() != null ? domain.getDraftSlipOwner().getAccountId() : null);
         dto.setId(domain.getId());
         dto.setStake(domain.getStake().getValue());
         dto.setCreatedAt(domain.getCreatedAt());

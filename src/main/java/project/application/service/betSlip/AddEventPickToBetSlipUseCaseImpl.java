@@ -6,7 +6,6 @@ import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;
 import project.application.port.out.Match.ReadMatchByIdPort;
 import project.application.port.out.bettingAccount.PersistEmptyBetSlipPort;
 import project.application.port.out.bettingAccount.ReadEmptSlipByParenPort;
-import project.domain.model.BetSlip;
 import project.domain.model.DraftBetSlip;
 import project.domain.model.Match;
 import project.domain.model.MatchEventPick;
@@ -23,10 +22,14 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
     @Override
     public DraftBetSlip addPick(Long bettingAccountId, Long matchId, String outcomeName) {
         var slip = readEmptSlip.getAvailableBettingSlip(bettingAccountId);
-        if (slip.getParentAccount() == null || slip.getParentAccount().getAccountId() == null) {
+        if (slip == null) {
+            throw new IllegalArgumentException("no betslip found 27");
+        }
+
+        if (slip.getDraftSlipOwner() == null || slip.getDraftSlipOwner().getAccountId() == null) {
             throw new IllegalArgumentException("BetSlip must have a parent betting account before adding picks addpickimpl 27");
         }
-        if (!slip.getParentAccount().getAccountId().equals(bettingAccountId)) {
+        if (!slip.getDraftSlipOwner().getAccountId().equals(bettingAccountId)) {
             throw new IllegalArgumentException("BetSlip does not belong to betting account " + bettingAccountId);
         }
         if (slip == null) {
@@ -36,7 +39,7 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
             throw new IllegalArgumentException("matchId must not be null");
         }
         if (outcomeName == null || outcomeName.isBlank()) {
-            throw new IllegalArgumentException("outcomeName must not be blank");
+            throw new IllegalArgumentException("outcomeName must not be blank addevent impl");
         }
 
         Match match = readMatch.getMatch(matchId); // throws NotFound/IllegalArgument if not found
@@ -47,6 +50,11 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Outcome '" + outcomeName + "' not found for match " + matchId));
+        //check if outcome is already in betslip
+        boolean duplicate=slip.getPicks().stream()
+                .anyMatch(o -> outcome.getOutcomeName().equalsIgnoreCase(o.getOutcomeName())&outcome.getMatchKey().equalsIgnoreCase(o.getMatchKey()));
+        if(duplicate) throw new IllegalArgumentException("you have to choose another bick for this match addpickimpl 56");
+
 
         // Create pick from the outcome
         MatchEventPick pick = new MatchEventPick(

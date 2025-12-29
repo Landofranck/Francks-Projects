@@ -135,6 +135,7 @@ public class Mapper {
 
     public DraftBetSlip toDraftSĺipDomain(DraftSlipEntity draftSlipEntity) {
         var draftDomain = new DraftBetSlip(draftSlipEntity.getCategory());
+        draftDomain.setId(draftSlipEntity.getId());
         draftDomain.setCreatedAt(draftSlipEntity.getCreatedAt());
         draftDomain.setStatus(draftSlipEntity.getStatus());
         draftDomain.setTotalOdds(draftSlipEntity.getTotalOdd());
@@ -146,6 +147,10 @@ public class Mapper {
                 draftDomain.addMatchEventPick(toDraftEventDomain(p));
             }
         }
+        var draftslipOwner=new BettingAccount(draftSlipEntity.getNewBetslipParent().getAccountName(),
+                draftSlipEntity.getNewBetslipParent().getBrokerType());
+        draftslipOwner.setId(draftSlipEntity.getNewBetslipParent().getId());
+        draftDomain.setDraftSlipOwner(draftslipOwner);
         return draftDomain;
     }
     public BetSlip toBetslipDomain(BetSlipEntity betSlipEntity) {

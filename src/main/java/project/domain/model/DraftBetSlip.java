@@ -14,7 +14,7 @@ public class DraftBetSlip implements Event {
     private String category;
     private Instant createdAt;
     //int the reducer method betslips will be created without parent accounts
-    private BettingAccount parentAccount;
+    private BettingAccount draftSlipOwner;
     private Money stake;
     private double totalOdds;
     private int numberOfEvents;
@@ -51,8 +51,8 @@ public class DraftBetSlip implements Event {
         return totalOdds;
     }
 
-    public void setParentAccount(BettingAccount parentAccount) {
-        this.parentAccount = parentAccount;
+    public void setDraftSlipOwner(BettingAccount draftSlipOwner) {
+        this.draftSlipOwner = draftSlipOwner;
     }
 
     public Long getId() {
@@ -93,8 +93,8 @@ public class DraftBetSlip implements Event {
         this.id = id;
     }
 
-    public BettingAccount getParentAccount() {
-        return parentAccount;
+    public BettingAccount getDraftSlipOwner() {
+        return draftSlipOwner;
     }
 
     public void setCreatedAt(Instant createdAt) {

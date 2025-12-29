@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class BettingAccount implements Account {
     private Long id; // generated
@@ -55,7 +54,7 @@ public class BettingAccount implements Account {
 
     public DraftBetSlip putEmptySlip(DraftBetSlip betSlip) {
         if(betSlip==null)throw new RuntimeException("there must be a betslip line 57 betting account");
-        betSlip.setParentAccount(this);
+        betSlip.setDraftSlipOwner(this);
         this.newBetslip=betSlip;
         return betSlip;
     }

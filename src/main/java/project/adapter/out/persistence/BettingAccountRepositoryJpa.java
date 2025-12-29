@@ -222,7 +222,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
                 throw new IllegalArgumentException("Betting account not found jpa line 222: " + bettingAccountId);
             var slipEntity = mapper.toDraftSlipEntity(betSlip);
             emptySlipOwner.putNewBetSlip(slipEntity);
-            entityManager.persist(emptySlipOwner);
+            entityManager.persist(slipEntity);
             return slipEntity.getId();
         } catch (Exception e) {
             throw new IllegalArgumentException("erron persisting new empty sip jpa line 227 " + e.getMessage());

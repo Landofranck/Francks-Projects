@@ -1,7 +1,8 @@
 package project.application.port.in.betSlip;
 
 import project.domain.model.BetSlip;
+import project.domain.model.DraftBetSlip;
 
 public interface CreateEmptyBetSlipUseCase {
-    BetSlip createEmpty(Long bettingAccountId, String category);
+    DraftBetSlip createEmpty(Long bettingAccountId, String category);
 }

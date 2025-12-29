@@ -14,8 +14,9 @@ public class Mapper {
         entityModel.setBalance(domainModel.getBalance().getValue());
         entityModel.setBrokerType(domainModel.getBrokerType());
         entityModel.setAccountName(domainModel.getAccountName());
-
-            entityModel.putNewBetSlip(toBetslipEntity(domainModel.getNewBetslip()));
+        if (domainModel.getNewBetslip() != null) {
+            entityModel.putNewBetSlip(toDraftSlipEntity(domainModel.getNewBetslip()));//the part send the error     "message": "Cannot invoke \"project.adapter.out.persistence.EntityModels.BetSlipEntity.setStatus(project.domain.model.Enums.BetStatus)\" because the return value of \"project.adapter.out.persistence.EntityModels.BettingAccountEntity.$$_hibernate_read_draftBetSlip()\" is null"
+        }
 
         if (domainModel.getTransactionHistory() != null) {
             for (Transaction T : domainModel.getTransactionHistory()) {
@@ -34,6 +35,9 @@ public class Mapper {
         var domainModel = new BettingAccount(entityModel.getAccountName(), entityModel.getBrokerType());
         domainModel.setBalance(new Money(entityModel.getBalance()));
         domainModel.setId(entityModel.getId());
+        if (entityModel.getDraftBetSlip() != null) {
+            domainModel.putEmptySlip(toDraftSĺipDomain(entityModel.getDraftBetSlip()));
+        }
         if (entityModel.getTransactionHistory() != null) {
             for (BettingAccountTransactionEntity T : entityModel.getTransactionHistory()) {
                 domainModel.addTransaction(toBettingTransactionDomain(T));
@@ -69,14 +73,6 @@ public class Mapper {
         return transactionEntity;
     }
 
-    public MatchEventPickEntity toMatchEventEntity(MatchEventPick domainPick) {
-        var matchEventPickEntity = new MatchEventPickEntity();
-        matchEventPickEntity.setMatchKey(domainPick.getMatchKey());
-        matchEventPickEntity.setOdd(domainPick.getOdd());
-        matchEventPickEntity.setOutcomeName(domainPick.getOutcomeName());
-        return matchEventPickEntity;
-    }
-
     public MatchEntity toMatchEntity(Match domainPick) {
         var matchEntity = new MatchEntity();
         matchEntity.setAway(domainPick.getAway());
@@ -87,6 +83,14 @@ public class Mapper {
             matchEntity.addOutcome(toMatchOutcomeEntity(m));
         }
         return matchEntity;
+    }
+
+    public MatchEventPickEntity toMatchEventEntity(MatchEventPick domainPick) {
+        var matchEventPickEntity = new MatchEventPickEntity();
+        matchEventPickEntity.setMatchKey(domainPick.getMatchKey());
+        matchEventPickEntity.setOdd(domainPick.getOdd());
+        matchEventPickEntity.setOutcomeName(domainPick.getOutcomeName());
+        return matchEventPickEntity;
     }
 
 
@@ -129,6 +133,21 @@ public class Mapper {
         return transacttionDomain;
     }
 
+    public DraftBetSlip toDraftSĺipDomain(DraftSlipEntity draftSlipEntity) {
+        var draftDomain = new DraftBetSlip(draftSlipEntity.getCategory());
+        draftDomain.setCreatedAt(draftSlipEntity.getCreatedAt());
+        draftDomain.setStatus(draftSlipEntity.getStatus());
+        draftDomain.setTotalOdds(draftSlipEntity.getTotalOdd());
+        if (draftSlipEntity.getStake() != null) {
+            draftDomain.setStake(new Money(draftSlipEntity.getStake()));
+        }
+        if (draftSlipEntity.getPicks() != null) {
+            for (DraftEventPickEntity p : draftSlipEntity.getPicks()) {
+                draftDomain.addMatchEventPick(toDraftEventDomain(p));
+            }
+        }
+        return draftDomain;
+    }
     public BetSlip toBetslipDomain(BetSlipEntity betSlipEntity) {
         var betSlipDomain = new BetSlip(betSlipEntity.getCategory());
         betSlipDomain.setCreatedAt(betSlipEntity.getCreatedAt());
@@ -161,8 +180,40 @@ public class Mapper {
             }
             return betSlipentity;
         } catch (Exception e) {
-            throw new RuntimeException("could not convert to betslip entity");
+            throw new RuntimeException("could not convert to betslip entity jpa line 164" + e.getMessage());
         }
+    }
+
+    public DraftSlipEntity toDraftSlipEntity(DraftBetSlip betSlip) {
+        try {
+
+
+            var draftSlipEntity = new DraftSlipEntity();
+            draftSlipEntity.setCategory(betSlip.getCategory());
+            draftSlipEntity.setStatus(betSlip.getStatus());
+            draftSlipEntity.setCreatedAt(betSlip.getCreatedAt());
+            draftSlipEntity.setStake(betSlip.getStake().getValue());
+            if (betSlip.getPicks() != null) {
+                for (MatchEventPick p : betSlip.getPicks()) {
+                    draftSlipEntity.addDraftEventPick(toDraftEventEntity(p));
+                }
+            }
+            return draftSlipEntity;
+        } catch (Exception e) {
+            throw new RuntimeException("could not convert to betslip entity jpa line 164" + e.getMessage());
+        }
+    }
+    public DraftEventPickEntity toDraftEventEntity(MatchEventPick domainPick) {
+        var draftEventPickEntity = new DraftEventPickEntity();
+        draftEventPickEntity.setMatchKey(domainPick.getMatchKey());
+        draftEventPickEntity.setOdd(domainPick.getOdd());
+        draftEventPickEntity.setOutcomeName(domainPick.getOutcomeName());
+        return draftEventPickEntity;
+    }
+    public MatchEventPick toDraftEventDomain(DraftEventPickEntity p) {
+        var draftEvent = new MatchEventPick(p.getMatchKey(), p.outcomeName(), p.getOdd());
+        draftEvent.setMatchKey(p.getMatchKey());
+        return draftEvent;
     }
 
     public MatchEventPick toMatchEventDomain(MatchEventPickEntity p) {

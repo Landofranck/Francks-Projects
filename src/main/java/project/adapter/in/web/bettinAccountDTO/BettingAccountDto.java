@@ -14,8 +14,16 @@ public class BettingAccountDto {
     private BigDecimal balance;
     private List<TransactionDto> transactionHistory;
     private List<BetSlipDto> betHistory;
+    private BetSlipDto draftAccount;
 
-    public BettingAccountDto() {}
+
+    public void setDraftAccount(BetSlipDto draftAccount) {
+        this.draftAccount = draftAccount;
+    }
+
+    public BetSlipDto getDraftAccount() {
+        return draftAccount;
+    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

@@ -30,12 +30,27 @@ public class DTOMapper {
         dto.setAccountName(acc.getAccountName());
         dto.setBrokerType(acc.getAccountType());
         dto.setBalance(acc.getBalance().getValue());
+        if (acc.getNewBetslip() != null) {
+            dto.setDraftAccount(toDraftSlipDto(acc.getNewBetslip()));
+        }
         if (acc.getTransactionHistory() != null) {
             dto.setTransactionHistory(acc.getTransactionHistory().stream().map(this::toTransactionDto).collect(Collectors.toCollection(ArrayList::new)));
         }
         if (acc.getTransactionHistory() != null) {
             dto.setBetHistory(acc.getBetHistory().stream().map(this::toBetSlipDto).collect(Collectors.toCollection(ArrayList::new)));
         }
+        return dto;
+    }
+
+    public BetSlipDto toDraftSlipDto(DraftBetSlip domain) {
+        var dto = new BetSlipDto();
+        dto.setParentBettingAccountId(domain.getParentAccount() != null ? domain.getParentAccount().getAccountId() : null);
+        dto.setId(domain.getId());
+        dto.setStake(domain.getStake().getValue());
+        dto.setCreatedAt(domain.getCreatedAt());
+        dto.setTotalOdds(domain.getTotalOdds());
+        dto.setCategory(domain.getCategory());
+        dto.setPicks(domain.getPicks().stream().map(this::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new)));
         return dto;
     }
 

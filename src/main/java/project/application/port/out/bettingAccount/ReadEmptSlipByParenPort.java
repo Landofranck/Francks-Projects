@@ -1,7 +1,7 @@
 package project.application.port.out.bettingAccount;
 
-import project.domain.model.BetSlip;
+import project.domain.model.DraftBetSlip;
 
 public interface ReadEmptSlipByParenPort {
-    public BetSlip getAvailableBettingSlip(Long parentAccountId);
+    public DraftBetSlip getAvailableBettingSlip(Long parentAccountId);
 }

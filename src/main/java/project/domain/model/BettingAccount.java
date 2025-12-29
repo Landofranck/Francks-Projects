@@ -16,7 +16,7 @@ public class BettingAccount implements Account {
     private Money balance;
     private List<Transaction> transactionHistory;
     private List<BetSlip> betHistory;
-    private BetSlip newBetslip;
+    private DraftBetSlip newBetslip;
 
     public BettingAccount(String accountName, AccountType brokerType) {
         this.accountName = accountName;
@@ -25,7 +25,6 @@ public class BettingAccount implements Account {
         this.transactionHistory = new ArrayList<>();
         this.betHistory = new ArrayList<>();
         this.balance = new Money(BigDecimal.ZERO);
-        this.newBetslip=new BetSlip("DRAFT");
     }
 
     public void addBetSlip(BetSlip newBetslip) {
@@ -54,14 +53,14 @@ public class BettingAccount implements Account {
         return doneTransaction;
     }
 
-    public BetSlip putEmptySlip(BetSlip betSlip) {
-        Objects.requireNonNull(betSlip);
+    public DraftBetSlip putEmptySlip(DraftBetSlip betSlip) {
+        if(betSlip==null)throw new RuntimeException("there must be a betslip line 57 betting account");
         betSlip.setParentAccount(this);
         this.newBetslip=betSlip;
         return betSlip;
     }
 
-    public BetSlip getNewBetslip() {
+    public DraftBetSlip getNewBetslip() {
             return newBetslip;
 
     }

@@ -1,5 +1,6 @@
 package project.adapter.out.persistence.EntityModels;
 
+import project.domain.model.DraftBetSlip;
 import project.domain.model.Enums.AccountType;
 
 import jakarta.persistence.*;
@@ -23,7 +24,7 @@ public class BettingAccountEntity {
     private String accountName;
 
     @OneToOne(mappedBy = "draftBetSlipOwner", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
-    private BetSlipEntity draftBetSlip;
+    private DraftSlipEntity draftBetSlip;
 
     @Column(name = "broker_type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -38,13 +39,38 @@ public class BettingAccountEntity {
     protected BettingAccountEntity() {
     }
 
-    public void putNewBetSlip(BetSlipEntity betSlip) {
+    public void setDraftBetSlip(DraftSlipEntity draftBetSlip) {
+        this.draftBetSlip = draftBetSlip;
+    }
 
-        this.draftBetSlip.setStatus(betSlip.getStatus());
-        this.draftBetSlip.setPicks(betSlip.getPicks());
-        this.draftBetSlip.setCategory(betSlip.getCategory());
-        this.draftBetSlip.setTotalOdd(betSlip.getTotalOdd());
-        betSlip.setParentAccount(this);
+    public void putNewBetSlip(DraftSlipEntity incoming) {
+        if (incoming == null) {
+            return;
+        }
+
+        // 1) Ensure draft exists
+        if (this.draftBetSlip == null) {
+            this.draftBetSlip = new DraftSlipEntity();
+            // IMPORTANT: set owning side of OneToOne
+            this.draftBetSlip.setNewBetslipParent(this); // sets draftBetSlipOwner
+        }
+
+        // 2) Copy data into the managed draft
+        this.draftBetSlip.setStatus(incoming.getStatus());
+        this.draftBetSlip.setCategory(incoming.getCategory());
+        this.draftBetSlip.setTotalOdd(incoming.getTotalOdd());
+        this.draftBetSlip.setStake(incoming.getStake());
+
+        // picks: attach properly (so parent pointers are correct)
+        this.draftBetSlip.getPicks().clear();
+        if (incoming.getPicks() != null) {
+            for (DraftEventPickEntity p : incoming.getPicks()) {
+                this.draftBetSlip.addDraftEventPick(p);
+            }
+        }
+
+        // also set parentAccountEntity if you want the draft tied to account logically
+        this.draftBetSlip.setNewBetslipParent(this);
     }
 
     public void addBetSlipEntity(BetSlipEntity betSlip) {
@@ -52,7 +78,7 @@ public class BettingAccountEntity {
         betSlip.setParentAccount(this);
     }
 
-    public BetSlipEntity getDraftBetSlip() {
+    public DraftSlipEntity getDraftBetSlip() {
         return draftBetSlip;
     }
 

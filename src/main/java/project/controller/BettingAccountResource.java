@@ -11,7 +11,6 @@ import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
 import project.adapter.in.web.BettingServiceAdapter;
 import project.adapter.in.web.TransactionDTO.WithdrawDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
-import project.adapter.in.web.bettinAccountDTO.betslip.CreateBetSlipsDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.MakeBetRequestDto;
 import project.application.port.in.MakeWithdrawalUseCase;
 
@@ -63,10 +62,9 @@ public class BettingAccountResource {
     @Path("/{bettingId}/betslips/new")
     @Consumes(MediaType.APPLICATION_JSON)
     public BetSlipDto createSlip(
-            @PathParam("bettingId") Long bettingId,
-            CreateBetSlipsDto dto// expects {"category":"ACCUMULATOR"}
+            @PathParam("bettingId") Long bettingId
     ) {
-        return serviceAdapter.createEmptySlip(bettingId, dto.getCategory());
+        return serviceAdapter.createEmptySlip(bettingId);
     }
 
     /**

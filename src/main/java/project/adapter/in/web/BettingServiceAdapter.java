@@ -16,6 +16,8 @@ import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;
 import project.application.port.in.betSlip.CreateEmptyBetSlipUseCase;
 import project.application.port.in.betSlip.CreateMatchUseCase;
 import project.application.port.in.betSlip.MakeBetUseCase;
+import project.domain.model.BettingAccount;
+import project.domain.model.MobileMoneyAccount;
 
 import java.util.List;
 
@@ -47,7 +49,7 @@ public class BettingServiceAdapter {
     MakeBetUseCase makeBetUseCase;
 
     public Long createNewBettingAccount(CreateBettingAccountDto dto) {
-        var domain = mapper.toBettingAccountDomain(dto);
+        var domain = new BettingAccount(dto.getAccountName(),dto.getBrokerType());
         return createBettingAccountUseCase.createNewBettingAccount(domain);
     }
 
@@ -55,7 +57,7 @@ public class BettingServiceAdapter {
         if (dto.getId() == null) {
             throw new IllegalArgumentException("Momo id is required");
         }
-        var domain = mapper.toMobileMoneyDomain(id, dto);
+        var domain = new MobileMoneyAccount(id,dto.accountType);
         return createMobileMoneyAccountUseCase.createNewMobileMoneyAccount(domain);
     }
 
@@ -94,14 +96,16 @@ public class BettingServiceAdapter {
         return list;
     }
 
-    public BetSlipDto createEmptySlip(Long bettingAccountId, String category) {
-        var slip = createEmptyBetSlipUseCase.createEmpty(bettingAccountId, category);
-        return mapper.toBetSlipDto(slip);
+    public BetSlipDto createEmptySlip(Long bettingAccountId) {
+
+        var slip = createEmptyBetSlipUseCase.createEmpty(bettingAccountId, "DRAFT");
+
+        return mapper.toDraftSlipDto(slip);
     }
 
     public BetSlipDto addPickToBetSlip(Long bettingAccountId, AddPickRequestBetSlipDto dto) {
         var updated = addEventPick.addPick(bettingAccountId, dto.getMatchId(), dto.getOutComeName());
-        return mapper.toBetSlipDto(updated);
+        return mapper.toDraftSlipDto(updated);
     }
 
     public Long makeBet(Long bettingAccountId, MakeBetRequestDto dto) {

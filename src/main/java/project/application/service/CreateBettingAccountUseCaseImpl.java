@@ -17,6 +17,7 @@ public class CreateBettingAccountUseCaseImpl implements CreateBettingAccountUseC
     @Override
     public Long createNewBettingAccount(BettingAccount account) {
         Objects.requireNonNull(account, "account");
-        return persistBettingAccountPort.saveBettingAccount(account);
+        var newAccount=new BettingAccount(account.getAccountName(),account.getBrokerType());
+        return persistBettingAccountPort.saveBettingAccount(newAccount);
     }
 }

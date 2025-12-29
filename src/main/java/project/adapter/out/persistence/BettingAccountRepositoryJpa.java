@@ -49,7 +49,6 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
 
         Objects.requireNonNull(account);
 
-
         var entity = mapper.toBettingAccountEntity(account);
         if (existsByNameAndType(entity.getAccountName(), entity.getBrokerType())) {
             throw new IllegalArgumentException(
@@ -58,7 +57,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
             );
         }
 
-            entityManager.persist(entity);
+        entityManager.persist(entity);
 
         entityManager.flush();
         return entity.getId();
@@ -67,7 +66,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     @Override
     public BettingAccount getBettingAccount(Long id) {
         var entity = entityManager.find(BettingAccountEntity.class, id);
-        if (entity == null) throw new NotFoundException("Account not found: " + id);
+        if (entity == null) throw new NotFoundException("Account not found: jpa 69 " + id);
         var output = mapper.toBettingAccountDomain(entity);
         return output;
     }
@@ -201,14 +200,14 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
 
     @Transactional
     @Override
-    public Long persistSlipToAccount(Long bettingAccountId, project.domain.model.BetSlip slip) {
+    public Long persistSlipToAccount(Long bettingAccountId, BetSlip slip) {
         var owner = entityManager.find(BettingAccountEntity.class, bettingAccountId);
         if (owner == null) throw new IllegalArgumentException("Betting account not found: " + bettingAccountId);
 
         var slipEntity = mapper.toBetslipEntity(slip);
 
         owner.addBetSlipEntity(slipEntity);     // ✅ sets parentAccountEntity
-        entityManager.persist(slipEntity);
+        entityManager.persist(owner);
         entityManager.flush();
 
         return slipEntity.getId();
@@ -216,22 +215,26 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
 
     @Transactional
     @Override
-    public Long persisEmptyslip(Long bettingAccountId, BetSlip betSlip) {
-        var emptySlipOwner = entityManager.find(BettingAccountEntity.class, bettingAccountId);
-        if (emptySlipOwner == null)
-            throw new IllegalArgumentException("Betting account not found jpa line 218: " + bettingAccountId);
-        var slipEntity = mapper.toBetslipEntity(betSlip);
-        emptySlipOwner.putNewBetSlip(slipEntity);
-        entityManager.persist(slipEntity);
-        return slipEntity.getId();
+    public Long persistEmptyslip(Long bettingAccountId, DraftBetSlip betSlip) {
+        try {
+            var emptySlipOwner = entityManager.find(BettingAccountEntity.class, bettingAccountId);
+            if (emptySlipOwner == null)
+                throw new IllegalArgumentException("Betting account not found jpa line 222: " + bettingAccountId);
+            var slipEntity = mapper.toDraftSlipEntity(betSlip);
+            emptySlipOwner.putNewBetSlip(slipEntity);
+            entityManager.persist(emptySlipOwner);
+            return slipEntity.getId();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("erron persisting new empty sip jpa line 227 " + e.getMessage());
+        }
     }
 
     @Override
-    public BetSlip getAvailableBettingSlip(Long parentAccountId) {
+    public DraftBetSlip getAvailableBettingSlip(Long parentAccountId) {
         var parentAccount = entityManager.find(BettingAccountEntity.class, parentAccountId);
         if (parentAccount == null)
             throw new IllegalArgumentException("Betting account not found jpa line 231: " + parentAccountId);
-        var slip = mapper.toBetslipDomain(parentAccount.getDraftBetSlip());
+        var slip = mapper.toDraftSĺipDomain(parentAccount.getDraftBetSlip());
         if (slip == null)
             throw new IllegalArgumentException("Betting account " + parentAccount.getAccountName()
                     + " does not have this and empty slip : " + parentAccountId);

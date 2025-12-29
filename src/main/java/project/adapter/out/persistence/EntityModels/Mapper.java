@@ -82,11 +82,7 @@ public class Mapper {
         return matchEntity;
     }
 
-    public Match toMatchDomain(MatchEntity eM) {
-        var dom = new Match(eM.getHome(), eM.getAway());
-        dom.setMatchId(eM.getId());
-        return dom;
-    }
+
 
     private MatchOutcomeEntity toMatchOutcomeEntity(MatchEventPick m) {
         var outcomeEntity = new MatchOutcomeEntity();
@@ -186,7 +182,20 @@ public class Mapper {
         }
         return domainMomo;
     }
-
+    public Match toMatchDomain(MatchEntity eM) {
+        var dom = new Match(eM.getHome(), eM.getAway());
+        dom.setMatchId(eM.getId());
+        dom.setAway(eM.getAway());
+        dom.setHome(eM.getHome());
+        if(eM.getOutcomes().isEmpty()) dom.setMatchOutComes(new ArrayList<>()); {
+        }
+        if (eM.getOutcomes()!=null){
+            for (MatchOutcomeEntity e: eM.getOutcomes()){
+                dom.addPick(toMatchOutcomeDomain(e));
+            }
+        }
+        return dom;
+    }
     public List<BettingAccount> toListOfAccountDomains(List<BettingAccountEntity> list) {
         return list.stream().map(this::toBettingAccountDomain).collect(Collectors.toCollection(ArrayList::new));
     }
@@ -194,8 +203,8 @@ public class Mapper {
     public List<MobileMoneyAccount> toListOfMOMOtDomains(List<MobileMoneyAccountsEntity> list) {
         return list.stream().map(this::toMobileMoneyDomain).collect(Collectors.toCollection(ArrayList::new));
     }
-    public List<Match> toMatchDomains(List<MatchEntity> list) {
-        return list.stream().map(this::toMatchDomain).collect(Collectors.toCollection(ArrayList::new));
+    public List<Match> toMatchDomains(List<MatchEntity> matchEntities) {
+        return matchEntities.stream().map(this::toMatchDomain).collect(Collectors.toCollection(ArrayList::new));
     }
 
 }

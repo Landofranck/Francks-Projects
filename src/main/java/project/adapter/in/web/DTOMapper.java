@@ -7,6 +7,7 @@ import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
 import project.adapter.in.web.MobileMoneyDto.CreateMobileMoneyAccountDto;
 import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
 import project.adapter.in.web.TransactionDTO.TransactionDto;
+import project.adapter.in.web.bettinAccountDTO.betslip.EmptyBetSlipDto;
 import project.domain.model.*;
 
 import java.util.ArrayList;
@@ -36,6 +37,16 @@ public class DTOMapper {
         if (acc.getTransactionHistory() != null) {
             dto.setBetHistory(acc.getBetHistory().stream().map(this::toBetSlipDto).collect(Collectors.toCollection(ArrayList::new)));
         }
+        return dto;
+    }
+
+    public EmptyBetSlipDto toEmptyBetSlipDto(BetSlip domain) {
+        var dto = new EmptyBetSlipDto();
+        dto.setCategory(domain.getCategory());
+        dto.setId(domain.getId());
+        dto.setStatus(domain.getStatus());
+        dto.setStake(domain.getStake().getValue());
+        dto.setTotalOdds(domain.getTotalOdds());
         return dto;
     }
 
@@ -90,7 +101,8 @@ public class DTOMapper {
     }
 
     public Match toMatchDomain(MatchDto dto) {
-        if (dto.getMatchOutComes() == null|| dto.getMatchOutComes().isEmpty()) throw new IllegalArgumentException("match must have outcomes :Dto mapper line 94");
+        if (dto.getMatchOutComes() == null || dto.getMatchOutComes().isEmpty())
+            throw new IllegalArgumentException("match must have outcomes :Dto mapper line 94");
 
         var domain = new Match(dto.getHome(), dto.getAway());
         for (MatchEventPickDto o : dto.getMatchOutComes()) {
@@ -107,7 +119,7 @@ public class DTOMapper {
     }
 
     public List<MatchDto> toMatchDtos(List<Match> matches) {
-        return matches.stream().map(this::toMatchDto).toList();
+        return matches.stream().map(this::toMatchDto).collect(Collectors.toCollection(ArrayList::new));
     }
 
     private MatchDto toMatchDto(Match match) {
@@ -125,7 +137,7 @@ public class DTOMapper {
         dto.setMatchKey(mP.getMatchKey());
         dto.setOdd(mP.getOdd());
         dto.setOutcomeName(mP.getOutcomeName());
-        return null;
+        return dto;
     }
 
     public BetSlip toBetSlipDomain(BetSlipDto slip) {

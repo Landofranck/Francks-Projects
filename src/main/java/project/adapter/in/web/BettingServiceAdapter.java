@@ -9,6 +9,7 @@ import project.adapter.in.web.MobileMoneyDto.MomoTopUpRequestDto;
 import project.adapter.in.web.MobileMoneyDto.MomoTransferRequestDto;
 import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
+import project.adapter.in.web.bettinAccountDTO.betslip.EmptyBetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.MakeBetRequestDto;
 import project.application.port.in.*;
 import jakarta.inject.Inject;
@@ -74,9 +75,11 @@ public class BettingServiceAdapter {
     }
 
     public Long createMatch(MatchDto dto) {
-        if(dto.getMatchOutComes().isEmpty()||dto.getMatchOutComes()==null) throw new IllegalArgumentException("you need outcomes BSA line 77");
+        if (dto.getMatchOutComes().isEmpty() || dto.getMatchOutComes() == null)
+            throw new IllegalArgumentException("you need outcomes BSA line 77");
         var domain = mapper.toMatchDomain(dto);
-        if(domain.getMatchOutComes().isEmpty()||domain.getMatchOutComes()==null) throw new IllegalArgumentException("you need outcomes BSA line 77");
+        if (domain.getMatchOutComes().isEmpty() || domain.getMatchOutComes() == null)
+            throw new IllegalArgumentException("you need outcomes BSA line 77");
 
         return createMatchUse.createMatch(domain);
 
@@ -87,13 +90,14 @@ public class BettingServiceAdapter {
     }
 
     public List<MatchDto> getAllMatches() {
-        var matches=loadAllMatches.getAllMatches();
-        return mapper.toMatchDtos(matches);
+        var matches = loadAllMatches.getAllMatches();
+        List<MatchDto> list= mapper.toMatchDtos(matches);
+        return list;
     }
 
-    public BetSlipDto createEmptySlip(Long bettingAccountId, String category) {
+    public EmptyBetSlipDto createEmptySlip(Long bettingAccountId, String category) {
         var slip = createEmptyBetSlipUseCase.createEmpty(bettingAccountId, category);
-        return mapper.toBetSlipDto(slip);
+        return mapper.toEmptyBetSlipDto(slip);
     }
 
     public BetSlipDto addPickToBetSlip(Long bettingAccountId, AddPickRequestBetSlipDto dto) {

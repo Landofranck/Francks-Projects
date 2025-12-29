@@ -27,12 +27,12 @@ import java.util.Objects;
 @ApplicationScoped
 public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadAccountByIdPort, PersistMobileMoneyAccount, ReadAllBettingAccountsPort, ReadAllMomoAccounts,
         ReadMomoAccountByIdPort, UpdateBettingAccountBalancePort, UpdateMobileMoneyBalancePort, AppendBettingAccountTransactionPort,
-        AppendMobileMoneyTransactionPort , PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort
-{
+        AppendMobileMoneyTransactionPort, PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort {
     @Inject
     EntityManager entityManager;
     @Inject
     Mapper mapper;
+
     private boolean existsByNameAndType(String name, AccountType type) {
         Long count = entityManager.createQuery(
                         "SELECT COUNT(b) FROM BettingAccountEntity b " +
@@ -45,6 +45,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
 
         return count > 0;
     }
+
     @Transactional
     @Override
     public Long saveBettingAccount(BettingAccount account) {
@@ -64,6 +65,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
         return entity.getId();
 
     }
+
     @Override
     public BettingAccount getAccount(Long id) {
         var entity = entityManager.find(BettingAccountEntity.class, id);
@@ -83,7 +85,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
             return entity.getId();
 
         } catch (Exception e) {
-            throw new IllegalArgumentException("error while persisting MobileMoneyAccount:"+ e.getMessage());
+            throw new IllegalArgumentException("error while persisting MobileMoneyAccount:" + e.getMessage());
         }
     }
 
@@ -166,12 +168,15 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
 
         owner.getTransactionHistory().add(txEntity); // optional if bidirectional
     }
+
     @Transactional
     @Override
     public Long saveMatch(Match match) {
-        if (match.getMatchOutComes()==null||match.getMatchOutComes().isEmpty()) throw new IllegalArgumentException("you need some outcomes BAR 172");
+        if (match.getMatchOutComes() == null || match.getMatchOutComes().isEmpty())
+            throw new IllegalArgumentException("you need some outcomes BAR 172");
         var entity = mapper.toMatchEntity(match);
-        if (match.getMatchOutComes()==null||match.getMatchOutComes().isEmpty()) throw new IllegalArgumentException("you need some outcomes BAR 174");
+        if (match.getMatchOutComes() == null || match.getMatchOutComes().isEmpty())
+            throw new IllegalArgumentException("you need some outcomes BAR 174");
         entityManager.persist(entity);
         entityManager.flush();
         return entity.getId();
@@ -184,14 +189,18 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
         return mapper.toMatchDomain(entity);
     }
 
+    @Transactional
     @Override
     public List<Match> getAllMatches() {
         var entities = entityManager
-                .createQuery("SELECT m FROM MatchEntity m", MatchEntity.class)
+                .createQuery("SELECT DISTINCT m FROM MatchEntity m LEFT JOIN FETCH m.matchOutComes", MatchEntity.class)
                 .getResultList();
-        if(entities.isEmpty())throw new IllegalArgumentException("no matches found in the database repositoryJpa 192");
-        return mapper.toMatchDomains(entities);
+        if (entities.isEmpty())
+            throw new IllegalArgumentException("no matches found in the database repositoryJpa 192");
+        List<Match> matches = mapper.toMatchDomains(entities);
+        return matches;
     }
+
     @Transactional
     @Override
     public Long persistSlipToAccount(Long bettingAccountId, project.domain.model.BetSlip slip) {

@@ -14,9 +14,6 @@ public class MatchDto {
     @NotNull
     private List<MatchEventPickDto> matchOutComes;
 
-    public MatchDto() {
-    }
-
 
     public String getHome() {
         return home;
@@ -35,8 +32,7 @@ public class MatchDto {
     }
 
     public List<MatchEventPickDto> getMatchOutComes() {
-        if (matchOutComes == null || matchOutComes.isEmpty()) throw new IllegalArgumentException("no matches to get MatchDto 38");
-        return matchOutComes;
+         return matchOutComes;
     }
 
     public void setMatchOutComes(List<MatchEventPickDto> matchOutComes) {

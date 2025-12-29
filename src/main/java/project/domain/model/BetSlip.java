@@ -2,6 +2,7 @@ package project.domain.model;
 
 import project.domain.model.Enums.BetStatus;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ public class BetSlip implements Event {
         this.category = category;
         this.picks = new ArrayList<>();
         this.status = BetStatus.PENDING;
+        this.stake= new Money(BigDecimal.ZERO);
         this.totalOdds=0;
         this.numberOfEvents=picks.size();
     }
@@ -81,6 +83,7 @@ public class BetSlip implements Event {
     public void setStake(Money stake) {
         this.stake = stake;
     }
+
 
     public void setId(Long id) {
         this.id = id;

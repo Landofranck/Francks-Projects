@@ -15,10 +15,10 @@ public class MatchEntity {
     private String away;
 
     @OneToMany(mappedBy = "parentMatch", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MatchOutcomeEntity> outcomes = new ArrayList<>();
+    private List<MatchOutcomeEntity> matchOutComes = new ArrayList<>();
 
     public void addOutcome(MatchOutcomeEntity o) {
-        outcomes.add(o);
+        matchOutComes.add(o);
         o.setParentMatch(this);
     }
 
@@ -35,7 +35,7 @@ public class MatchEntity {
     }
 
     public List<MatchOutcomeEntity> getOutcomes() {
-        return outcomes;
+        return matchOutComes;
     }
 
     public void setHome(String home) {

@@ -29,8 +29,6 @@ public class BettingAccount implements Account {
     public void addBetSlip(BetSlip newBetslip) {
         newBetslip.setParentAccount(this);
         this.betHistory.add(newBetslip);
-        //advicable to use the
-        addTransaction(new Transaction(newBetslip.getStake(), new Money(balance.getValue()), newBetslip.getCreatedAt(), TransactionType.BET_PLACED, ""));
     }
     public Transaction deposit(Money money, Instant createdAt, String description) {
         this.balance = this.balance.add(money);
@@ -65,7 +63,7 @@ public class BettingAccount implements Account {
     }
     public Transaction placeBet(Money money, Instant now, String description) {
         if (!this.balance.isGreaterThan(money)) {
-            throw new RuntimeException("you cannot make withdrwal of " + money.getValue());
+            throw new IllegalArgumentException("Your account balance is not sufficient to place that bet " + money.getValue());
         }
         this.balance = balance.subtract(money);
         Transaction doneTransaction = new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.BET_PLACED, description);
@@ -74,7 +72,7 @@ public class BettingAccount implements Account {
 
     public Transaction withdraw(Money money, Instant now, String description) {
         if (!this.balance.isGreaterThan(money)) {
-            throw new RuntimeException("you cannot make withdrwal of " + money.getValue());
+            throw new IllegalArgumentException("you cannot make withdrwal of " + money.getValue());
         }
         this.balance = balance.subtract(money);
         Transaction doneTransaction = new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.WITHDRAWAL, description);

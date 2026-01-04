@@ -23,7 +23,7 @@ import java.util.Objects;
 public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadBettingAccountByIdPort, PersistMobileMoneyAccount, ReadAllBettingAccountsPort, ReadAllMomoAccounts,
         ReadMomoAccountByIdPort, UpdateBettingAccountBalancePort, UpdateMobileMoneyBalancePort, AppendBettingAccountTransactionPort,
         AppendMobileMoneyTransactionPort, PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort, PersistEmptyBetSlipPort,
-        ReadEmptSlipByParenPort {
+        ReadEmptSlipByParenPort{
     @Inject
     EntityManager entityManager;
     @Inject

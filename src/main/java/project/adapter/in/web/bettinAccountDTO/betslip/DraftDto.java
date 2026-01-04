@@ -14,6 +14,7 @@ public class DraftDto {
     private List<MatchEventPickDto> picks;
     private double totalOdds;
     private BigDecimal stake;
+    private BigDecimal potentialWinning;
 
     public void setPicks(List<MatchEventPickDto> picks) {
         this.picks = picks;
@@ -33,6 +34,10 @@ public class DraftDto {
 
     public void setParentBettingAccountId(Long parentBettingAccountId) {
         this.parentBettingAccountId = parentBettingAccountId;
+    }
+
+    public void setPotentialWinning(BigDecimal potentialWinning) {
+        this.potentialWinning = potentialWinning;
     }
 
     public void setStake(BigDecimal stake) {

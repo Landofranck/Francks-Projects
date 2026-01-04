@@ -18,6 +18,7 @@ public class BetSlip implements Event {
     private Money stake;
     private double totalOdds;
     private int numberOfEvents;
+    private Money potentialWinning;
 
     public BetSlip(String category) {
         this.category = category;
@@ -41,6 +42,24 @@ public class BetSlip implements Event {
         pick.setOwner(this);
         makeTotalOdds();
         this.numberOfEvents=picks.size();
+    }
+    public void removeMatchEventPicksByIndex(int i) {
+        this.picks.remove(i);
+        makeTotalOdds();
+        this.numberOfEvents = picks.size();
+        calculatPotentialWinning();
+    }
+
+    public void calculatPotentialWinning() {
+        this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf(totalOdds)));
+    }
+
+    public void setPotentialWinning(Money potentialWinning) {
+        this.potentialWinning = potentialWinning;
+    }
+
+    public Money getPotentialWinning() {
+        return potentialWinning;
     }
 
     public int getNumberOfEvents() {

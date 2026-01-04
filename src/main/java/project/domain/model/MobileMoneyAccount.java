@@ -49,7 +49,7 @@ public class MobileMoneyAccount implements Account {
 
     public Transaction withdraw(Money money, Instant createdAt,String description) {
         if (!this.accountBalance.isGreaterOrEqual(money)) {
-            throw new RuntimeException("you cannot make withdrawal of " + money.getValue());
+            throw new IllegalArgumentException("you cannot make withdrawal of " + money.getValue());
         }
 
         this.accountBalance = this.accountBalance.subtract(money);

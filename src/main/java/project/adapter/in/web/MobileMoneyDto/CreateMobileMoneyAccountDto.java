@@ -5,9 +5,9 @@ import project.domain.model.Enums.AccountType;
 
 
 public class CreateMobileMoneyAccountDto {
-    @NotNull(message = "you must put momo id")
+    @NotNull(message = "you must put momo id momodto 8")
     private Long id;
-    @NotNull(message = "the account must have a type")
+    @NotNull(message = "the account must have a type momo dto 10")
     public AccountType accountType;
 
     public void setId(Long id) {

@@ -159,6 +159,8 @@ public class Mapper {
     }
     public BetSlip toBetslipDomain(BetSlipEntity betSlipEntity) {
         var betSlipDomain = new BetSlip(betSlipEntity.getCategory());
+        betSlipDomain.setId(betSlipEntity.getId());
+        betSlipDomain.setPotentialWinning(new Money(betSlipEntity.getPotentialWinning()));
         betSlipDomain.setCreatedAt(betSlipEntity.getCreatedAt());
         betSlipDomain.setStatus(betSlipEntity.getStatus());
         betSlipDomain.setTotalOdds(betSlipEntity.getTotalOdd());
@@ -178,6 +180,7 @@ public class Mapper {
 
 
             var betSlipentity = new BetSlipEntity();
+            betSlipentity.setPotentialWinning(betSlip.getPotentialWinning().getValue());
             betSlipentity.setCategory(betSlip.getCategory());
             betSlipentity.setStatus(betSlip.getStatus());
             betSlipentity.setCreatedAt(betSlip.getCreatedAt());
@@ -198,6 +201,7 @@ public class Mapper {
 
 
             var draftSlipEntity = new DraftSlipEntity();
+            draftSlipEntity.setPotentialWinning(betSlip.getPotentialWinning().getValue());
             draftSlipEntity.setCategory(betSlip.getCategory());
             draftSlipEntity.setStatus(betSlip.getStatus());
             draftSlipEntity.setCreatedAt(betSlip.getCreatedAt());
@@ -282,7 +286,7 @@ public class Mapper {
 
     public BetSlipEntity fromDraftToBetslipEntity(DraftBetSlip draftSlip) {
         var betSlipentity = new BetSlipEntity();
-        betSlipentity.setStatus(BetStatus.PENDING);
+        betSlipentity.setStatus(draftSlip.getStatus());
         betSlipentity.setCreatedAt(draftSlip.getCreatedAt());
         betSlipentity.setStake(draftSlip.getStake().getValue());
         if (draftSlip.getPicks() != null) {

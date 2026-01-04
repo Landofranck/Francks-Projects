@@ -18,14 +18,16 @@ public class DraftBetSlip implements Event {
     private Money stake;
     private double totalOdds;
     private int numberOfEvents;
+    private Money potentialWinning;
 
     public DraftBetSlip(String category) {
         this.category = category;
         this.picks = new ArrayList<>();
         this.status = BetStatus.PENDING;
-        this.stake= new Money(BigDecimal.ZERO);
-        this.totalOdds=0;
-        this.numberOfEvents=picks.size();
+        this.stake = new Money(BigDecimal.ZERO);
+        this.potentialWinning = new Money(BigDecimal.ZERO);
+        this.totalOdds = 0;
+        this.numberOfEvents = picks.size();
     }
 
     public void makeTotalOdds() {
@@ -36,11 +38,37 @@ public class DraftBetSlip implements Event {
         this.totalOdds = output;
     }
 
+    public void calculatPotentialWinning() {
+        this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf(totalOdds)));
+    }
+
     public void addMatchEventPick(MatchEventPick pick) {
         this.picks.add(pick);
         pick.setOwner(this);
         makeTotalOdds();
-        this.numberOfEvents=picks.size();
+        this.numberOfEvents = picks.size();
+        calculatPotentialWinning();
+    }
+
+    public void removeAllMatchEventPicks() {
+        this.picks.clear();
+        this.totalOdds = 0;
+        setPotentialWinning(new Money(BigDecimal.ZERO));
+    }
+
+    public void setPotentialWinning(Money potentialWinning) {
+        this.potentialWinning = potentialWinning;
+    }
+
+    public Money getPotentialWinning() {
+        return potentialWinning;
+    }
+
+    public void removeMatchEventPicksByIndex(int i) {
+        this.picks.remove(i);
+        makeTotalOdds();
+        this.numberOfEvents = picks.size();
+        calculatPotentialWinning();
     }
 
     public int getNumberOfEvents() {
@@ -86,6 +114,7 @@ public class DraftBetSlip implements Event {
 
     public void setStake(Money stake) {
         this.stake = stake;
+        calculatPotentialWinning();
     }
 
 

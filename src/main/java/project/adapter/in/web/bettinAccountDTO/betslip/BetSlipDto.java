@@ -20,12 +20,20 @@ public class BetSlipDto {
     private BetStatus status;
     private double totalOdds;
     private BigDecimal stake;
-
+private BigDecimal potentialWinning;
 
     public BetSlipDto() {}
 
     public Long getParentBettingAccountId() { return parentBettingAccountId; }
     public void setParentBettingAccountId(Long parentBettingAccountId) { this.parentBettingAccountId = parentBettingAccountId; }
+
+    public void setPotentialWinning(BigDecimal potentialWinning) {
+        this.potentialWinning = potentialWinning;
+    }
+
+    public BigDecimal getPotentialWinning() {
+        return potentialWinning;
+    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

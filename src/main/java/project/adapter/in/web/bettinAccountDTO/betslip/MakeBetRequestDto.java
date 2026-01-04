@@ -1,11 +1,14 @@
 package project.adapter.in.web.bettinAccountDTO.betslip;
 
+import jakarta.validation.constraints.Positive;
+
 import java.math.BigDecimal;
 import java.util.List;
 
 public class MakeBetRequestDto {
     private List<Long> matchIds;
     private List<String> outComes;
+    @Positive
     private BigDecimal stake;
     private String description;//use for now as category
 

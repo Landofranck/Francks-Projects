@@ -24,7 +24,7 @@ public class DraftSlipEntity {
     @OneToOne(optional = true,fetch = FetchType.LAZY)
     @JoinColumn(name = "betting_account_id",unique = true)
     private BettingAccountEntity draftBetSlipOwner;
-
+private BigDecimal potentialWinning;
 
     public BettingAccountEntity getDraftBetSlipOwner() {
         return draftBetSlipOwner;
@@ -35,6 +35,14 @@ public class DraftSlipEntity {
     }
 
     protected DraftSlipEntity() {
+    }
+
+    public void setPotentialWinning(BigDecimal potentialWinning) {
+        this.potentialWinning = potentialWinning;
+    }
+
+    public BigDecimal getPotentialWinning() {
+        return potentialWinning;
     }
 
     public void setTotalOdd(double totalOdd) {

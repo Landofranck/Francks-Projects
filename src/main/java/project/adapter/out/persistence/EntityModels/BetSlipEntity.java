@@ -24,7 +24,7 @@ public class BetSlipEntity {
     private BettingAccountEntity parentAccountEntity;
 
     private BigDecimal stake;
-
+private BigDecimal potentialWinning;
 
 
     protected BetSlipEntity() {
@@ -32,6 +32,14 @@ public class BetSlipEntity {
 
     public void setTotalOdd(double totalOdd) {
         this.totalOdd = totalOdd;
+    }
+
+    public void setPotentialWinning(BigDecimal potentialWinning) {
+        this.potentialWinning = potentialWinning;
+    }
+
+    public BigDecimal getPotentialWinning() {
+        return potentialWinning;
     }
 
     public double getTotalOdd() {

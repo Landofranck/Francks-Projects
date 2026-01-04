@@ -10,6 +10,7 @@ import project.application.port.out.bettingAccount.AppendBettingAccountTransacti
 import project.application.port.out.bettingAccount.PersistBetSlipToAccountPort;
 import project.application.port.out.bettingAccount.UpdateBettingAccountBalancePort;
 import project.config.TimeProvider;
+import project.domain.model.Enums.BetStatus;
 import project.domain.model.Money;
 
 import java.math.BigDecimal;
@@ -30,6 +31,8 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
     @Inject
     AddEventPickToBetSlipUseCaseImpl addPicks;
     @Inject
+    RemoveAllPicksImpl removeAllPicks;
+    @Inject
     TimeProvider timeProvider;
 
     @Transactional
@@ -38,9 +41,11 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
 
         if (bettingAccountId == null) throw new IllegalArgumentException("bettingAccountId required");
         if (stake == null || stake.signum() <= 0) throw new IllegalArgumentException("stake must be > 0");
-
-        for (int i = 0; i < matchIds.toArray().length; i++)  {
-            addPicks.addPick(bettingAccountId, matchIds.get(i),matchOutcomes.get(i));
+        if (matchIds != null) {
+            removeAllPicks.removeAllPicks(bettingAccountId);
+            for (int i = 0; i < matchIds.toArray().length; i++) {
+                addPicks.addPick(bettingAccountId, matchIds.get(i), matchOutcomes.get(i));
+            }
         }
 
         var account = readAccount.getBettingAccount(bettingAccountId);
@@ -50,10 +55,11 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
 
 
         var tx = account.placeBet(stakeMoney, now, description);
-        var draftSlip=account.getDraftBetSlip();
+        var draftSlip = account.getDraftBetSlip();
         // Put stake + timestamps on slip
         draftSlip.setStake(stakeMoney);
         draftSlip.setCreatedAt(now);
+        draftSlip.setStatus(BetStatus.PENDING);
 
         // Persist account balance and tx
         updateBalance.updateBalance(account);

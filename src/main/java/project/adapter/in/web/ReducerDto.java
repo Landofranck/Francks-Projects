@@ -7,7 +7,6 @@ import project.domain.model.Money;
 import java.math.BigDecimal;
 import java.util.List;
 
-@XmlRootElement
 public class ReducerDto {
     private Long id;
     @NotNull(message = "TotalStake must have a value")

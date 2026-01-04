@@ -26,6 +26,7 @@ public class BettingAccountResource {
     @Inject
     MakeWithdrawalUseCase makeWithdrawalUseCase;
 
+    //gets all betting accounts from database
     @GET
     public List<BettingAccountDto> getAll() {
         return serviceAdapter.getAllBettingAccounts();
@@ -56,7 +57,7 @@ public class BettingAccountResource {
     }
 
     /**
-     * creates a new empty bet slip
+     * creates a new empty draft bet slip
      */
     @POST
     @Path("/{bettingId}/betslips/new")

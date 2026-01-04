@@ -20,19 +20,19 @@ public class CreateEmptyBetSlipUseCaseImpl implements CreateEmptyBetSlipUseCase 
     @Override
     public DraftBetSlip createEmpty(Long bettingAccountId, String category) {
 
-        if (bettingAccountId == null)
-            throw new IllegalArgumentException("bettingAccountId is required createmptslipimpl lin 22");
+        if (bettingAccountId == null || bettingAccountId < 0)
+            throw new IllegalArgumentException("bettingAccountId is required createmptslipimpl lin 24");
         if (category == null || category.isBlank())
-            throw new IllegalArgumentException("category is required createmptslipimpl line 23");
+            throw new IllegalArgumentException("category is required createmptslipimpl line 26");
 
         var account = readAccountByIdPort.getBettingAccount(bettingAccountId);// ensures it exists
         var slip = new DraftBetSlip(category);
         var betSlip = account.putEmptySlip(slip);// ✅ parent set here
 
-        putEmptySlip.persistEmptyslip(bettingAccountId, slip);//this is where the error seems to stem
+        Long slipId = putEmptySlip.persistEmptyslip(bettingAccountId, slip);//this is where the error seems to stem
+        betSlip.setId(slipId);
 
-
-        return slip; // ✅ not saved
+        return betSlip; // ✅ not saved
 
     }
 }

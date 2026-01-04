@@ -53,7 +53,7 @@ public class BettingAccount implements Account {
     }
 
     public DraftBetSlip putEmptySlip(DraftBetSlip betSlip) {
-        if(betSlip==null)throw new RuntimeException("there must be a betslip line 57 betting account");
+        if(betSlip==null)throw new RuntimeException("there must be a betslip line 56 betting account");
         betSlip.setDraftSlipOwner(this);
         this.newBetslip=betSlip;
         return betSlip;

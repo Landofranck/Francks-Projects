@@ -36,7 +36,7 @@ public class DTOMapper {
         if (acc.getTransactionHistory() != null) {
             dto.setTransactionHistory(acc.getTransactionHistory().stream().map(this::toTransactionDto).collect(Collectors.toCollection(ArrayList::new)));
         }
-        if (acc.getTransactionHistory() != null) {
+        if (acc.getBetHistory() != null) {
             dto.setBetHistory(acc.getBetHistory().stream().map(this::toBetSlipDto).collect(Collectors.toCollection(ArrayList::new)));
         }
         return dto;

@@ -36,7 +36,7 @@ public class Mapper {
         domainModel.setBalance(new Money(entityModel.getBalance()));
         domainModel.setId(entityModel.getId());
         if (entityModel.getDraftBetSlip() != null) {
-            domainModel.putEmptySlip(toDraftSĺipDomain(entityModel.getDraftBetSlip()));
+            domainModel.putEmptySlip(toDraftSlipDomain(entityModel.getDraftBetSlip()));
         }
         if (entityModel.getTransactionHistory() != null) {
             for (BettingAccountTransactionEntity T : entityModel.getTransactionHistory()) {
@@ -133,7 +133,7 @@ public class Mapper {
         return transacttionDomain;
     }
 
-    public DraftBetSlip toDraftSĺipDomain(DraftSlipEntity draftSlipEntity) {
+    public DraftBetSlip toDraftSlipDomain(DraftSlipEntity draftSlipEntity) {
         var draftDomain = new DraftBetSlip(draftSlipEntity.getCategory());
         draftDomain.setId(draftSlipEntity.getId());
         draftDomain.setCreatedAt(draftSlipEntity.getCreatedAt());

@@ -1,5 +1,6 @@
 package project.adapter.in.web.bettinAccountDTO.betslip;
 
+import jakarta.validation.constraints.NotNull;
 import project.adapter.in.web.MatchEventPickDto;
 import project.domain.model.Enums.BetStatus;
 
@@ -8,8 +9,11 @@ import java.time.Instant;
 import java.util.List;
 
 public class BetSlipDto {
+    @NotNull
     private Long id;
+    @NotNull
     private Long parentBettingAccountId;
+    @NotNull
     private String category;
     private Instant createdAt;
     private List<MatchEventPickDto> picks;

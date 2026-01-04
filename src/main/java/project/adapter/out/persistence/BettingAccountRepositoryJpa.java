@@ -234,7 +234,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
         var parentAccount = entityManager.find(BettingAccountEntity.class, parentAccountId);
         if (parentAccount == null)
             throw new IllegalArgumentException("Betting account not found jpa line 231: " + parentAccountId);
-        var slip = mapper.toDraftSĺipDomain(parentAccount.getDraftBetSlip());
+        var slip = mapper.toDraftSlipDomain(parentAccount.getDraftBetSlip());
         if (slip == null)
             throw new IllegalArgumentException("Betting account " + parentAccount.getAccountName()
                     + " does not have this and empty slip : " + parentAccountId);

@@ -30,8 +30,8 @@ public class DTOMapper {
         dto.setAccountName(acc.getAccountName());
         dto.setBrokerType(acc.getAccountType());
         dto.setBalance(acc.getBalance().getValue());
-        if (acc.getNewBetslip() != null) {
-            dto.setDraftAccount(toDraftSlipDto(acc.getNewBetslip()));
+        if (acc.getDraftBetSlip() != null) {
+            dto.setDraftAccount(toDraftSlipDto(acc.getDraftBetSlip()));
         }
         if (acc.getTransactionHistory() != null) {
             dto.setTransactionHistory(acc.getTransactionHistory().stream().map(this::toTransactionDto).collect(Collectors.toCollection(ArrayList::new)));

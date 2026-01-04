@@ -29,10 +29,9 @@ public class CreateEmptyBetSlipUseCaseImpl implements CreateEmptyBetSlipUseCase 
         var slip = new DraftBetSlip(category);
         var betSlip = account.putEmptySlip(slip);// ✅ parent set here
 
-        Long slipId = putEmptySlip.persistEmptyslip(bettingAccountId, slip);//this is where the error seems to stem
-        betSlip.setId(slipId);
+        DraftBetSlip draftSlip = putEmptySlip.persistEmptyslip(bettingAccountId, slip);//this is where the error seems to stem
 
-        return betSlip; // ✅ not saved
+        return draftSlip; // ✅ not saved
 
     }
 }

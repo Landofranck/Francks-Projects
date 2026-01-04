@@ -10,56 +10,57 @@ import project.application.port.out.bettingAccount.AppendBettingAccountTransacti
 import project.application.port.out.bettingAccount.PersistBetSlipToAccountPort;
 import project.application.port.out.bettingAccount.UpdateBettingAccountBalancePort;
 import project.config.TimeProvider;
-import project.domain.model.BetSlip;
 import project.domain.model.Money;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @ApplicationScoped
 public class MakeBetUseCaseImpl implements MakeBetUseCase {
 
     @Inject
     ReadBettingAccountByIdPort readAccount;
-    @Inject UpdateBettingAccountBalancePort updateBalance;
-    @Inject AppendBettingAccountTransactionPort appendTx;
-    @Inject PersistBetSlipToAccountPort persistSlip;
-    @Inject TimeProvider timeProvider;
+    @Inject
+    UpdateBettingAccountBalancePort updateBalance;
+    @Inject
+    AppendBettingAccountTransactionPort appendTx;
+    @Inject
+    PersistBetSlipToAccountPort persistSlip;
+    @Inject
+    AddEventPickToBetSlipUseCaseImpl addPicks;
+    @Inject
+    TimeProvider timeProvider;
 
     @Transactional
     @Override
-    public Long makeBet(Long bettingAccountId, BetSlip slip, BigDecimal stake, String description) {
+    public Long makeBet(Long bettingAccountId, List<Long> matchIds, List<String> matchOutcomes, BigDecimal stake, String description) {
 
         if (bettingAccountId == null) throw new IllegalArgumentException("bettingAccountId required");
-        if (slip == null) throw new IllegalArgumentException("slip required");
         if (stake == null || stake.signum() <= 0) throw new IllegalArgumentException("stake must be > 0");
-        if (slip.getPicks() == null || slip.getPicks().isEmpty())
-            throw new IllegalArgumentException("betslip must contain picks");
 
-        if (slip.getParentAccount() == null || slip.getParentAccount().getAccountId() == null)
-            throw new IllegalArgumentException("BetSlip must have a parent account before making a bet");
-
-        if (!slip.getParentAccount().getAccountId().equals(bettingAccountId))
-            throw new IllegalArgumentException("BetSlip does not belong to betting account " + bettingAccountId);
+        for (int i = 0; i < matchIds.toArray().length; i++)  {
+            addPicks.addPick(bettingAccountId, matchIds.get(i),matchOutcomes.get(i));
+        }
 
         var account = readAccount.getBettingAccount(bettingAccountId);
 
         Instant now = Instant.now(timeProvider.clock());
         Money stakeMoney = new Money(stake);
 
-        // Deduct stake + create transaction (your domain already has withdraw)
-        var tx = account.withdraw(stakeMoney, now, description);
 
+        var tx = account.placeBet(stakeMoney, now, description);
+        var draftSlip=account.getDraftBetSlip();
         // Put stake + timestamps on slip
-        slip.setStake(stakeMoney);
-        slip.setCreatedAt(now);
+        draftSlip.setStake(stakeMoney);
+        draftSlip.setCreatedAt(now);
 
         // Persist account balance and tx
         updateBalance.updateBalance(account);
         appendTx.appendToBettingAccount(bettingAccountId, tx);
 
         // Persist betslip into betHistory
-        Long slipId = persistSlip.persistSlipToAccount(bettingAccountId, slip);
+        Long slipId = persistSlip.persistSlipToAccount(bettingAccountId, draftSlip, description);
         return slipId;
     }
 }

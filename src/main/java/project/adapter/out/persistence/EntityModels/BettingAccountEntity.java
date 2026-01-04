@@ -1,6 +1,5 @@
 package project.adapter.out.persistence.EntityModels;
 
-import project.domain.model.DraftBetSlip;
 import project.domain.model.Enums.AccountType;
 
 import jakarta.persistence.*;
@@ -52,7 +51,7 @@ public class BettingAccountEntity {
         if (this.draftBetSlip == null) {
             this.draftBetSlip = new DraftSlipEntity();
             // IMPORTANT: set owning side of OneToOne
-            this.draftBetSlip.setNewBetslipParent(this); // sets draftBetSlipOwner
+            this.draftBetSlip.setDraftBetSlipOwner(this); // sets draftBetSlipOwner
         }
 
         // 2) Copy data into the managed draft
@@ -70,7 +69,7 @@ public class BettingAccountEntity {
         }
 
         // also set parentAccountEntity if you want the draft tied to account logically
-        this.draftBetSlip.setNewBetslipParent(this);
+        this.draftBetSlip.setDraftBetSlipOwner(this);
     }
 
     public void addBetSlipEntity(BetSlipEntity betSlip) {

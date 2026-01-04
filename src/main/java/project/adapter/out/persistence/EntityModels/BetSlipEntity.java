@@ -23,30 +23,11 @@ public class BetSlipEntity {
     @JoinColumn(name = "parentAccountEntity_id", nullable = false)
     private BettingAccountEntity parentAccountEntity;
 
-
-    @OneToOne(optional = true,fetch = FetchType.LAZY)
-    @JoinColumn(name = "betting_account_id",unique = true)
-    private BettingAccountEntity draftBetSlipOwner;
     private BigDecimal stake;
 
-    public BettingAccountEntity getNewBetslipParent() {
-        return draftBetSlipOwner;
-    }
 
-    public void setNewBetslipParent(BettingAccountEntity newBetslipParent) {
-        this.draftBetSlipOwner = newBetslipParent;
-    }
 
     protected BetSlipEntity() {
-    }
-
-
-
-    @PrePersist
-    public void onCreate() {
-        if (createdAt == null) {
-            createdAt = Instant.now();
-        }
     }
 
     public void setTotalOdd(double totalOdd) {

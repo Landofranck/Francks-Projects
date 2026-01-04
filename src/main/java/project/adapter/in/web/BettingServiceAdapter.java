@@ -16,7 +16,9 @@ import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;
 import project.application.port.in.betSlip.CreateEmptyBetSlipUseCase;
 import project.application.port.in.betSlip.CreateMatchUseCase;
 import project.application.port.in.betSlip.MakeBetUseCase;
+import project.domain.model.BetSlip;
 import project.domain.model.BettingAccount;
+import project.domain.model.DraftBetSlip;
 import project.domain.model.MobileMoneyAccount;
 
 import java.util.List;
@@ -104,13 +106,12 @@ public class BettingServiceAdapter {
     }
 
     public BetSlipDto addPickToBetSlip(Long bettingAccountId, AddPickRequestBetSlipDto dto) {
-        var updated = addEventPick.addPick(bettingAccountId, dto.getMatchId(), dto.getOutComeName());
+        DraftBetSlip updated = addEventPick.addPick(bettingAccountId, dto.getMatchId(), dto.getOutComeName());
         return mapper.toDraftSlipDto(updated);
     }
 
     public Long makeBet(Long bettingAccountId, MakeBetRequestDto dto) {
-        var slipDomain = mapper.toBetSlipDomain(dto.getSlip());
-        return makeBetUseCase.makeBet(bettingAccountId, slipDomain, dto.getStake(), dto.getDescription());
+        return makeBetUseCase.makeBet(bettingAccountId, dto.getMatchIds(),dto.getOutComes(), dto.getStake(), dto.getDescription());
     }
 
 }

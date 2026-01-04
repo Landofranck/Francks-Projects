@@ -15,7 +15,7 @@ public class BettingAccount implements Account {
     private Money balance;
     private List<Transaction> transactionHistory;
     private List<BetSlip> betHistory;
-    private DraftBetSlip newBetslip;
+    private DraftBetSlip draftBetSlip;
 
     public BettingAccount(String accountName, AccountType brokerType) {
         this.accountName = accountName;
@@ -32,12 +32,6 @@ public class BettingAccount implements Account {
         //advicable to use the
         addTransaction(new Transaction(newBetslip.getStake(), new Money(balance.getValue()), newBetslip.getCreatedAt(), TransactionType.BET_PLACED, ""));
     }
-
-    public void addTransaction(Transaction transaction) {
-        transaction.setOwner(this);
-        this.transactionHistory.add(transaction);
-    }
-
     public Transaction deposit(Money money, Instant createdAt, String description) {
         this.balance = this.balance.add(money);
 
@@ -52,16 +46,30 @@ public class BettingAccount implements Account {
         return doneTransaction;
     }
 
+
+    public void addTransaction(Transaction transaction) {
+        transaction.setOwner(this);
+        this.transactionHistory.add(transaction);
+    }
+
     public DraftBetSlip putEmptySlip(DraftBetSlip betSlip) {
         if(betSlip==null)throw new RuntimeException("there must be a betslip line 56 betting account");
         betSlip.setDraftSlipOwner(this);
-        this.newBetslip=betSlip;
+        this.draftBetSlip =betSlip;
         return betSlip;
     }
 
-    public DraftBetSlip getNewBetslip() {
-            return newBetslip;
+    public DraftBetSlip getDraftBetSlip() {
+            return draftBetSlip;
 
+    }
+    public Transaction placeBet(Money money, Instant now, String description) {
+        if (!this.balance.isGreaterThan(money)) {
+            throw new RuntimeException("you cannot make withdrwal of " + money.getValue());
+        }
+        this.balance = balance.subtract(money);
+        Transaction doneTransaction = new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.BET_PLACED, description);
+        return doneTransaction;
     }
 
     public Transaction withdraw(Money money, Instant now, String description) {

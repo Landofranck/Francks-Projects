@@ -1,18 +1,28 @@
 package project.adapter.in.web.bettinAccountDTO.betslip;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class MakeBetRequestDto {
-    private BetSlipDto slip;
+    private List<Long> matchIds;
+    private List<String> outComes;
     private BigDecimal stake;
-    private String description;
+    private String description;//use for now as category
 
-    public void setSlip(BetSlipDto slip) {
-        this.slip = slip;
+    public void setMatchIds(List<Long> matchIds) {
+        this.matchIds = matchIds;
     }
 
-    public BetSlipDto getSlip() {
-        return slip;
+    public List<Long> getMatchIds() {
+        return matchIds;
+    }
+
+    public void setOutComes(List<String> outComes) {
+        this.outComes = outComes;
+    }
+
+    public List<String> getOutComes() {
+        return outComes;
     }
 
     public void setDescription(String description) {

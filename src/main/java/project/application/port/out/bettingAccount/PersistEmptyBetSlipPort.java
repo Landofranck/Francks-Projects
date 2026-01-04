@@ -4,5 +4,5 @@ import project.domain.model.BetSlip;
 import project.domain.model.DraftBetSlip;
 
 public interface PersistEmptyBetSlipPort {
-    Long persistEmptyslip(Long bettingAccountId, DraftBetSlip betSlip);
+    DraftBetSlip persistEmptyslip(Long bettingAccountId, DraftBetSlip betSlip);
 }

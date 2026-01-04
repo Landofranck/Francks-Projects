@@ -20,30 +20,21 @@ public class DraftSlipEntity {
     private String category;
     private Instant createdAt;
     private double totalOdd;
-
+    private BigDecimal stake;
     @OneToOne(optional = true,fetch = FetchType.LAZY)
     @JoinColumn(name = "betting_account_id",unique = true)
     private BettingAccountEntity draftBetSlipOwner;
-    private BigDecimal stake;
 
-    public BettingAccountEntity getNewBetslipParent() {
+
+    public BettingAccountEntity getDraftBetSlipOwner() {
         return draftBetSlipOwner;
     }
 
-    public void setNewBetslipParent(BettingAccountEntity newBetslipParent) {
+    public void setDraftBetSlipOwner(BettingAccountEntity newBetslipParent) {
         this.draftBetSlipOwner = newBetslipParent;
     }
 
     protected DraftSlipEntity() {
-    }
-
-
-
-    @PrePersist
-    public void onCreate() {
-        if (createdAt == null) {
-            createdAt = Instant.now();
-        }
     }
 
     public void setTotalOdd(double totalOdd) {

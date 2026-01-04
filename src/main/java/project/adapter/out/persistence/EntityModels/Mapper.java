@@ -1,7 +1,11 @@
 package project.adapter.out.persistence.EntityModels;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.validation.ClockProvider;
+import org.jboss.resteasy.reactive.server.util.ScoreSystem;
 import project.domain.model.*;
+import project.domain.model.Enums.BetStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +18,8 @@ public class Mapper {
         entityModel.setBalance(domainModel.getBalance().getValue());
         entityModel.setBrokerType(domainModel.getBrokerType());
         entityModel.setAccountName(domainModel.getAccountName());
-        if (domainModel.getNewBetslip() != null) {
-            entityModel.putNewBetSlip(toDraftSlipEntity(domainModel.getNewBetslip()));//the part send the error     "message": "Cannot invoke \"project.adapter.out.persistence.EntityModels.BetSlipEntity.setStatus(project.domain.model.Enums.BetStatus)\" because the return value of \"project.adapter.out.persistence.EntityModels.BettingAccountEntity.$$_hibernate_read_draftBetSlip()\" is null"
+        if (domainModel.getDraftBetSlip() != null) {
+            entityModel.putNewBetSlip(toDraftSlipEntity(domainModel.getDraftBetSlip()));//the part send the error     "message": "Cannot invoke \"project.adapter.out.persistence.EntityModels.BetSlipEntity.setStatus(project.domain.model.Enums.BetStatus)\" because the return value of \"project.adapter.out.persistence.EntityModels.BettingAccountEntity.$$_hibernate_read_draftBetSlip()\" is null"
         }
 
         if (domainModel.getTransactionHistory() != null) {
@@ -147,9 +151,9 @@ public class Mapper {
                 draftDomain.addMatchEventPick(toDraftEventDomain(p));
             }
         }
-        var draftslipOwner=new BettingAccount(draftSlipEntity.getNewBetslipParent().getAccountName(),
-                draftSlipEntity.getNewBetslipParent().getBrokerType());
-        draftslipOwner.setId(draftSlipEntity.getNewBetslipParent().getId());
+        var draftslipOwner=new BettingAccount(draftSlipEntity.getDraftBetSlipOwner().getAccountName(),
+                draftSlipEntity.getDraftBetSlipOwner().getBrokerType());
+        draftslipOwner.setId(draftSlipEntity.getDraftBetSlipOwner().getId());
         draftDomain.setDraftSlipOwner(draftslipOwner);
         return draftDomain;
     }
@@ -276,4 +280,16 @@ public class Mapper {
         return matchEntities.stream().map(this::toMatchDomain).collect(Collectors.toCollection(ArrayList::new));
     }
 
+    public BetSlipEntity fromDraftToBetslipEntity(DraftBetSlip draftSlip) {
+        var betSlipentity = new BetSlipEntity();
+        betSlipentity.setStatus(BetStatus.PENDING);
+        betSlipentity.setCreatedAt(draftSlip.getCreatedAt());
+        betSlipentity.setStake(draftSlip.getStake().getValue());
+        if (draftSlip.getPicks() != null) {
+            for (MatchEventPick p : draftSlip.getPicks()) {
+                betSlipentity.addMatchEventPickEntity(toMatchEventEntity(p));
+            }
+        }
+        return betSlipentity;
+    }
 }

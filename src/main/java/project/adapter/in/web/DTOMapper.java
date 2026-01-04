@@ -51,6 +51,7 @@ public class DTOMapper {
         dto.setCreatedAt(domain.getCreatedAt());
         dto.setTotalOdds(domain.getTotalOdds());
         dto.setCategory(domain.getCategory());
+        dto.setStatus(domain.getStatus());
         dto.setPicks(domain.getPicks().stream().map(this::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new)));
         return dto;
     }
@@ -60,6 +61,7 @@ public class DTOMapper {
         var dto = new BetSlipDto();
         dto.setParentBettingAccountId(domain.getParentAccount() != null ? domain.getParentAccount().getAccountId() : null);
         dto.setId(domain.getId());
+        dto.setStatus(domain.getStatus());
         dto.setPotentialWinning(domain.getPotentialWinning().getValue());
         dto.setStake(domain.getStake().getValue());
         dto.setCreatedAt(domain.getCreatedAt());

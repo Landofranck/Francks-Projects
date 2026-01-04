@@ -23,7 +23,7 @@ public class DraftBetSlip implements Event {
     public DraftBetSlip(String category) {
         this.category = category;
         this.picks = new ArrayList<>();
-        this.status = BetStatus.PENDING;
+        this.status = BetStatus.CREATING;
         this.stake = new Money(BigDecimal.ZERO);
         this.potentialWinning = new Money(BigDecimal.ZERO);
         this.totalOdds = 0;

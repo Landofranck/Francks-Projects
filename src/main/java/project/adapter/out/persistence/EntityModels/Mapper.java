@@ -289,6 +289,9 @@ public class Mapper {
         betSlipentity.setStatus(draftSlip.getStatus());
         betSlipentity.setCreatedAt(draftSlip.getCreatedAt());
         betSlipentity.setStake(draftSlip.getStake().getValue());
+        betSlipentity.setPotentialWinning(draftSlip.getPotentialWinning().getValue());
+        betSlipentity.setCategory(draftSlip.getCategory());
+        betSlipentity.setTotalOdd(draftSlip.getTotalOdds());
         if (draftSlip.getPicks() != null) {
             for (MatchEventPick p : draftSlip.getPicks()) {
                 betSlipentity.addMatchEventPickEntity(toMatchEventEntity(p));

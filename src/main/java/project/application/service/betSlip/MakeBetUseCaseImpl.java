@@ -43,8 +43,10 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
         if (stake == null || stake.signum() <= 0) throw new IllegalArgumentException("stake must be > 0");
         if (matchIds != null) {
             removeAllPicks.removeAllPicks(bettingAccountId);
-            for (int i = 0; i < matchIds.toArray().length; i++) {
+            int i=0;
+            for (Long Ids:matchIds) {
                 addPicks.addPick(bettingAccountId, matchIds.get(i), matchOutcomes.get(i));
+                i++;
             }
         }
 

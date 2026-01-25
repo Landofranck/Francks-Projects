@@ -32,6 +32,11 @@ public class BettingAccountResource {
         return serviceAdapter.getAllBettingAccounts();
     }
 
+    @GET
+    @Path("/{bettingId}")
+    public BettingAccountDto getById(@PathParam("bettingId") Long bettingId) {
+        return serviceAdapter.loadBettingAccount(bettingId);
+    }
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(CreateBettingAccountDto dto) {

@@ -31,8 +31,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
 
     private boolean existsByNameAndType(String name, AccountType type) {
         Long count = entityManager.createQuery(
-                        "SELECT COUNT(b) FROM BettingAccountEntity b " +
-                                "WHERE b.accountName = :name AND b.brokerType = :type",
+                        "SELECT COUNT(b) FROM BettingAccountEntity b WHERE b.accountName = :name AND b.brokerType = :type",
                         Long.class
                 )
                 .setParameter("name", name)
@@ -66,7 +65,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     @Override
     public BettingAccount getBettingAccount(Long id) {
         var entity = entityManager.find(BettingAccountEntity.class, id);
-        if (entity == null) throw new NotFoundException("Account not found: jpa 69 " + id);
+        if (entity == null) throw new NotFoundException("Account not found: jpa 68. With Id:" + id);
         var output = mapper.toBettingAccountDomain(entity);
         return output;
     }
@@ -90,12 +89,17 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     @Override
     public List<BettingAccount> getAllBettingAcounts() {
 
+        try{
         List<BettingAccountEntity> entities = entityManager
                 .createQuery("SELECT d FROM BettingAccountEntity d", BettingAccountEntity.class).getResultList();
 
         List<BettingAccount> accounts = mapper.toListOfAccountDomains(entities);
 
+
         return accounts;
+        }catch (Exception e){
+            throw new RuntimeException("error while returning list of all betting accounts jpa 101");
+        }
 
     }
 

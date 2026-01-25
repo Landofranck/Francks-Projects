@@ -16,7 +16,6 @@ import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;
 import project.application.port.in.betSlip.CreateEmptyBetSlipUseCase;
 import project.application.port.in.betSlip.CreateMatchUseCase;
 import project.application.port.in.betSlip.MakeBetUseCase;
-import project.domain.model.BetSlip;
 import project.domain.model.BettingAccount;
 import project.domain.model.DraftBetSlip;
 import project.domain.model.MobileMoneyAccount;
@@ -49,6 +48,8 @@ public class BettingServiceAdapter {
     CreateEmptyBetSlipUseCase createEmptyBetSlipUseCase;
     @Inject
     MakeBetUseCase makeBetUseCase;
+    @Inject
+    LoadBettingAccountByIdUsecase loadAccount;
 
     public Long createNewBettingAccount(CreateBettingAccountDto dto) {
         var domain = new BettingAccount(dto.getAccountName(),dto.getBrokerType());
@@ -112,6 +113,11 @@ public class BettingServiceAdapter {
 
     public Long makeBet(Long bettingAccountId, MakeBetRequestDto dto) {
         return makeBetUseCase.makeBet(bettingAccountId, dto.getMatchIds(),dto.getOutComes(), dto.getStake(), dto.getDescription());
+    }
+
+    public BettingAccountDto loadBettingAccount(Long id){
+        var out=mapper.toBettingAccountDto(loadAccount.loadAccount(id));
+        return out;
     }
 
 }

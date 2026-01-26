@@ -21,7 +21,7 @@ public class BettingAccountTransactionEntity {
     @JoinColumn(name = "owner_id")
     private BettingAccountEntity owner;
 
-    protected BettingAccountTransactionEntity() {
+    public BettingAccountTransactionEntity() {
 
     }
 

@@ -16,7 +16,7 @@ import project.adapter.in.web.MobileMoneyDto.MomoTopUpRequestDto;
 import project.adapter.in.web.MobileMoneyDto.MomoTransferRequestDto;
 import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
 import project.adapter.in.web.TransactionDTO.DepositDto;
-import project.application.port.in.MakeDepositUseCase;
+import project.application.port.in.MomoAccounts.MakeDepositUseCase;
 
 @Path("/mobile-money-accounts")
 @Produces(MediaType.APPLICATION_JSON)
@@ -63,6 +63,12 @@ public class MobileMoneyAccountResource {
     @GET
     public List<ReadMomoAccountDto> getAll() {
         return serviceAdapter.getAllMomoAccounts();
+    }
+
+    @GET
+    @Path("/{momoId}")
+    public ReadMomoAccountDto getMomoAccount(@PathParam("momoId") Long momoId) {
+        return serviceAdapter.getMomoAccountById(momoId);
     }
 
     /**

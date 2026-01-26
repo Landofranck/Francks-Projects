@@ -1,6 +1,5 @@
-package project.application.port.in;
+package project.application.port.in.BettingAccount;
 
-import project.domain.model.Account;
 import project.domain.model.BettingAccount;
 
 public interface LoadBettingAccountByIdUsecase {

@@ -17,6 +17,9 @@ public class MatchEntity {
     @OneToMany(mappedBy = "parentMatch", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MatchOutcomeEntity> matchOutComes = new ArrayList<>();
 
+    public MatchEntity() {
+    }
+
     public void addOutcome(MatchOutcomeEntity o) {
         matchOutComes.add(o);
         o.setParentMatch(this);

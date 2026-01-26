@@ -35,7 +35,7 @@ public class BettingAccountEntity {
     @OneToMany(mappedBy = "parentAccountEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BetSlipEntity> betHistory = new ArrayList<>();
 
-    protected BettingAccountEntity() {
+    public BettingAccountEntity() {
     }
 
     public void setDraftBetSlip(DraftSlipEntity draftBetSlip) {

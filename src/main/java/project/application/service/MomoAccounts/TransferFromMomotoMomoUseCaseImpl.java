@@ -1,10 +1,10 @@
-package project.application.service;
+package project.application.service.MomoAccounts;
 
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import project.application.port.in.TransferMomoUseCase;
+import project.application.port.in.MomoAccounts.TransferMomoUseCase;
 import project.application.port.out.mobilMoney.AppendMobileMoneyTransactionPort;
 import project.application.port.out.mobilMoney.ReadMomoAccountByIdPort;
 import project.application.port.out.mobilMoney.UpdateMobileMoneyBalancePort;
@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 @ApplicationScoped
-public class TransferMomoUseCaseImpl implements TransferMomoUseCase {
+public class TransferFromMomotoMomoUseCaseImpl implements TransferMomoUseCase {
 
     @Inject ReadMomoAccountByIdPort readById;
     @Inject UpdateMobileMoneyBalancePort updateBalance;

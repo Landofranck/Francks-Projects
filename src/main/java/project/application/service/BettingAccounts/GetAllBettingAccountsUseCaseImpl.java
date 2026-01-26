@@ -1,8 +1,8 @@
-package project.application.service;
+package project.application.service.BettingAccounts;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import project.application.port.in.LoadAllBettingAccountsUseCase;
+import project.application.port.in.BettingAccount.LoadAllBettingAccountsUseCase;
 import project.application.port.out.bettingAccount.ReadAllBettingAccountsPort;
 import project.domain.model.BettingAccount;
 

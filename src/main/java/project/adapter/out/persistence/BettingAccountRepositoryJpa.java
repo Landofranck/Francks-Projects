@@ -5,14 +5,12 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import project.adapter.out.persistence.EntityModels.BettingAccountEntity;
-import project.adapter.out.persistence.EntityModels.Mapper;
+import project.adapter.out.persistence.Mappers.BettingAccountMapper;
 import project.adapter.out.persistence.EntityModels.MatchEntity;
-import project.adapter.out.persistence.EntityModels.MobileMoneyAccountsEntity;
 import project.application.port.out.Match.PersistMatchPort;
 import project.application.port.out.Match.ReadAllMatchesPort;
 import project.application.port.out.Match.ReadMatchByIdPort;
 import project.application.port.out.bettingAccount.*;
-import project.application.port.out.mobilMoney.*;
 import project.domain.model.*;
 import project.domain.model.Enums.AccountType;
 
@@ -20,14 +18,14 @@ import java.util.List;
 import java.util.Objects;
 
 @ApplicationScoped
-public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadBettingAccountByIdPort, PersistMobileMoneyAccount, ReadAllBettingAccountsPort, ReadAllMomoAccounts,
-        ReadMomoAccountByIdPort, UpdateBettingAccountBalancePort, UpdateMobileMoneyBalancePort, AppendBettingAccountTransactionPort,
-        AppendMobileMoneyTransactionPort, PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort, PersistEmptyBetSlipPort,
+public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadBettingAccountByIdPort, ReadAllBettingAccountsPort,
+         UpdateBettingAccountBalancePort, AppendBettingAccountTransactionPort,
+         PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort, PersistEmptyBetSlipPort,
         ReadEmptSlipByParenPort{
     @Inject
     EntityManager entityManager;
     @Inject
-    Mapper mapper;
+    BettingAccountMapper mapper;
 
     private boolean existsByNameAndType(String name, AccountType type) {
         Long count = entityManager.createQuery(
@@ -70,20 +68,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
         return output;
     }
 
-    @Transactional
-    @Override
-    public Long saveMomoAccountToDataBase(MobileMoneyAccount account) {
-        Objects.requireNonNull(account);
-        var entity = mapper.toMobileMoneyEntity(account);
-        try {
-            entityManager.persist(entity);
-            entityManager.flush();
-            return entity.getId();
 
-        } catch (Exception e) {
-            throw new IllegalArgumentException("error while persisting MobileMoneyAccount:" + e.getMessage());
-        }
-    }
 
     @Transactional
     @Override
@@ -103,22 +88,8 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
 
     }
 
-    @Override
-    public List<MobileMoneyAccount> getAllMomoAccounts() {
 
-        List<MobileMoneyAccountsEntity> entities = entityManager.
-                createQuery("SELECT d FROM MobileMoneyAccountsEntity d", MobileMoneyAccountsEntity.class).getResultList();
-        List<MobileMoneyAccount> accounts = mapper.toListOfMOMOtDomains(entities);
-        return accounts;
 
-    }
-
-    @Override
-    public MobileMoneyAccount getMomoAccount(Long id) {
-        var entity = entityManager.find(MobileMoneyAccountsEntity.class, id);
-        if (entity == null) throw new NotFoundException("Momo account not found: " + id);
-        return mapper.toMobileMoneyDomain(entity);
-    }
 
     @Transactional
     @Override
@@ -130,17 +101,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     }
 
 
-    @Transactional
-    @Override
-    public void updateBalance(MobileMoneyAccount account) {
-        var entity = entityManager.find(MobileMoneyAccountsEntity.class, account.getAccountId());
-        if (entity == null) throw new IllegalArgumentException("Momo account not found: " + account.getAccountId());
 
-        entity.setAccountBalance(account.getAccountBalance().getValue());
-        entity.setDailyLimit(account.getDailyLimit());
-        entity.setWeeklyLimit(account.getWeeklyLimit());
-        entity.setMonthlyLimit(account.getMonthlyLimit());
-    }
 
 
     @Transactional
@@ -157,18 +118,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
         owner.getTransactionHistory().add(txEntity);
     }
 
-    @Transactional
-    @Override
-    public void appendToMobileMoney(Long momoAccountId, Transaction transaction) {
-        var owner = entityManager.find(MobileMoneyAccountsEntity.class, momoAccountId);
-        if (owner == null) throw new IllegalArgumentException("Momo account not found: " + momoAccountId);
 
-        var txEntity = mapper.toMomoTransactionEntity(transaction);
-        txEntity.setOwner(owner); // whatever the field is called
-        entityManager.persist(txEntity);
-
-        owner.getTransactionHistory().add(txEntity); // optional if bidirectional
-    }
 
     @Transactional
     @Override

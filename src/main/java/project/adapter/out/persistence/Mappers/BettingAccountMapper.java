@@ -1,18 +1,15 @@
-package project.adapter.out.persistence.EntityModels;
+package project.adapter.out.persistence.Mappers;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.validation.ClockProvider;
-import org.jboss.resteasy.reactive.server.util.ScoreSystem;
+import project.adapter.out.persistence.EntityModels.*;
 import project.domain.model.*;
-import project.domain.model.Enums.BetStatus;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class Mapper {
+public class BettingAccountMapper {
     public BettingAccountEntity toBettingAccountEntity(BettingAccount domainModel) {
         var entityModel = new BettingAccountEntity();
         entityModel.setBalance(domainModel.getBalance().getValue());
@@ -66,17 +63,6 @@ public class Mapper {
         return transactionEntity;
     }
 
-    public MomoAccountTransactionEntity toMomoTransactionEntity(Transaction domainTransaction) {
-        var transactionEntity = new MomoAccountTransactionEntity();
-        transactionEntity.setAccountBalanceAfterTransaction(domainTransaction.getAccountBalanceAfterTransaction().getValue());
-        transactionEntity.setTransactionAmmount(domainTransaction.getTransactionAmmount().getValue());
-        transactionEntity.setCreatedAt(domainTransaction.getCreatedAt());
-        transactionEntity.setDescription(domainTransaction.getDescription());
-        transactionEntity.setType(domainTransaction.getType());
-        //set owner not created because this is done in parent class already with setParent(this)
-        return transactionEntity;
-    }
-
     public MatchEntity toMatchEntity(Match domainPick) {
         var matchEntity = new MatchEntity();
         matchEntity.setAway(domainPick.getAway());
@@ -106,21 +92,7 @@ public class Mapper {
         return outcomeEntity;
     }
 
-    public MobileMoneyAccountsEntity toMobileMoneyEntity(MobileMoneyAccount momo) {
-        var entitMomo = new MobileMoneyAccountsEntity();
-        entitMomo.setId(momo.getAccountId());
-        entitMomo.setAccountBalance(momo.getAccountBalance().getValue());
-        entitMomo.setAccountType(momo.getAccountType());
-        entitMomo.setDailyLimit(momo.getDailyLimit());
-        entitMomo.setMonthlyLimit(momo.getMonthlyLimit());
-        entitMomo.setWeeklyLimit(momo.getWeeklyLimit());
-        if (momo.getTransactionHistory() != null) {
-            for (Transaction t : momo.getTransactionHistory()) {
-                entitMomo.addBettingaccoutTransactionEntity(toMomoTransactionEntity(t));
-            }
-        }
-        return entitMomo;
-    }
+
 
 
     public Transaction toBettingTransactionDomain(BettingAccountTransactionEntity e) {
@@ -130,12 +102,7 @@ public class Mapper {
         return transacttionDomain;
     }
 
-    public Transaction toMomoTransactionDomain(MomoAccountTransactionEntity e) {
-        var transacttionDomain = new Transaction(new Money(e.getTransactionAmmount()), new Money(e.getAccountBalanceAfterTransaction()), e.getCreatedAt(), e.getType(), e.getDescription());
-        //set owner not created because this is done in parent class already with setParent(this)
-        transacttionDomain.setId(e.getId());
-        return transacttionDomain;
-    }
+
 
     public DraftBetSlip toDraftSlipDomain(DraftSlipEntity draftSlipEntity) {
         var draftDomain = new DraftBetSlip(draftSlipEntity.getCategory());
@@ -241,20 +208,7 @@ public class Mapper {
         return matchEventPickDomain;
     }
 
-    public MobileMoneyAccount toMobileMoneyDomain(MobileMoneyAccountsEntity m) {
-        var domainMomo = new MobileMoneyAccount(m.getId(), m.getAccountType());
-        domainMomo.setId(m.getId());
-        domainMomo.setAccountBalance(new Money(m.getAccountBalance()));
-        domainMomo.setDailyLimit(m.getDailyLimit());
-        domainMomo.setMonthlyLimit(m.getMonthlyLimit());
-        domainMomo.setWeeklyLimit(m.getWeeklyLimit());
-        if (m.getTransactionHistory() != null) {
-            for (MomoAccountTransactionEntity t : m.getTransactionHistory()) {
-                domainMomo.addTransaction(toMomoTransactionDomain(t));
-            }
-        }
-        return domainMomo;
-    }
+
 
     public Match toMatchDomain(MatchEntity eM) {
         var dom = new Match(eM.getHome(), eM.getAway());
@@ -276,9 +230,7 @@ public class Mapper {
         return list.stream().map(this::toBettingAccountDomain).collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public List<MobileMoneyAccount> toListOfMOMOtDomains(List<MobileMoneyAccountsEntity> list) {
-        return list.stream().map(this::toMobileMoneyDomain).collect(Collectors.toCollection(ArrayList::new));
-    }
+
 
     public List<Match> toMatchDomains(List<MatchEntity> matchEntities) {
         return matchEntities.stream().map(this::toMatchDomain).collect(Collectors.toCollection(ArrayList::new));

@@ -1,9 +1,9 @@
-package project.application.service;
+package project.application.service.MomoAccounts;
 
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import project.application.port.in.CreateMobileMoneyAccountUseCase;
+import project.application.port.in.MomoAccounts.CreateMobileMoneyAccountUseCase;
 import project.application.port.out.mobilMoney.PersistMobileMoneyAccount;
 import project.domain.model.MobileMoneyAccount;
 

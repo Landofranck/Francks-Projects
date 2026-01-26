@@ -1,4 +1,4 @@
-package project.application.port.in;
+package project.application.port.in.MomoAccounts;
 
 import project.domain.model.MobileMoneyAccount;
 

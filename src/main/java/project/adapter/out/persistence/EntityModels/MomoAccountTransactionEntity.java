@@ -22,7 +22,7 @@ public class MomoAccountTransactionEntity {
     @JoinColumn(name = "owner_id")
     private MobileMoneyAccountsEntity owner;
 
-    protected MomoAccountTransactionEntity() {
+    public MomoAccountTransactionEntity() {
 
     }
 

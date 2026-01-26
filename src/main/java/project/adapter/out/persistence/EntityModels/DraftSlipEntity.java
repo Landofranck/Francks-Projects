@@ -34,7 +34,7 @@ private BigDecimal potentialWinning;
         this.draftBetSlipOwner = newBetslipParent;
     }
 
-    protected DraftSlipEntity() {
+    public DraftSlipEntity() {
     }
 
     public void setPotentialWinning(BigDecimal potentialWinning) {

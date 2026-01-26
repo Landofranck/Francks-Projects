@@ -4,7 +4,7 @@ package project.application.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import project.application.port.in.MakeDepositUseCase;
+import project.application.port.in.MomoAccounts.MakeDepositUseCase;
 import project.application.port.out.bettingAccount.AppendBettingAccountTransactionPort;
 import project.application.port.out.bettingAccount.ReadBettingAccountByIdPort;
 import project.application.port.out.bettingAccount.UpdateBettingAccountBalancePort;

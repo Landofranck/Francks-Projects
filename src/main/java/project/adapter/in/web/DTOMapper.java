@@ -1,6 +1,7 @@
 package project.adapter.in.web;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import project.adapter.in.web.TransactionDTO.ReadReducerDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.BettingAccountDto;
 import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
@@ -149,6 +150,24 @@ public class DTOMapper {
         dto.setOutcomeName(mP.getOutcomeName());
         return dto;
     }
+
+    public ReadReducerDto toReducerDto(Reducer domain) {
+        List<BetSlipDto> betslips = new ArrayList<>();
+        List<MatchDto> matches = new ArrayList<>();
+        if (domain.getBetMatches() != null)
+            matches = domain.getBetMatches().stream().map(this::toMatchDto).collect(Collectors.toCollection(ArrayList::new));
+        if (domain.getSlips() != null)
+            betslips = domain.getSlips().stream().map(this::toBetSlipDto).collect(Collectors.toCollection(ArrayList::new));
+
+        var out = new ReadReducerDto(domain.getAccountId(), domain.getTotalStake().getValue(), matches, betslips, domain.getBonusAmount().getValue());
+        return out;
+    }
+
+    public Reducer toReducerDomain(CreateReducerDto dto) {
+        var out = new Reducer(new Money(dto.getTotalStake()), new Money(dto.getBonusAmount()));
+        return out;
+    }
+
 
     public BetSlip toBetSlipDomain(BetSlipDto slip) {
         var domain = new BetSlip(slip.getCategory());

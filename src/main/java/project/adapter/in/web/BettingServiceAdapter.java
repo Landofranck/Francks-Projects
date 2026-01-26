@@ -1,6 +1,7 @@
 package project.adapter.in.web;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import project.adapter.in.web.TransactionDTO.ReadReducerDto;
 import project.adapter.in.web.bettinAccountDTO.AddPickRequestBetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.BettingAccountDto;
 import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
@@ -12,6 +13,12 @@ import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.MakeBetRequestDto;
 import project.application.port.in.*;
 import jakarta.inject.Inject;
+import project.application.port.in.BettingAccount.CreateBettingAccountUseCase;
+import project.application.port.in.BettingAccount.LoadAllBettingAccountsUseCase;
+import project.application.port.in.BettingAccount.LoadBettingAccountByIdUsecase;
+import project.application.port.in.MomoAccounts.*;
+import project.application.port.in.Reducer.CreateNewReducerUseCase;
+import project.application.port.in.Reducer.LoadReducerByIdUseCase;
 import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;
 import project.application.port.in.betSlip.CreateEmptyBetSlipUseCase;
 import project.application.port.in.betSlip.CreateMatchUseCase;
@@ -50,6 +57,12 @@ public class BettingServiceAdapter {
     MakeBetUseCase makeBetUseCase;
     @Inject
     LoadBettingAccountByIdUsecase loadAccount;
+    @Inject
+    LoadMomoAccountByIdUsecase loadMomoAccount;
+    @Inject
+    CreateNewReducerUseCase createNewReducer;
+    @Inject
+    LoadReducerByIdUseCase loadReducerById;
 
     public Long createNewBettingAccount(CreateBettingAccountDto dto) {
         var domain = new BettingAccount(dto.getAccountName(),dto.getBrokerType());
@@ -120,4 +133,17 @@ public class BettingServiceAdapter {
         return out;
     }
 
+    public ReadMomoAccountDto getMomoAccountById(Long momoId) {
+        var out=mapper.toMobileMoneyDto(loadMomoAccount.loadMomoById(momoId));
+        return out;
+    }
+    public void createReducer(CreateReducerDto dto){
+        var dom=mapper.toReducerDomain(dto);
+        createNewReducer.createNewReducer(dom);
+    }
+
+    public ReadReducerDto loadReducer(Long id) {
+        var out=loadReducerById.loadReducer(id);
+        return mapper.toReducerDto(out);
+    }
 }

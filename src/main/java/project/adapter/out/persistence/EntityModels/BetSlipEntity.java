@@ -2,6 +2,7 @@ package project.adapter.out.persistence.EntityModels;
 
 import jakarta.persistence.*;
 import project.domain.model.Enums.BetStatus;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -19,15 +20,23 @@ public class BetSlipEntity {
     private String category;
     private Instant createdAt;
     private double totalOdd;
+
+    //this attribute shows the betting account in which the betslip was placed
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "parentAccountEntity_id", nullable = false)
     private BettingAccountEntity parentAccountEntity;
 
+    //this attribute shows the reducer in which the betslip was created
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "reducerParent_id", nullable = false)
+    private ReducerEntity reducerParent;
+
+
     private BigDecimal stake;
-private BigDecimal potentialWinning;
+    private BigDecimal potentialWinning;
 
 
-    protected BetSlipEntity() {
+    public BetSlipEntity() {
     }
 
     public void setTotalOdd(double totalOdd) {

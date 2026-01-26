@@ -1,0 +1,29 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - h2
+    ports:
+      - "8080:8080"
+
+
+    environment:
+      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:h2:tcp://h2:9092/opt/h2-data/db
+      - QUARKUS_DATASOURCE_USERNAME=sa
+      - QUARKUS_DATASOURCE_PASSWORD=
+
+  h2:
+    image: oscarfonts/h2
+    container_name: h2-db
+    ports:
+      - "9092:9092"
+      - "8082:81"
+    environment:
+      - H2_OPTIONS=-tcp -tcpAllowOthers -tcpPort 9092 -baseDir /opt/h2-data -ifNotExists
+    volumes:
+      - h2-data:/opt/h2-data
+
+volumes:
+  h2-data:

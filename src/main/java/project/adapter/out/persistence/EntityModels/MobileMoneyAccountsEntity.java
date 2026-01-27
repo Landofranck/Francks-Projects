@@ -1,7 +1,7 @@
 package project.adapter.out.persistence.EntityModels;
 
 import jakarta.persistence.*;
-import project.domain.model.Enums.AccountType;
+import project.domain.model.Enums.MomoAccountType;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ public class MobileMoneyAccountsEntity {
     @Id
     private Long id;
     @Enumerated(EnumType.STRING)
-    public AccountType accountType;
+    public MomoAccountType accountType;
     private BigDecimal accountBalance;
     private Boolean dailyLimit;
     private Boolean weeklyLimit;
@@ -37,7 +37,7 @@ public class MobileMoneyAccountsEntity {
         return transactionHistory;
     }
 
-    public AccountType getAccountType() {
+    public MomoAccountType getAccountType() {
         return accountType;
     }
 
@@ -77,7 +77,7 @@ public class MobileMoneyAccountsEntity {
         return id;
     }
 
-    public void setAccountType(AccountType accountType) {
+    public void setAccountType(MomoAccountType accountType) {
         this.accountType = accountType;
     }
 

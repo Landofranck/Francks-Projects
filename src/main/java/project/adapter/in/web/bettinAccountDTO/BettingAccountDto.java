@@ -3,14 +3,15 @@ package project.adapter.in.web.bettinAccountDTO;
 
 import project.adapter.in.web.TransactionDTO.TransactionDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
-import project.domain.model.Enums.AccountType;
+import project.domain.model.Enums.BrokerType;
+
 import java.math.BigDecimal;
 import java.util.List;
 
 public class BettingAccountDto {
     private Long id;
     private String accountName;
-    private AccountType brokerType;
+    private BrokerType brokerType;
     private BigDecimal balance;
     private List<TransactionDto> transactionHistory;
     private List<BetSlipDto> betHistory;
@@ -31,8 +32,8 @@ public class BettingAccountDto {
     public String getAccountName() { return accountName; }
     public void setAccountName(String accountName) { this.accountName = accountName; }
 
-    public AccountType getBrokerType() { return brokerType; }
-    public void setBrokerType(AccountType brokerType) { this.brokerType = brokerType; }
+    public BrokerType getBrokerType() { return brokerType; }
+    public void setBrokerType(BrokerType brokerType) { this.brokerType = brokerType; }
 
     public BigDecimal getBalance() { return balance; }
     public void setBalance(BigDecimal balance) { this.balance = balance; }

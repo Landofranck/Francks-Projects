@@ -1,6 +1,7 @@
 package project.adapter.out.persistence.EntityModels;
 
 import jakarta.persistence.*;
+import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
 
 import java.math.BigDecimal;
@@ -17,7 +18,7 @@ public class BetSlipEntity {
     private List<MatchEventPickEntity> picks = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     private BetStatus status;
-    private String category;
+    private BetCategory category;
     private Instant createdAt;
     private double totalOdd;
 
@@ -29,7 +30,7 @@ public class BetSlipEntity {
     //this attribute shows the reducer in which the betslip was created
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "reducerParent_id", nullable = false)
-    private ReducerEntity reducerParent;
+    private ReducerEntity betSlipReducerParent;
 
 
     private BigDecimal stake;
@@ -80,7 +81,7 @@ public class BetSlipEntity {
         return picks;
     }
 
-    public String getCategory() {
+    public BetCategory getCategory() {
         return category;
     }
 
@@ -102,7 +103,7 @@ public class BetSlipEntity {
     }
 
 
-    public void setCategory(String category) {
+    public void setCategory(BetCategory category) {
         this.category = category;
     }
 

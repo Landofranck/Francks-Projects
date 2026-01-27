@@ -1,5 +1,6 @@
 package project.domain.model;
 
+import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
 
 import java.math.BigDecimal;
@@ -11,7 +12,7 @@ public class DraftBetSlip implements Event {
     private Long id;
     private List<MatchEventPick> picks;
     private BetStatus status;
-    private String category;
+    private BetCategory category;
     private Instant createdAt;
     //int the reducer method betslips will be created without parent accounts
     private BettingAccount draftSlipOwner;
@@ -20,7 +21,7 @@ public class DraftBetSlip implements Event {
     private int numberOfEvents;
     private Money potentialWinning;
 
-    public DraftBetSlip(String category) {
+    public DraftBetSlip(BetCategory category) {
         this.category = category;
         this.picks = new ArrayList<>();
         this.status = BetStatus.CREATING;
@@ -100,11 +101,11 @@ public class DraftBetSlip implements Event {
         return picks;
     }
 
-    public String getCategory() {
+    public BetCategory getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(BetCategory category) {
         this.category = category;
     }
 

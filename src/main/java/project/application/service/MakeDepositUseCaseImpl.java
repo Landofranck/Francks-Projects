@@ -12,7 +12,7 @@ import project.application.port.out.mobilMoney.AppendMobileMoneyTransactionPort;
 import project.application.port.out.mobilMoney.ReadMomoAccountByIdPort;
 import project.application.port.out.mobilMoney.UpdateMobileMoneyBalancePort;
 import project.config.TimeProvider;
-import project.domain.model.Enums.AccountType;
+import project.domain.model.Enums.MomoAccountType;
 import project.domain.model.Money;
 import project.domain.model.Transaction;
 
@@ -83,7 +83,7 @@ public class MakeDepositUseCaseImpl implements MakeDepositUseCase {
         bettingBalanceUpdater.updateBalance(betting);
     }
 
-    private Money calculateFee(AccountType type, Money transferAmount) {
+    private Money calculateFee(MomoAccountType type, Money transferAmount) {
         BigDecimal base = transferAmount.getValue();
         BigDecimal onePercent = base.multiply(BigDecimal.valueOf(0.01));
 

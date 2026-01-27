@@ -1,14 +1,14 @@
 package project.adapter.in.web.MobileMoneyDto;
 
 import jakarta.validation.constraints.NotNull;
-import project.domain.model.Enums.AccountType;
+import project.domain.model.Enums.MomoAccountType;
 
 
 public class CreateMobileMoneyAccountDto {
     @NotNull(message = "you must put momo id momodto 8")
     private Long id;
     @NotNull(message = "the account must have a type momo dto 10")
-    public AccountType accountType;
+    public MomoAccountType accountType;
 
     public void setId(Long id) {
         this.id = id;
@@ -21,7 +21,7 @@ public class CreateMobileMoneyAccountDto {
     }
 
 
-    public void setAccountType(AccountType accountType) {
+    public void setAccountType(MomoAccountType accountType) {
         this.accountType = accountType;
     }
 }

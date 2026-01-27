@@ -2,6 +2,7 @@ package project.adapter.out.persistence.EntityModels;
 
 
 import jakarta.persistence.*;
+import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -17,7 +18,7 @@ public class DraftSlipEntity {
     private List<DraftEventPickEntity> picks = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     private BetStatus status;
-    private String category;
+    private BetCategory category;
     private Instant createdAt;
     private double totalOdd;
     private BigDecimal stake;
@@ -78,7 +79,7 @@ private BigDecimal potentialWinning;
         return picks;
     }
 
-    public String getCategory() {
+    public BetCategory getCategory() {
         return category;
     }
 
@@ -98,7 +99,7 @@ private BigDecimal potentialWinning;
     }
 
 
-    public void setCategory(String category) {
+    public void setCategory(BetCategory category) {
         this.category = category;
     }
 

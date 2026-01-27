@@ -27,7 +27,6 @@ public class ReducerMapper {
     }
     public ReducerEntity toReducerEntity(Reducer dom) {
         var entity = new ReducerEntity();
-        entity.setId(dom.getAccountId());
         entity.setBonusAmount(dom.getBonusAmount().getValue());
         entity.setTotalStake(dom.getTotalStake().getValue());
         if(dom.getSlips()!=null)

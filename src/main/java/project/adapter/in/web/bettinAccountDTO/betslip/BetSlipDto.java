@@ -2,6 +2,7 @@ package project.adapter.in.web.bettinAccountDTO.betslip;
 
 import jakarta.validation.constraints.NotNull;
 import project.adapter.in.web.MatchEventPickDto;
+import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
 
 import java.math.BigDecimal;
@@ -14,7 +15,7 @@ public class BetSlipDto {
     @NotNull
     private Long parentBettingAccountId;
     @NotNull
-    private String category;
+    private BetCategory category;
     private Instant createdAt;
     private List<MatchEventPickDto> picks;
     private BetStatus status;
@@ -38,8 +39,8 @@ private BigDecimal potentialWinning;
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
+    public BetCategory getCategory() { return category; }
+    public void setCategory(BetCategory category) { this.category = category; }
 
     public BetStatus getStatus() { return status; }
     public void setStatus(BetStatus status) { this.status = status; }

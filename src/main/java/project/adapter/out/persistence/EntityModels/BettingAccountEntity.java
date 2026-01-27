@@ -1,8 +1,8 @@
 package project.adapter.out.persistence.EntityModels;
 
-import project.domain.model.Enums.AccountType;
 
 import jakarta.persistence.*;
+import project.domain.model.Enums.BrokerType;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class BettingAccountEntity {
 
     @Column(name = "broker_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private AccountType brokerType;
+    private BrokerType brokerType;
     private BigDecimal balance;
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BettingAccountTransactionEntity> transactionHistory = new ArrayList<>();
@@ -95,7 +95,7 @@ public class BettingAccountEntity {
         return accountName;
     }
 
-    public AccountType getBrokerType() {
+    public BrokerType getBrokerType() {
         return brokerType;
     }
 
@@ -124,7 +124,7 @@ public class BettingAccountEntity {
     }
 
 
-    public void setBrokerType(AccountType brokerType) {
+    public void setBrokerType(BrokerType brokerType) {
         this.brokerType = brokerType;
     }
 

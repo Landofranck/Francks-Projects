@@ -1,5 +1,7 @@
 package project.domain.model;
 
+import project.domain.model.Enums.BetCategory;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +33,7 @@ public class Reducer implements Account {
         slip.makeTotalOdds();
     }
 
-    public BetSlip createBetSlip(String category) {
+    public BetSlip createBetSlip(BetCategory category) {
         Objects.requireNonNull(category);
         BetSlip newBetslip = new BetSlip(category);
         addBetSlip(newBetslip);
@@ -47,7 +49,7 @@ public class Reducer implements Account {
      * Build all BetSlip combinations by taking exactly ONE pick from EACH match.
      * Example: [[a,b],[c,d]] -> [a,c], [a,d], [b,c], [b,d]
      */
-    public List<BetSlip> createSlips(String category) {
+    public List<BetSlip> createSlips(BetCategory category) {
         Objects.requireNonNull(category, "category");
 
         slips.clear();
@@ -110,7 +112,7 @@ public class Reducer implements Account {
     /**
      * Copies a slip's picks into a new slip instance (deep copy of picks).
      */
-    private BetSlip copySlip(BetSlip original, String category) {
+    private BetSlip copySlip(BetSlip original, BetCategory category) {
         BetSlip copy = new BetSlip(category);
 
         for (MatchEventPick p : original.getPicks()) {

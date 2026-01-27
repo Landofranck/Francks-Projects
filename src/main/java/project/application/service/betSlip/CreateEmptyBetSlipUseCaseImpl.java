@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 import project.application.port.in.betSlip.CreateEmptyBetSlipUseCase;
 import project.application.port.out.bettingAccount.ReadBettingAccountByIdPort;
 import project.domain.model.DraftBetSlip;
+import project.domain.model.Enums.BetCategory;
 
 @ApplicationScoped
 public class CreateEmptyBetSlipUseCaseImpl implements CreateEmptyBetSlipUseCase {
@@ -18,11 +19,11 @@ public class CreateEmptyBetSlipUseCaseImpl implements CreateEmptyBetSlipUseCase 
     PersistEmptyBetSlipPort putEmptySlip;
 
     @Override
-    public DraftBetSlip createEmpty(Long bettingAccountId, String category) {
+    public DraftBetSlip createEmpty(Long bettingAccountId, BetCategory category) {
 
         if (bettingAccountId == null || bettingAccountId < 0)
             throw new IllegalArgumentException("bettingAccountId is required createmptslipimpl lin 24");
-        if (category == null || category.isBlank())
+        if (category == null || category==null)
             throw new IllegalArgumentException("category is required createmptslipimpl line 26");
 
         var account = readAccountByIdPort.getBettingAccount(bettingAccountId);// ensures it exists

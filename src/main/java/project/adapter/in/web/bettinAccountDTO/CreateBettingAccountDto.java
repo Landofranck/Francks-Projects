@@ -1,19 +1,19 @@
 package project.adapter.in.web.bettinAccountDTO;
 
 import jakarta.validation.constraints.NotNull;
-import project.domain.model.Enums.AccountType;
+import project.domain.model.Enums.BrokerType;
 
 public class CreateBettingAccountDto {
     @NotNull(message = "accountname")
     private String accountName;
     @NotNull(message = "broker type")
-    private AccountType brokerType;
+    private BrokerType brokerType;
 
     public CreateBettingAccountDto() {}
 
     public String getAccountName() { return accountName; }
     public void setAccountName(String accountName) { this.accountName = accountName; }
 
-    public AccountType getBrokerType() { return brokerType; }
-    public void setBrokerType(AccountType brokerType) { this.brokerType = brokerType; }
+    public BrokerType getBrokerType() { return brokerType; }
+    public void setBrokerType(BrokerType brokerType) { this.brokerType = brokerType; }
 }

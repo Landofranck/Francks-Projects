@@ -12,7 +12,8 @@ import project.application.port.out.Match.ReadAllMatchesPort;
 import project.application.port.out.Match.ReadMatchByIdPort;
 import project.application.port.out.bettingAccount.*;
 import project.domain.model.*;
-import project.domain.model.Enums.AccountType;
+import project.domain.model.Enums.BetCategory;
+import project.domain.model.Enums.BrokerType;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,7 +28,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     @Inject
     BettingAccountMapper mapper;
 
-    private boolean existsByNameAndType(String name, AccountType type) {
+    private boolean existsByNameAndType(String name, BrokerType type) {
         Long count = entityManager.createQuery(
                         "SELECT COUNT(b) FROM BettingAccountEntity b WHERE b.accountName = :name AND b.brokerType = :type",
                         Long.class
@@ -159,7 +160,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
         if (owner == null) throw new IllegalArgumentException("Betting account not found: " + bettingAccountId);
 
         var slipEntity = mapper.fromDraftToBetslipEntity(slip);
-        slipEntity.setCategory(Strategy);
+        slipEntity.setCategory(BetCategory.SINGLE);
 
         owner.addBetSlipEntity(slipEntity);     // ✅ sets parentAccountEntity
         entityManager.persist(owner);

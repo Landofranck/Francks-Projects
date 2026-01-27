@@ -26,6 +26,7 @@ import project.application.port.in.betSlip.CreateMatchUseCase;
 import project.application.port.in.betSlip.MakeBetUseCase;
 import project.domain.model.BettingAccount;
 import project.domain.model.DraftBetSlip;
+import project.domain.model.Enums.BetCategory;
 import project.domain.model.MobileMoneyAccount;
 
 import java.util.List;
@@ -117,7 +118,7 @@ public class BettingServiceAdapter {
 
     public BetSlipDto createEmptySlip(Long bettingAccountId) {
 
-        var slip = createEmptyBetSlipUseCase.createEmpty(bettingAccountId, "DRAFT");
+        var slip = createEmptyBetSlipUseCase.createEmpty(bettingAccountId, BetCategory.SINGLE);
 
         return mapper.toDraftSlipDto(slip);
     }

@@ -2,9 +2,11 @@ package project.adapter.out.persistence.EntityModels;
 
 import jakarta.persistence.*;
 import project.domain.model.BetSlip;
+import project.domain.model.Enums.BetCategory;
 import project.domain.model.MatchEventPick;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,10 +16,10 @@ public class ReducerEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private BigDecimal totalStake;
-    @OneToMany
-    private List<MatchEntity> betMatchEntities;
-    @OneToMany(mappedBy = "reducerParent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<BetSlipEntity> slips;
+    @OneToMany(mappedBy = "matchReducerParent",cascade = CascadeType.ALL,orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<MatchEntity> betMatchEntities=new ArrayList<>();
+    @OneToMany(mappedBy = "betSlipReducerParent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<BetSlipEntity> slips=new ArrayList<>();
     private BigDecimal bonusAmount;
 
     public ReducerEntity() {
@@ -53,7 +55,7 @@ public class ReducerEntity {
     /**
      * Copies a slip's picks into a new slip instance (deep copy of picks).
      */
-    private BetSlipEntity copySlip(BetSlipEntity original, String category) {
+    private BetSlipEntity copySlip(BetSlipEntity original, BetCategory category) {
         BetSlipEntity copy = new BetSlipEntity();
         copy.setCategory(category);
         for (MatchEventPickEntity p : original.getPicks()) {

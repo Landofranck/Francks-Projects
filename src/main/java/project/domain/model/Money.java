@@ -22,6 +22,16 @@ public final class Money {
         }
         this.value = normalized;
     }
+    public Money(int val) {
+        var value=BigDecimal.valueOf(val);
+        Objects.requireNonNull(value, "money value must not be null");
+
+        BigDecimal normalized = value.setScale(SCALE, ROUNDING);
+        if (normalized.signum() < 0) {
+            throw new IllegalArgumentException("money cannot be negative");
+        }
+        this.value = normalized;
+    }
 
     public static Money of(double value) {
         return new Money(BigDecimal.valueOf(value));

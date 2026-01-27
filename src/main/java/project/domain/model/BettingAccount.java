@@ -1,6 +1,6 @@
 package project.domain.model;
 
-import project.domain.model.Enums.AccountType;
+import project.domain.model.Enums.BrokerType;
 import project.domain.model.Enums.TransactionType;
 
 import java.math.BigDecimal;
@@ -11,13 +11,13 @@ import java.util.List;
 public class BettingAccount implements Account {
     private Long id; // generated
     private final String accountName;
-    private final AccountType brokerType;
+    private final BrokerType brokerType;
     private Money balance;
     private List<Transaction> transactionHistory;
     private List<BetSlip> betHistory;
     private DraftBetSlip draftBetSlip;
 
-    public BettingAccount(String accountName, AccountType brokerType) {
+    public BettingAccount(String accountName, BrokerType brokerType) {
         this.accountName = accountName;
         this.brokerType = brokerType;
         this.balance = new Money(BigDecimal.ZERO);
@@ -83,7 +83,7 @@ public class BettingAccount implements Account {
         return accountName;
     }
 
-    public AccountType getBrokerType() {
+    public BrokerType getBrokerType() {
         return brokerType;
     }
 
@@ -121,7 +121,7 @@ public class BettingAccount implements Account {
         this.id = id;
     }
 
-    public AccountType getAccountType() {
+    public BrokerType getAccountType() {
         return this.brokerType;
     }
 }

@@ -7,7 +7,7 @@ import jakarta.transaction.Transactional;
 import project.adapter.out.persistence.EntityModels.MobileMoneyAccountsEntity;
 import project.adapter.out.persistence.Mappers.MomoAccountMapper;
 import project.application.port.out.mobilMoney.*;
-import project.domain.model.Enums.AccountType;
+import project.domain.model.Enums.BrokerType;
 import project.domain.model.MobileMoneyAccount;
 import project.domain.model.Transaction;
 
@@ -22,7 +22,7 @@ public class MomoAccountRepositoryJpa implements PersistMobileMoneyAccount, Read
     @Inject
     MomoAccountMapper mapper;
 
-    private boolean existsByNameAndType(String name, AccountType type) {
+    private boolean existsByNameAndType(String name, BrokerType type) {
         Long count = entityManager.createQuery(
                         "SELECT COUNT(b) FROM BettingAccountEntity b WHERE b.accountName = :name AND b.brokerType = :type",
                         Long.class

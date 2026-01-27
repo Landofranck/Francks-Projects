@@ -1,19 +1,14 @@
 package project.adapter.in.web.MobileMoneyDto;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import project.adapter.in.web.TransactionDTO.TransactionDto;
-import project.adapter.out.persistence.EntityModels.MomoAccountTransactionEntity;
-import project.domain.model.Enums.AccountType;
-import project.domain.model.Transaction;
+import project.domain.model.Enums.MomoAccountType;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ReadMomoAccountDto {
     private Long id;
-    private AccountType accountType;
+    private MomoAccountType accountType;
     private BigDecimal accountBalance;
     private Boolean dailyLimit;
     private Boolean weeklyLimit;
@@ -25,7 +20,7 @@ public class ReadMomoAccountDto {
         this.accountBalance = accountBalance;
     }
 
-    public void setAccountType(AccountType accountType) {
+    public void setAccountType(MomoAccountType accountType) {
         this.accountType = accountType;
     }
 
@@ -45,7 +40,7 @@ public class ReadMomoAccountDto {
         this.weeklyLimit = weeklyLimit;
     }
 
-    public AccountType getAccountType() {
+    public MomoAccountType getAccountType() {
         return accountType;
     }
 

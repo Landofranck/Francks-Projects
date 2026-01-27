@@ -10,19 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import project.domain.model.Enums.AccountType;
+import project.domain.model.Enums.MomoAccountType;
 import project.domain.model.Enums.TransactionType;
 
 public class MobileMoneyAccount implements Account {
     private Long id;
-    public final AccountType accountType;
+    public final MomoAccountType accountType;
     private Money accountBalance;
     private Boolean dailyLimit;
     private Boolean weeklyLimit;
     private Boolean monthlyLimit;
     private List<Transaction> transactionHistory;
 
-    public MobileMoneyAccount(Long id, AccountType accountType) {
+    public MobileMoneyAccount(Long id, MomoAccountType accountType) {
         this.accountType = accountType;
         this.accountBalance = new Money(BigDecimal.ZERO);
         this.dailyLimit = false;
@@ -142,7 +142,7 @@ public class MobileMoneyAccount implements Account {
         return transactionHistory;
     }
 
-    public AccountType getAccountType() {
+    public MomoAccountType getAccountType() {
         return accountType;
     }
 

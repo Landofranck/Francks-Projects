@@ -60,12 +60,6 @@ public class BettingServiceAdapter {
     LoadBettingAccountByIdUsecase loadAccount;
     @Inject
     LoadMomoAccountByIdUsecase loadMomoAccount;
-    @Inject
-    CreateNewReducerUseCase createNewReducer;
-    @Inject
-    LoadReducerByIdUseCase loadReducerById;
-    @Inject
-    AddMatchToReducerUseCase addMatchToReducer;
 
     public Long createNewBettingAccount(CreateBettingAccountDto dto) {
         var domain = new BettingAccount(dto.getAccountName(), dto.getBrokerType());
@@ -141,17 +135,4 @@ public class BettingServiceAdapter {
         return out;
     }
 
-    public void createReducer(CreateReducerDto dto) {
-        var dom = mapper.toReducerDomain(dto);
-        createNewReducer.createNewReducer(dom);
-    }
-
-    public ReadReducerDto loadReducer(Long id) {
-        var out = loadReducerById.loadReducer(id);
-        return mapper.toReducerDto(out);
-    }
-
-    public ReadReducerDto addMatchToReducer(Long reducerId, IdDto match) {
-        return mapper.toReducerDto(addMatchToReducer.addMatchToReducer(reducerId, match.Id()));
-    }
 }

@@ -51,7 +51,7 @@ public class BettingAccountResource {
     /**
      * makes a withdrawal from a betting account to a designated mobile money account
      */
-    @POST
+    @PUT
     @Path("/{bettingId}/withdraw-to-momo/{momoId}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response withdrawToMomo(@PathParam("bettingId") Long bettingId,
@@ -76,14 +76,14 @@ public class BettingAccountResource {
     /**
      * adds pick to an empty slip on an account
      */
-    @POST
+    @PUT
     @Path("/{bettingId}/betslips/add-pick")
     @Consumes(MediaType.APPLICATION_JSON)
     public BetSlipDto addPick(@PathParam("bettingId") Long bettingId, AddPickRequestBetSlipDto dto) {
         return serviceAdapter.addPickToBetSlip(bettingId, dto);
     }
 
-    @POST
+    @PUT
     @Path("/{bettingId}/betslips/make-bet")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response makeBet(@PathParam("bettingId") Long bettingId, MakeBetRequestDto dto) {

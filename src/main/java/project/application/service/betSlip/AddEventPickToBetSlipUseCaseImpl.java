@@ -53,7 +53,7 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
         //check if outcome is already in betslip
         boolean duplicate=slip.getPicks().stream()
                 .anyMatch(o -> outcome.getOutcomeName().equalsIgnoreCase(o.getOutcomeName())&outcome.getMatchKey().equalsIgnoreCase(o.getMatchKey()));
-        if(duplicate) throw new IllegalArgumentException("you have to choose another bick for this match addpickimpl 56");
+        if(duplicate) throw new IllegalArgumentException("you have to choose another pick for this match addpickimpl 56");
 
 
         // Create pick from the outcome

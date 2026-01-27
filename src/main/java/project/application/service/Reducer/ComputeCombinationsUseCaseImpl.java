@@ -1,0 +1,25 @@
+package project.application.service.Reducer;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import project.application.port.in.Reducer.ComputeCombinationUseCase;
+import project.application.port.out.GetReducerByIdPort;
+import project.application.port.out.UpdateReducerPort;
+import project.domain.model.Enums.BetCategory;
+import project.domain.model.Reducer;
+
+@ApplicationScoped
+public class ComputeCombinationsUseCaseImpl implements ComputeCombinationUseCase {
+    @Inject
+    GetReducerByIdPort getReducer;
+    @Inject
+    UpdateReducerPort updateReducer;
+
+    @Override
+    public Reducer computeCombination(Long id) {
+        var reducer = getReducer.getReducer(id);
+        reducer.createSlips(BetCategory.SINGLE);
+        var out = updateReducer.updateReducer(id, reducer);
+        return out;
+    }
+}

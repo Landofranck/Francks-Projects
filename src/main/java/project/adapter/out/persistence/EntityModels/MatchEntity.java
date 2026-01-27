@@ -17,8 +17,15 @@ public class MatchEntity {
     @OneToMany(mappedBy = "parentMatch", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MatchOutcomeEntity> matchOutComes = new ArrayList<>();
 
+    //this line indicates that a match can also belong to a reducer
+    @ManyToMany(mappedBy = "betMatchEntities")
+    private List<ReducerEntity> reducers = new ArrayList<>();
 
     public MatchEntity() {
+    }
+
+    public void addParent(ReducerEntity i) {
+        this.reducers.add(i);
     }
 
     public void addOutcome(MatchOutcomeEntity o) {
@@ -51,4 +58,19 @@ public class MatchEntity {
         this.away = away;
     }
 
+    public List<MatchOutcomeEntity> getMatchOutComes() {
+        return matchOutComes;
+    }
+
+    public List<ReducerEntity> getReducers() {
+        return reducers;
+    }
+
+    public void setMatchOutComes(List<MatchOutcomeEntity> matchOutComes) {
+        this.matchOutComes = matchOutComes;
+    }
+
+    public void setReducers(List<ReducerEntity> reducers) {
+        this.reducers = reducers;
+    }
 }

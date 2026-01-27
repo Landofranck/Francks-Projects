@@ -16,7 +16,11 @@ public class ReducerEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private BigDecimal totalStake;
-    private List<Long> betMatchEntities = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(name ="reducer_matches",
+            joinColumns = @JoinColumn(name="reducer_id"),
+            inverseJoinColumns = @JoinColumn(name="match_id"))
+    private List<MatchEntity> betMatchEntities = new ArrayList<>();
     @OneToMany(mappedBy = "betSlipReducerParent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<BetSlipEntity> slips = new ArrayList<>();
     private BigDecimal bonusAmount;
@@ -24,9 +28,10 @@ public class ReducerEntity {
     public ReducerEntity() {
     }
 
-    public void addMatches(Long id) {
-        Objects.requireNonNull(id, "match");
-        betMatchEntities.add(id);
+    public void addMatches(MatchEntity match) {
+        Objects.requireNonNull(match, "match");
+        betMatchEntities.add(match);
+        match.addParent(this);
     }
 
     public void addEventToSlip(BetSlip slip, MatchEventPick pick) {
@@ -74,7 +79,7 @@ public class ReducerEntity {
         return this.slips;
     }
 
-    public List<Long> getBetMatches() {
+    public List<MatchEntity> getBetMatcheEntities() {
         return betMatchEntities;
     }
 
@@ -86,7 +91,7 @@ public class ReducerEntity {
         return bonusAmount;
     }
 
-    public void setBetMatches(List<Long> betMatches) {
+    public void setBetMatches(List<MatchEntity> betMatches) {
         this.betMatchEntities = betMatches;
     }
 

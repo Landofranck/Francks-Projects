@@ -29,7 +29,7 @@ public class BetSlipEntity {
 
     //this attribute shows the reducer in which the betslip was created
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "reducerParent_id", nullable = false)
+    @JoinColumn(name = "betSlipReducerParent_id", nullable = false)
     private ReducerEntity betSlipReducerParent;
 
 
@@ -119,4 +119,11 @@ public class BetSlipEntity {
         this.stake = stake;
     }
 
+    public void setBetSlipReducerParent(ReducerEntity betSlipReducerParent) {
+        this.betSlipReducerParent = betSlipReducerParent;
+    }
+
+    public BettingAccountEntity getParentAccountEntity() {
+        return parentAccountEntity;
+    }
 }

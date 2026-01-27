@@ -19,7 +19,7 @@ public class MatchEntity {
 
     //this line indicates that a match can also belong to a reducer
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "reducerParent_id", nullable = false)
+    @JoinColumn(name = "matchReducerParent_id", nullable = false)
     private ReducerEntity matchReducerParent;
 
     public MatchEntity() {
@@ -29,6 +29,7 @@ public class MatchEntity {
         matchOutComes.add(o);
         o.setParentMatch(this);
     }
+
 
     public Long getId() {
         return id;
@@ -52,5 +53,13 @@ public class MatchEntity {
 
     public void setAway(String away) {
         this.away = away;
+    }
+
+    public ReducerEntity getMatchReducerParent() {
+        return matchReducerParent;
+    }
+
+    public void setMatchReducerParent(ReducerEntity matchReducerParent) {
+        this.matchReducerParent = matchReducerParent;
     }
 }

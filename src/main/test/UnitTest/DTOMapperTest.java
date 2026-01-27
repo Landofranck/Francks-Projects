@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import project.adapter.in.web.DTOMapper;
 import project.adapter.in.web.MatchDto;
-import project.adapter.in.web.TransactionDTO.ReadReducerDto;
+import project.adapter.in.web.ReadReducerDto;
 import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
 import project.adapter.in.web.bettinAccountDTO.BettingAccountDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;

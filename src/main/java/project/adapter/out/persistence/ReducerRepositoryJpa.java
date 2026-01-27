@@ -26,6 +26,8 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
     @Override
     public Reducer getReducer(Long id) {
        var entity= entityManager.find(ReducerEntity.class, id);
+       if(entity==null)
+           throw new NotFoundException("Reducer with Id "+ id+" was not found: reducerJpa 30");
        var out=mapper.toReducerDomain(entity);
        return out;
     }

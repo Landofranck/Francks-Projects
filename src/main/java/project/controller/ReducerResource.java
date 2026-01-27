@@ -7,8 +7,6 @@ import jakarta.ws.rs.core.Response;
 import project.adapter.in.web.BettingServiceAdapter;
 import project.adapter.in.web.CreateReducerDto;
 import project.adapter.in.web.IdDto;
-import project.adapter.in.web.MatchDto;
-import project.adapter.in.web.TransactionDTO.ReadReducerDto;
 
 @Path("/reducer")
 @Produces(MediaType.APPLICATION_JSON)

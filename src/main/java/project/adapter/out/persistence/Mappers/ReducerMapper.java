@@ -2,6 +2,7 @@ package project.adapter.out.persistence.Mappers;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import project.adapter.out.persistence.BettingAccountRepositoryJpa;
 import project.adapter.out.persistence.EntityModels.ReducerEntity;
 import project.domain.model.BetSlip;
 import project.domain.model.Match;
@@ -14,28 +15,35 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class ReducerMapper {
     @Inject
+    BettingAccountRepositoryJpa jpa;
+    @Inject
     BettingAccountMapper betMapper;
+
     public Reducer toReducerDomain(ReducerEntity entity) {
         var domain = new Reducer(new Money(entity.getTotalStake()), new Money(entity.getBonusAmount()));
         domain.setId(entity.getId());
-        if(entity.getSlips()!=null)
+        if (entity.getSlips() != null)
             domain.setSlips(entity.getSlips().stream().map(betMapper::toBetslipDomain).collect(Collectors.toCollection(ArrayList::new)));
-        if(entity.getSlips()!=null)
-            domain.setBetMatches(entity.getBetMatches().stream().map(betMapper::toMatchDomain).collect(Collectors.toCollection(ArrayList::new)));
+
+        if (entity.getBetMatches() != null)
+            for (Long l : entity.getBetMatches()) {
+                domain.addMatches(jpa.getMatch(l));
+            }
         domain.setTheSlipStakes();
         return domain;
     }
+
     public ReducerEntity toReducerEntity(Reducer dom) {
         var entity = new ReducerEntity();
         entity.setBonusAmount(dom.getBonusAmount().getValue());
         entity.setTotalStake(dom.getTotalStake().getValue());
-        if(dom.getSlips()!=null)
-            for (BetSlip e: dom.getSlips()){
+        if (dom.getSlips() != null)
+            for (BetSlip e : dom.getSlips()) {
                 entity.addBetSlipEntity(betMapper.toBetslipEntity(e));
             }
-        if(dom.getBetMatches()!=null)
-            for(Match m: dom.getBetMatches()){
-                entity.addMatches(betMapper.toMatchEntity(m));
+        if (dom.getBetMatches() != null)
+            for (Match m : dom.getBetMatches()) {
+                entity.addMatches(m.getMatchId());
             }
         return entity;
     }

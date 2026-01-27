@@ -1,7 +1,6 @@
 package project.adapter.in.web;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import project.adapter.in.web.TransactionDTO.ReadReducerDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.BettingAccountDto;
 import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;

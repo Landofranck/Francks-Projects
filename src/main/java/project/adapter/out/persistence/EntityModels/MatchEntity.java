@@ -17,10 +17,6 @@ public class MatchEntity {
     @OneToMany(mappedBy = "parentMatch", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MatchOutcomeEntity> matchOutComes = new ArrayList<>();
 
-    //this line indicates that a match can also belong to a reducer
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "matchReducerParent_id", nullable = false)
-    private ReducerEntity matchReducerParent;
 
     public MatchEntity() {
     }
@@ -55,11 +51,4 @@ public class MatchEntity {
         this.away = away;
     }
 
-    public ReducerEntity getMatchReducerParent() {
-        return matchReducerParent;
-    }
-
-    public void setMatchReducerParent(ReducerEntity matchReducerParent) {
-        this.matchReducerParent = matchReducerParent;
-    }
 }

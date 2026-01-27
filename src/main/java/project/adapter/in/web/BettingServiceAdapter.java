@@ -17,6 +17,7 @@ import project.application.port.in.BettingAccount.CreateBettingAccountUseCase;
 import project.application.port.in.BettingAccount.LoadAllBettingAccountsUseCase;
 import project.application.port.in.BettingAccount.LoadBettingAccountByIdUsecase;
 import project.application.port.in.MomoAccounts.*;
+import project.application.port.in.Reducer.AddMatchToReducerUseCase;
 import project.application.port.in.Reducer.CreateNewReducerUseCase;
 import project.application.port.in.Reducer.LoadReducerByIdUseCase;
 import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;
@@ -63,9 +64,11 @@ public class BettingServiceAdapter {
     CreateNewReducerUseCase createNewReducer;
     @Inject
     LoadReducerByIdUseCase loadReducerById;
+    @Inject
+    AddMatchToReducerUseCase addMatchToReducer;
 
     public Long createNewBettingAccount(CreateBettingAccountDto dto) {
-        var domain = new BettingAccount(dto.getAccountName(),dto.getBrokerType());
+        var domain = new BettingAccount(dto.getAccountName(), dto.getBrokerType());
         return createBettingAccountUseCase.createNewBettingAccount(domain);
     }
 
@@ -73,7 +76,7 @@ public class BettingServiceAdapter {
         if (dto.getId() == null) {
             throw new IllegalArgumentException("Momo id is required");
         }
-        var domain = new MobileMoneyAccount(id,dto.accountType);
+        var domain = new MobileMoneyAccount(id, dto.accountType);
         return createMobileMoneyAccountUseCase.createNewMobileMoneyAccount(domain);
     }
 
@@ -108,7 +111,7 @@ public class BettingServiceAdapter {
 
     public List<MatchDto> getAllMatches() {
         var matches = loadAllMatches.getAllMatches();
-        List<MatchDto> list= mapper.toMatchDtos(matches);
+        List<MatchDto> list = mapper.toMatchDtos(matches);
         return list;
     }
 
@@ -125,25 +128,30 @@ public class BettingServiceAdapter {
     }
 
     public Long makeBet(Long bettingAccountId, MakeBetRequestDto dto) {
-        return makeBetUseCase.makeBet(bettingAccountId, dto.getMatchIds(),dto.getOutComes(), dto.getStake(), dto.getDescription());
+        return makeBetUseCase.makeBet(bettingAccountId, dto.getMatchIds(), dto.getOutComes(), dto.getStake(), dto.getDescription());
     }
 
-    public BettingAccountDto loadBettingAccount(Long id){
-        var out=mapper.toBettingAccountDto(loadAccount.loadAccount(id));
+    public BettingAccountDto loadBettingAccount(Long id) {
+        var out = mapper.toBettingAccountDto(loadAccount.loadAccount(id));
         return out;
     }
 
     public ReadMomoAccountDto getMomoAccountById(Long momoId) {
-        var out=mapper.toMobileMoneyDto(loadMomoAccount.loadMomoById(momoId));
+        var out = mapper.toMobileMoneyDto(loadMomoAccount.loadMomoById(momoId));
         return out;
     }
-    public void createReducer(CreateReducerDto dto){
-        var dom=mapper.toReducerDomain(dto);
+
+    public void createReducer(CreateReducerDto dto) {
+        var dom = mapper.toReducerDomain(dto);
         createNewReducer.createNewReducer(dom);
     }
 
     public ReadReducerDto loadReducer(Long id) {
-        var out=loadReducerById.loadReducer(id);
+        var out = loadReducerById.loadReducer(id);
         return mapper.toReducerDto(out);
+    }
+
+    public ReadReducerDto addMatchToReducer(Long reducerId, IdDto match) {
+        return mapper.toReducerDto(addMatchToReducer.addMatchToReducer(reducerId, match.Id()));
     }
 }

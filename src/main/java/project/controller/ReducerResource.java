@@ -6,6 +6,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import project.adapter.in.web.BettingServiceAdapter;
 import project.adapter.in.web.CreateReducerDto;
+import project.adapter.in.web.IdDto;
+import project.adapter.in.web.MatchDto;
 import project.adapter.in.web.TransactionDTO.ReadReducerDto;
 
 @Path("/reducer")
@@ -25,5 +27,12 @@ public class ReducerResource {
     public Response getReducer(@PathParam("ReducerId") Long id){
         var reducer=adapter.loadReducer(id);
         return Response.ok().entity(reducer).build();
+    }
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{ReducerId}")
+    public Response addMatchToReducer(@PathParam("ReducerId") Long id, IdDto MatchId){
+        var out=adapter.addMatchToReducer(id, MatchId);
+        return Response.ok().entity(out).build();
     }
 }

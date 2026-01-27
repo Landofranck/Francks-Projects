@@ -1,11 +1,13 @@
 package project.application.service.betSlip;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import project.application.port.in.BettingAccount.RemovePickByNumberUseCase;
 import project.application.port.out.bettingAccount.PersistEmptyBetSlipPort;
 import project.application.port.out.bettingAccount.ReadEmptSlipByParenPort;
 import project.domain.model.DraftBetSlip;
 
+@ApplicationScoped
 public class RemovePickByNumberImpl implements RemovePickByNumberUseCase {
     @Inject
     ReadEmptSlipByParenPort readEmptSlip;

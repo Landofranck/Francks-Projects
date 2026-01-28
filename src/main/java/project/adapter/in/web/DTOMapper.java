@@ -156,21 +156,22 @@ public class DTOMapper {
     }
 
     public ReadReducerDto toReducerDto(Reducer domain) {
-        try{List<BetSlipDto> betslips = new ArrayList<>();
+        List<BetSlipDto> betslips = new ArrayList<>();
         List<MatchDto> matches = new ArrayList<>();
-        List<BlockDto> blocks=new ArrayList<>();
-        String specifications=domain.getBlocks().toString();
+        List<BlockDto> blocks = new ArrayList<>();
+        String specifics = "";
         if (domain.getBlocks() != null)
-             blocks= domain.getBlocks().stream().map(this::toBlockDto).collect(Collectors.toCollection(ArrayList::new));
+            for (Block b: domain.getBlocks()){
+                specifics+=b.getType()+": "+(b.getEndMatchIdx()-b.getStartMatchIdx()+1+". \n");
+            }
         if (domain.getBetMatches() != null)
             matches = domain.getBetMatches().stream().map(this::toMatchDto).collect(Collectors.toCollection(ArrayList::new));
         if (domain.getSlips() != null)
             betslips = domain.getSlips().stream().map(this::toBetSlipDto).collect(Collectors.toCollection(ArrayList::new));
 
-        var out = new ReadReducerDto(domain.getAccountId(), domain.getTotalStake().getValue(), domain.getSlips().size(),blocks, matches, betslips, domain.getBonusAmount().getValue());
-        return out;}catch (Exception e){throw new RuntimeException("this is the issue");}
+        var out = new ReadReducerDto(domain.getAccountId(), domain.getTotalStake().getValue(), domain.getSlips().size(), blocks, matches, betslips, domain.getBonusAmount().getValue());
+        return out;
     }
-
     public Reducer toReducerDomain(CreateReducerDto dto) {
         var out = new Reducer(new Money(dto.getTotalStake()), new Money(dto.getBonusAmount()));
         return out;

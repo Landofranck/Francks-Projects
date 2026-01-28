@@ -1,7 +1,11 @@
 package project.adapter.out.persistence.EntityModels.BettingAccount;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 public class MatchEventPickEntity {
     @Id
@@ -29,41 +33,5 @@ public class MatchEventPickEntity {
 
     public String matchKey() {
         return matchKey;
-    }
-
-    public String getMatchKey() {
-        return matchKey;
-    }
-
-    public String outcomeName() {
-        return outcomeName;
-    }
-
-    public String getOutcomeName() {
-        return outcomeName;
-    }
-
-    public double odd() {
-        return odd;
-    }
-
-    public double getOdd() {
-        return odd;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setMatchKey(String matchKey) {
-        this.matchKey = matchKey;
-    }
-
-    public void setOdd(double odd) {
-        this.odd = odd;
-    }
-
-    public void setOutcomeName(String outcomeName) {
-        this.outcomeName = outcomeName;
     }
 }

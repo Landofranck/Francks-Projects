@@ -27,10 +27,10 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
         }
 
         if (slip.getDraftSlipOwner() == null || slip.getDraftSlipOwner().getAccountId() == null) {
-            throw new IllegalArgumentException("BetSlip must have a parent betting account before adding picks addpickimpl 27");
+            throw new IllegalArgumentException("ReducerBetSlip must have a parent betting account before adding picks addpickimpl 27");
         }
         if (!slip.getDraftSlipOwner().getAccountId().equals(bettingAccountId)) {
-            throw new IllegalArgumentException("BetSlip does not belong to betting account " + bettingAccountId);
+            throw new IllegalArgumentException("ReducerBetSlip does not belong to betting account " + bettingAccountId);
         }
         if (slip == null) {
             throw new IllegalArgumentException("bet slip must not be null");
@@ -65,7 +65,7 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
         slip.addMatchEventPick(pick);
         putBetSlip.persistEmptyslip(bettingAccountId, slip);
         // Recalculate slip odds if you store total odds
-        // (depends on your BetSlip model)
+        // (depends on your ReducerBetSlip model)
         // slip.recalculateTotalOdds();
 
         return slip;

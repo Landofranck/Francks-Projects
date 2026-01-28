@@ -7,14 +7,11 @@ import jakarta.transaction.Transactional;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 import project.adapter.out.persistence.EntityModels.ReducerEntity;
 import project.adapter.out.persistence.Mappers.ReducerMapper;
-import project.application.port.out.AddMatchToReducerPort;
-import project.application.port.out.GetReducerByIdPort;
-import project.application.port.out.PersistReducerPort;
-import project.application.port.out.UpdateReducerPort;
+import project.application.port.out.*;
 import project.domain.model.Reducer.Reducer;
 
 @ApplicationScoped
-public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdPort, UpdateReducerPort, AddMatchToReducerPort {
+public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdPort, UpdateReducerPort, AddMatchToReducerPort, DeleteMatchFromReducerPort {
     @Inject
     EntityManager entityManager;
     @Inject
@@ -62,5 +59,17 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
         entityManager.clear();
         var out=entityManager.find(ReducerEntity.class, reducerId);
         return mapper.toReducerDomain(out);
+    }
+
+    @Transactional
+    @Override
+    public void deleteMatch(Long reducerId, Long matchId) {
+        var reducer=entityManager.find(ReducerEntity.class, reducerId);
+        if (reducer == null ) throw new NotFoundException("Redcuer with id "+reducerId+" not found" );
+
+        var match=entityManager.find(MatchEntity.class, matchId);
+        if ( match == null) throw new NotFoundException("match with id "+matchId+" not found");
+
+        reducer.deleteMatch(match);
     }
 }

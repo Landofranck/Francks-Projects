@@ -1,6 +1,7 @@
 package UnitTest;
 
 
+import lombok.Data;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,14 +16,15 @@ import project.domain.model.*;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.BlockType;
+import project.domain.model.Enums.BrokerType;
 import project.domain.model.Reducer.Block;
 import project.domain.model.Reducer.Reducer;
+import project.domain.model.Reducer.ReducerBetSlip;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class ReducerMapperTest {
@@ -45,10 +47,10 @@ class ReducerMapperTest {
         var r = new Reducer(new Money(BigDecimal.valueOf(100)), new Money(5));
         r.setId(1L);
 
-        var slip = new BetSlip(BetCategory.SINGLE);
-        slip.setStake(new Money(BigDecimal.valueOf(10)));
+        var slip = new ReducerBetSlip(BetCategory.SINGLE);
+        slip.setPlanedStake(new Money(BigDecimal.valueOf(10)));
         slip.setPotentialWinning(new Money(20));
-        slip.setStatus(BetStatus.WON);
+        slip.setNumberOfEvents(1);
         slip.setPicks(new ArrayList<>());
         r.setSlips(new ArrayList<>());
         r.getSlips().add(slip);
@@ -78,13 +80,14 @@ class ReducerMapperTest {
         e.setTotalStake(new Money(100).getValue());
         e.setBonusAmount(new Money(5).getValue());
 
-        var slipE = new BetSlipEntity();
+        var slipE = new ReducerBetSlipEmbed();
         slipE.setCategory(BetCategory.SINGLE);
-        slipE.setStake(new Money(10).getValue());
+        slipE.setPlanedStake(new Money(10).getValue());
         slipE.setPotentialWinning(new Money(20).getValue());
-        slipE.setStatus(BetStatus.WON);
-        slipE.setTotalOdd(1);
-        e.addBetSlipEntity(slipE);
+        slipE.setNumberOfEvents(1);
+        slipE.setTotalOdds(1);
+        slipE.setBrokerType(BrokerType.BET365);
+        e.addBetSlipEmbd(slipE);
 
         var matchE = new MatchEntity();
         matchE.setHome("H");

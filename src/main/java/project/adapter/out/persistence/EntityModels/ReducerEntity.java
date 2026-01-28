@@ -23,11 +23,11 @@ public class ReducerEntity {
             joinColumns = @JoinColumn(name = "reducer_id"),
             inverseJoinColumns = @JoinColumn(name = "match_id"))
     private Set<MatchEntity> betMatchEntities = new HashSet<>();
-    @OneToMany(mappedBy = "betSlipReducerParent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<BetSlipEntity> slips = new ArrayList<>();
+    @ElementCollection
+    private List<ReducerBetSlipEmbed> slips = new ArrayList<>();
     private BigDecimal bonusAmount;
     @ElementCollection
-    private List<BlockEmb> blockEmbs;
+    private List<BlockEmb> blockEmbs=new ArrayList<>();
 
     public ReducerEntity() {
     }
@@ -37,6 +37,11 @@ public class ReducerEntity {
         betMatchEntities.add(match);
         match.addParent(this);
     }
+    public void deleteMatch(MatchEntity match) {
+        Objects.requireNonNull(match, "match");
+        betMatchEntities.remove(match);
+        match.removeParent(this);
+    }
 
     public void addEventToSlip(BetSlip slip, MatchEventPick pick) {
         slip.addMatchEventPick(pick);
@@ -44,10 +49,9 @@ public class ReducerEntity {
     }
 
 
-    public void addBetSlipEntity(BetSlipEntity b) {
+    public void addBetSlipEmbd(ReducerBetSlipEmbed b) {
         Objects.requireNonNull(b, "betSlip");
         slips.add(b);
-        b.setBetSlipReducerParent(this);
     }
 
 
@@ -79,51 +83,55 @@ public class ReducerEntity {
     }
 
 
-    public List<BetSlipEntity> getSlips() {
-        return this.slips;
-    }
-
     public Set<MatchEntity> getBetMatcheEntities() {
         return betMatchEntities;
-    }
-
-    public BigDecimal getTotalStake() {
-        return totalStake;
-    }
-
-    public BigDecimal getBonusAmount() {
-        return bonusAmount;
-    }
-
-    public void setBetMatches(Set<MatchEntity> betMatches) {
-        this.betMatchEntities = betMatches;
-    }
-
-    public void setBonusAmount(BigDecimal bonusAmount) {
-        this.bonusAmount = bonusAmount;
-    }
-
-    public void setSlips(List<BetSlipEntity> slips) {
-        this.slips = slips;
-    }
-
-    public void setTotalStake(BigDecimal totalStake) {
-        this.totalStake = totalStake;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setBlockEmbs(List<BlockEmb> blockEmbs) {
-        this.blockEmbs = blockEmbs;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public BigDecimal getTotalStake() {
+        return totalStake;
+    }
+
+    public void setTotalStake(BigDecimal totalStake) {
+        this.totalStake = totalStake;
+    }
+
+    public Set<MatchEntity> getBetMatchEntities() {
+        return betMatchEntities;
+    }
+
+    public void setBetMatchEntities(Set<MatchEntity> betMatchEntities) {
+        this.betMatchEntities = betMatchEntities;
+    }
+
+    public List<ReducerBetSlipEmbed> getSlips() {
+        return slips;
+    }
+
+    public void setSlips(List<ReducerBetSlipEmbed> slips) {
+        this.slips = slips;
+    }
+
+    public BigDecimal getBonusAmount() {
+        return bonusAmount;
+    }
+
+    public void setBonusAmount(BigDecimal bonusAmount) {
+        this.bonusAmount = bonusAmount;
     }
 
     public List<BlockEmb> getBlockEmbs() {
         return blockEmbs;
+    }
+
+    public void setBlockEmbs(List<BlockEmb> blockEmbs) {
+        this.blockEmbs = blockEmbs;
     }
 }

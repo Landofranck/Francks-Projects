@@ -35,6 +35,10 @@ public class MatchEntity {
         this.reducers.add(i);
     }
 
+    public void removeParent(ReducerEntity reducerEntity) {
+        this.reducers.remove(reducerEntity);
+    }
+
     public void addOutcome(MatchOutcomeEntity o) {
         matchOutComes.add(o);
         o.setParentMatch(this);

@@ -1,14 +1,14 @@
 package project.application.service.betSlip;
 
 import jakarta.inject.Inject;
-import project.application.port.in.betSlip.LoadEmptyBetSlipByParentUseCase;
+import project.application.port.in.betSlip.LoadDraftBetSlipByParentUseCase;
 import project.application.port.out.bettingAccount.ReadEmptSlipByParenPort;
 import project.domain.model.DraftBetSlip;
 
 /**
  * returns empty slip of a specified account
  */
-public class GetEmptySlipByAccountIdImpl implements LoadEmptyBetSlipByParentUseCase {
+public class GetDraftSlipByAccountIdImpl implements LoadDraftBetSlipByParentUseCase {
    @Inject
     ReadEmptSlipByParenPort readParentSlip;
 

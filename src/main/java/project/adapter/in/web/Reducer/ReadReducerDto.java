@@ -11,7 +11,7 @@ public record ReadReducerDto(
         Long id,
         BigDecimal totalStake,
         int numberOfSlips,
-        List<BlockDto> specifications,
+        String specifications,
         List<MatchDto> betMatchDtos,
         List<BetSlipDto> slips,
         BigDecimal bonusAmount

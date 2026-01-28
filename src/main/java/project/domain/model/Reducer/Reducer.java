@@ -1,5 +1,6 @@
 package project.domain.model.Reducer;
 
+
 import project.domain.model.*;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BlockType;
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Reducer generates BetSlip combinations using a Cascade-Expanded Outcome Cover (CEOC).
+ * Reducer generates ReducerBetSlip combinations using a Cascade-Expanded Outcome Cover (CEOC).
  *
  * <p>
  * Instead of generating the full cartesian product of match outcomes,
@@ -41,14 +42,17 @@ import java.util.Objects;
  * significantly fewer slips than naive cartesian enumeration.
  * </p>
  */
+
 public class Reducer implements Account {
     private Long id;
     private Money totalStake;
     private List<Match> betMatches;
-    private List<BetSlip> slips;
+    private List<ReducerBetSlip> slips;
+
     private Money bonusAmount;
 
     // Block configuration (optional; if null/empty -> FULL over all matches)
+
     private List<Block> blocks;
 
     public Reducer(Money stake, Money bonusAmount) {
@@ -63,14 +67,14 @@ public class Reducer implements Account {
         this.betMatches.add(Objects.requireNonNull(match));
     }
 
-    public BetSlip createBetSlip(BetCategory category) {
+    public ReducerBetSlip createBetSlip(BetCategory category) {
         Objects.requireNonNull(category);
-        BetSlip newBetslip = new BetSlip(category);
+        ReducerBetSlip newBetslip = new ReducerBetSlip(category);
         addBetSlip(newBetslip);
         return newBetslip;
     }
 
-    public void addBetSlip(BetSlip b) {
+    public void addBetSlip(ReducerBetSlip b) {
         this.slips.add(Objects.requireNonNull(b));
     }
 
@@ -83,11 +87,7 @@ public class Reducer implements Account {
         this.blocks = Objects.requireNonNull(blocks, "blocks");
     }
 
-    public List<Block> getBlocks() {
-        return blocks;
-    }
-
-    /* -------------------- NEW createSlips (replaces old cartesian only) -------------------- */
+    /* -------------------- NEW createSlips (replaces old Cartesian only) -------------------- */
     /**
      * Generates bet slips according to the configured block structure.
      *
@@ -97,13 +97,12 @@ public class Reducer implements Account {
      * </p>
      *
      * @param category bet category for generated slips
-     * @return list of generated BetSlip instances
      */
-    public List<BetSlip> createSlips(BetCategory category) {
+    public void createSlips(BetCategory category) {
         Objects.requireNonNull(category, "category");
 
         slips.clear();
-        if (betMatches == null || betMatches.isEmpty()) return slips;
+        if (betMatches == null || betMatches.isEmpty()) return;
 
         // fallback = FULL across all matches
         if (blocks == null || blocks.isEmpty()) {
@@ -112,12 +111,11 @@ public class Reducer implements Account {
 
         validateBlocks(blocks);
 
-        List<BetSlip> out = new ArrayList<>();
+        List<ReducerBetSlip> out = new ArrayList<>();
         backtrackBlocks(category, 0, new ArrayList<>(), out);
 
         slips.addAll(out);
         setTheSlipStakes();
-        return slips;
     }
 
     private void validateBlocks(List<Block> blocks) {
@@ -135,7 +133,7 @@ public class Reducer implements Account {
             BetCategory category,
             int blockIndex,
             List<MatchEventPick> prefixPicks,
-            List<BetSlip> out
+            List<ReducerBetSlip> out
     ) {
         if (blockIndex >= blocks.size()) {
             if (!prefixPicks.isEmpty()) out.add(buildSlipFrom(prefixPicks, category));
@@ -157,7 +155,7 @@ public class Reducer implements Account {
             Block block,
             int matchIdx,
             List<MatchEventPick> prefixPicks,
-            List<BetSlip> out,
+            List<ReducerBetSlip> out,
             boolean hasNext,
             int blockIndex
     ) {
@@ -203,7 +201,7 @@ public class Reducer implements Account {
             Block block,
             int matchIdx,
             List<MatchEventPick> prefixPicks,
-            List<BetSlip> out,
+            List<ReducerBetSlip> out,
             boolean hasNext,
             int blockIndex
     ) {
@@ -273,8 +271,8 @@ public class Reducer implements Account {
 
     /* -------------------- Slip building / copying -------------------- */
 
-    private BetSlip buildSlipFrom(List<MatchEventPick> picks, BetCategory category) {
-        BetSlip s = new BetSlip(category);
+    private ReducerBetSlip buildSlipFrom(List<MatchEventPick> picks, BetCategory category) {
+        ReducerBetSlip s = new ReducerBetSlip(category);
         for (MatchEventPick p : picks) {
             s.addMatchEventPick(copyPick(p));
         }
@@ -294,11 +292,11 @@ public class Reducer implements Account {
     public void setTheSlipStakes() {
         if (slips.isEmpty()) return;
 
-        for (BetSlip s : slips) {
+        for (ReducerBetSlip s : slips) {
             double odds = s.getTotalOdds();
             if (odds <= 0) throw new IllegalStateException("totalOdds must be > 0");
-            s.setStake(totalStake.divide(odds));
-            s.calculatPotentialWinning();
+            s.setPlanedStake(totalStake.divide(odds));
+            s.calculatePotentialWinning();
         }
     }
 
@@ -309,40 +307,48 @@ public class Reducer implements Account {
         return this.id;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    @Override
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public List<BetSlip> getSlips() {
-        return this.slips;
-    }
-
-    public List<Match> getBetMatches() {
-        return betMatches;
     }
 
     public Money getTotalStake() {
         return totalStake;
     }
 
-    public Money getBonusAmount() {
-        return bonusAmount;
+    public void setTotalStake(Money totalStake) {
+        this.totalStake = totalStake;
+    }
+
+    public List<Match> getBetMatches() {
+        return betMatches;
     }
 
     public void setBetMatches(List<Match> betMatches) {
         this.betMatches = betMatches;
     }
 
+    public List<ReducerBetSlip> getSlips() {
+        return slips;
+    }
+
+    public void setSlips(List<ReducerBetSlip> slips) {
+        this.slips = slips;
+    }
+
+    public Money getBonusAmount() {
+        return bonusAmount;
+    }
+
     public void setBonusAmount(Money bonusAmount) {
         this.bonusAmount = bonusAmount;
     }
 
-    public void setSlips(List<BetSlip> slips) {
-        this.slips = slips;
+    public List<Block> getBlocks() {
+        return blocks;
     }
-
-    public void setTotalStake(Money totalStake) {
-        this.totalStake = totalStake;
-    }
-
 }

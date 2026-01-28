@@ -63,6 +63,7 @@
             <artifactId>quarkus-swagger-ui</artifactId>
         </dependency>
 
+
         <!-- Tests -->
         <dependency>
             <groupId>io.quarkus</groupId>

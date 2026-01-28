@@ -42,21 +42,6 @@ public class BetSlipEntity {
     public BetSlipEntity() {
     }
 
-    public void setTotalOdd(double totalOdd) {
-        this.totalOdd = totalOdd;
-    }
-
-    public void setPotentialWinning(BigDecimal potentialWinning) {
-        this.potentialWinning = potentialWinning;
-    }
-
-    public BigDecimal getPotentialWinning() {
-        return potentialWinning;
-    }
-
-    public double getTotalOdd() {
-        return totalOdd;
-    }
 
     public void addMatchEventPickEntity(MatchEventPickEntity entity) {
         this.picks.add(entity);
@@ -71,6 +56,14 @@ public class BetSlipEntity {
         this.id = id;
     }
 
+    public List<MatchEventPickEntity> getPicks() {
+        return picks;
+    }
+
+    public void setPicks(List<MatchEventPickEntity> picks) {
+        this.picks = picks;
+    }
+
     public BetStatus getStatus() {
         return status;
     }
@@ -79,53 +72,59 @@ public class BetSlipEntity {
         this.status = status;
     }
 
-    public List<MatchEventPickEntity> getPicks() {
-        return picks;
-    }
-
     public BetCategory getCategory() {
         return category;
     }
 
-    public void setPicks(List<MatchEventPickEntity> picks) {
-        this.picks = picks;
-    }
-
-
-    public BettingAccountEntity getParentAccount() {
-        return parentAccountEntity;
+    public void setCategory(BetCategory category) {
+        this.category = category;
     }
 
     public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public BigDecimal getStake() {
-        return stake;
-    }
-
-
-    public void setCategory(BetCategory category) {
-        this.category = category;
-    }
-
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public void setParentAccount(BettingAccountEntity parentAccount) {
-        this.parentAccountEntity = parentAccount;
+    public double getTotalOdd() {
+        return totalOdd;
     }
 
-    public void setStake(BigDecimal stake) {
-        this.stake = stake;
+    public void setTotalOdd(double totalOdd) {
+        this.totalOdd = totalOdd;
+    }
+
+    public BettingAccountEntity getParentAccountEntity() {
+        return parentAccountEntity;
+    }
+
+    public void setParentAccountEntity(BettingAccountEntity parentAccountEntity) {
+        this.parentAccountEntity = parentAccountEntity;
+    }
+
+    public ReducerEntity getBetSlipReducerParent() {
+        return betSlipReducerParent;
     }
 
     public void setBetSlipReducerParent(ReducerEntity betSlipReducerParent) {
         this.betSlipReducerParent = betSlipReducerParent;
     }
 
-    public BettingAccountEntity getParentAccountEntity() {
-        return parentAccountEntity;
+    public BigDecimal getStake() {
+        return stake;
+    }
+
+    public void setStake(BigDecimal stake) {
+        this.stake = stake;
+    }
+
+    public BigDecimal getPotentialWinning() {
+        return potentialWinning;
+    }
+
+    public void setPotentialWinning(BigDecimal potentialWinning) {
+        this.potentialWinning = potentialWinning;
     }
 }

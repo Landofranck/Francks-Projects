@@ -4,6 +4,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.hibernate.engine.spi.Status;
 import project.adapter.in.web.BettingServiceAdapter;
 import project.adapter.in.web.CreateReducerDto;
 import project.adapter.in.web.IdDto;
@@ -41,5 +42,12 @@ public class ReducerResource {
     public Response addMatchToReducer(@PathParam("ReducerId") Long id, ComputeDto specifications){
         var out=adapter.getComputeCombinations(id, specifications);
         return Response.ok().entity(out).build();
+    }
+    @DELETE
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{ReducerId}/delete_match")
+    public Response deleteMatchFromReducer(@PathParam("ReducerId") Long id, IdDto matchId){
+        adapter.deletMatchFromReducer(id, matchId);
+        return Response.noContent().build();
     }
 }

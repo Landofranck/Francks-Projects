@@ -1,6 +1,6 @@
 package project.domain.model;
 
-import java.math.BigDecimal;
+
 import java.util.Objects;
 
 public class MatchEventPick {
@@ -17,23 +17,27 @@ public class MatchEventPick {
         this.matchKey=matchKey;
     }
 
-    public void setOwner(Event owner) {
-        this.owner = owner;
+    public String getMatchKey() {
+        return matchKey;
+    }
+
+    public void setMatchKey(String matchKey) {
+        this.matchKey = matchKey;
+    }
+
+    public String getOutcomeName() {
+        return outcomeName;
+    }
+
+    public double getOdd() {
+        return odd;
     }
 
     public Event getOwner() {
         return owner;
     }
 
-
-    public String getMatchKey() { return matchKey; }
-
-    public String getOutcomeName() { return outcomeName; }
-    public void setMatchKey(String matchKey) {
-        this.matchKey = matchKey;
+    public void setOwner(Event owner) {
+        this.owner = owner;
     }
-
-    public double getOdd() { return odd; }
-
-
 }

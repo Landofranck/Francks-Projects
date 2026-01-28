@@ -1,4 +1,6 @@
 package project.adapter.in.web;
 
-public record IdDto(Long Id) {
+import jakarta.validation.constraints.NotNull;
+
+public record IdDto(@NotNull Long Id) {
 }

@@ -9,6 +9,7 @@ import project.adapter.in.web.BettingServiceAdapter;
 import project.adapter.in.web.CreateReducerDto;
 import project.adapter.in.web.IdDto;
 import project.adapter.in.web.Reducer.ComputeDto;
+import project.adapter.in.web.Reducer.ReducerPlaceBetDto;
 import project.adapter.in.web.Reducer.ReducerServiceAdapter;
 
 @Path("/reducer")
@@ -50,4 +51,12 @@ public class ReducerResource {
         adapter.deletMatchFromReducer(id, matchId);
         return Response.noContent().build();
     }
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{ReducerId}/place_bet")
+    public Response placeBet(@PathParam("ReducerId") Long id, ReducerPlaceBetDto Dto){
+        var out=adapter.placeReducerBet(id,Dto);
+        return Response.status(Response.Status.CREATED).entity(out).build();
+    }
+
 }

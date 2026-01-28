@@ -12,11 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReducerBetSlip implements Event {
+
     private List<MatchEventPick> picks;
     private BetCategory category;
     private BrokerType brokerType;
     private Money planedStake;
-    private Money RemainingStake;
+    private Money remainingStake;
     private double totalOdds;
     private int numberOfEvents;
     private Money potentialWinning;
@@ -24,8 +25,8 @@ public class ReducerBetSlip implements Event {
     public ReducerBetSlip(BetCategory category) {
         this.category = category;
         this.picks = new ArrayList<>();
-        this.RemainingStake = new Money(BigDecimal.ZERO);
         this.planedStake = new Money(BigDecimal.ZERO);
+        this.remainingStake = new Money(BigDecimal.ZERO);
         this.totalOdds=0;
         this.numberOfEvents= 0;
         this.potentialWinning = new Money(BigDecimal.ZERO);
@@ -51,9 +52,18 @@ public class ReducerBetSlip implements Event {
         this.numberOfEvents = picks.size();
         calculatePotentialWinning();
     }
+    public void placeParBet(Money stake){
+        if(stake.isGreaterThan(this.remainingStake))
+            throw new IllegalArgumentException("the bet ammount is greater than what is left to be bet");
+        if (stake ==null){
+            setRemainingStake(new Money(0));
+        }else {
+            setRemainingStake(remainingStake.subtract(stake));
+        }
+    }
 
     public void calculatePotentialWinning() {
-        this.potentialWinning = new Money(RemainingStake.getValue().multiply(BigDecimal.valueOf(totalOdds)));
+        this.potentialWinning = new Money(planedStake.getValue().multiply(BigDecimal.valueOf(totalOdds)));
     }
 
     public List<MatchEventPick> getPicks() {
@@ -89,11 +99,11 @@ public class ReducerBetSlip implements Event {
     }
 
     public Money getRemainingStake() {
-        return RemainingStake;
+        return remainingStake;
     }
 
     public void setRemainingStake(Money remainingStake) {
-        RemainingStake = remainingStake;
+        this.remainingStake = remainingStake;
     }
 
     public double getTotalOdds() {

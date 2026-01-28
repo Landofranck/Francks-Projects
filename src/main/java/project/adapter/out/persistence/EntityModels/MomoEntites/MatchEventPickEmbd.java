@@ -5,13 +5,15 @@ import jakarta.persistence.*;
 
 @Embeddable
 public class MatchEventPickEmbd {
+    private Long identity;
     private String matchKey;
     private String outcomeName;
     private double odd;
-    public MatchEventPickEmbd(String matchKey,String outcomeName,double odd){
+    public MatchEventPickEmbd(Long identity,String matchKey,String outcomeName,double odd){
         this.matchKey=matchKey;
         this.outcomeName=outcomeName;
         this.odd=odd;
+        this.identity=identity;
     }
 
     public MatchEventPickEmbd() {
@@ -39,5 +41,13 @@ public class MatchEventPickEmbd {
 
     public void setOdd(double odd) {
         this.odd = odd;
+    }
+
+    public void setIdentity(Long identity) {
+        this.identity = identity;
+    }
+
+    public Long getIdentity() {
+        return identity;
     }
 }

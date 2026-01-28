@@ -9,6 +9,7 @@ public class DraftEventPickEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    private Long identity;
     private String matchKey;
     private String outcomeName;
     private double odd;
@@ -66,6 +67,14 @@ public class DraftEventPickEntity {
 
     public void setOutcomeName(String outcomeName) {
         this.outcomeName = outcomeName;
+    }
+
+    public void setIdentity(Long identity) {
+        this.identity = identity;
+    }
+
+    public Long getIdentity() {
+        return identity;
     }
 }
 

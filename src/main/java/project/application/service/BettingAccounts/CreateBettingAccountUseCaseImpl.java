@@ -4,7 +4,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import project.application.port.in.BettingAccount.CreateBettingAccountUseCase;
 import project.application.port.out.bettingAccount.PersistBettingAccountPort;
+import project.application.service.betSlip.CreateEmptyBetSlipUseCaseImpl;
 import project.domain.model.BettingAccount;
+import project.domain.model.Enums.BetCategory;
 
 import java.util.Objects;
 
@@ -13,11 +15,15 @@ public class CreateBettingAccountUseCaseImpl implements CreateBettingAccountUseC
 
     @Inject
     PersistBettingAccountPort persistBettingAccountPort;
+    @Inject
+    CreateEmptyBetSlipUseCaseImpl createEmptyBetSlip;
 
     @Override
     public Long createNewBettingAccount(BettingAccount account) {
         Objects.requireNonNull(account, "account");
         var newAccount=new BettingAccount(account.getAccountName(),account.getBrokerType());
-        return persistBettingAccountPort.saveBettingAccount(newAccount);
+        Long id= persistBettingAccountPort.saveBettingAccount(newAccount);
+        createEmptyBetSlip.createEmpty(id, BetCategory.SINGLE);
+        return id;
     }
 }

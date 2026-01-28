@@ -27,6 +27,7 @@ import project.domain.model.BettingAccount;
 import project.domain.model.DraftBetSlip;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.MobileMoneyAccount;
+import project.domain.model.Money;
 
 import java.util.List;
 
@@ -52,8 +53,6 @@ public class BettingServiceAdapter {
     LoadAllMatchesUseCase loadAllMatches;
     @Inject
     AddEventPickToBetSlipUseCase addEventPick;
-    @Inject
-    CreateEmptyBetSlipUseCase createEmptyBetSlipUseCase;
     @Inject
     MakeBetUseCase makeBetUseCase;
     @Inject
@@ -109,20 +108,13 @@ public class BettingServiceAdapter {
         return list;
     }
 
-    public BetSlipDto createEmptySlip(Long bettingAccountId) {
-
-        var slip = createEmptyBetSlipUseCase.createEmpty(bettingAccountId, BetCategory.SINGLE);
-
-        return mapper.toDraftSlipDto(slip);
-    }
-
     public BetSlipDto addPickToBetSlip(Long bettingAccountId, AddPickRequestBetSlipDto dto) {
         DraftBetSlip updated = addEventPick.addPick(bettingAccountId, dto.getMatchId(), dto.getOutComeName());
         return mapper.toDraftSlipDto(updated);
     }
 
     public Long makeBet(Long bettingAccountId, MakeBetRequestDto dto) {
-        return makeBetUseCase.makeBet(bettingAccountId, dto.getMatchIds(), dto.getOutComes(), dto.getStake(), dto.getDescription());
+        return makeBetUseCase.makeBet(bettingAccountId, dto.getMatchIds(), dto.getOutComes(), new Money(dto.getStake()), dto.getDescription());
     }
 
     public BettingAccountDto loadBettingAccount(Long id) {

@@ -6,6 +6,7 @@ import project.adapter.in.web.CreateReducerDto;
 import project.adapter.in.web.DTOMapper;
 import project.adapter.in.web.IdDto;
 import project.application.port.in.Reducer.*;
+import project.domain.model.Money;
 
 @ApplicationScoped
 public class ReducerServiceAdapter {
@@ -20,6 +21,8 @@ public class ReducerServiceAdapter {
     ComputeCombinationUseCase computeCombinations;
     @Inject
     DeleteMatchFromReducerUseCase deleteMatchFromReducer;
+    @Inject
+    PlaceBetFromReducerUseCase placeBetFromReducer;
     @Inject
     DTOMapper mapper;
     public Long createReducer(CreateReducerDto dto) {
@@ -46,5 +49,9 @@ public class ReducerServiceAdapter {
 
     public void deletMatchFromReducer(Long id, IdDto matchId) {
         deleteMatchFromReducer.deletMatchFromReducer(id,matchId.Id());
+    }
+    public ReadReducerDto placeReducerBet(Long reducerId, ReducerPlaceBetDto dto){
+        var out =mapper.toReducerDto(placeBetFromReducer.placeBetFromReducer(reducerId,dto.bettingId(),dto.slipIndex(),new Money(dto.stake())));
+        return out;
     }
 }

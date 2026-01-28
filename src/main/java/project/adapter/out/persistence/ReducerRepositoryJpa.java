@@ -26,6 +26,7 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
         return entity.getId();
     }
 
+    @Transactional
     @Override
     public Reducer getReducer(Long id) {
         var entity = entityManager.find(ReducerEntity.class, id);
@@ -57,18 +58,18 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
         reducer.addMatches(match);
         entityManager.flush();
         entityManager.clear();
-        var out=entityManager.find(ReducerEntity.class, reducerId);
+        var out = entityManager.find(ReducerEntity.class, reducerId);
         return mapper.toReducerDomain(out);
     }
 
     @Transactional
     @Override
     public void deleteMatch(Long reducerId, Long matchId) {
-        var reducer=entityManager.find(ReducerEntity.class, reducerId);
-        if (reducer == null ) throw new NotFoundException("Redcuer with id "+reducerId+" not found" );
+        var reducer = entityManager.find(ReducerEntity.class, reducerId);
+        if (reducer == null) throw new NotFoundException("Redcuer with id " + reducerId + " not found");
 
-        var match=entityManager.find(MatchEntity.class, matchId);
-        if ( match == null) throw new NotFoundException("match with id "+matchId+" not found");
+        var match = entityManager.find(MatchEntity.class, matchId);
+        if (match == null) throw new NotFoundException("match with id " + matchId + " not found");
 
         reducer.deleteMatch(match);
     }

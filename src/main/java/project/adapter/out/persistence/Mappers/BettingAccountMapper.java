@@ -78,6 +78,7 @@ public class BettingAccountMapper {
 
     public MatchEventPickEntity toMatchEventEntity(MatchEventPick domainPick) {
         var matchEventPickEntity = new MatchEventPickEntity();
+        matchEventPickEntity.setIdentity(domainPick.getIdentity());
         matchEventPickEntity.setMatchKey(domainPick.getMatchKey());
         matchEventPickEntity.setOdd(domainPick.getOdd());
         matchEventPickEntity.setOutcomeName(domainPick.getOutcomeName());
@@ -186,25 +187,26 @@ public class BettingAccountMapper {
     }
     public DraftEventPickEntity toDraftEventEntity(MatchEventPick domainPick) {
         var draftEventPickEntity = new DraftEventPickEntity();
+        draftEventPickEntity.setIdentity(domainPick.getIdentity());
         draftEventPickEntity.setMatchKey(domainPick.getMatchKey());
         draftEventPickEntity.setOdd(domainPick.getOdd());
         draftEventPickEntity.setOutcomeName(domainPick.getOutcomeName());
         return draftEventPickEntity;
     }
     public MatchEventPick toDraftEventDomain(DraftEventPickEntity p) {
-        var draftEvent = new MatchEventPick(p.getMatchKey(), p.outcomeName(), p.getOdd());
+        var draftEvent = new MatchEventPick(p.getIdentity(), p.getMatchKey(), p.outcomeName(), p.getOdd());
         draftEvent.setMatchKey(p.getMatchKey());
         return draftEvent;
     }
 
     public MatchEventPick toMatchEventDomain(MatchEventPickEntity p) {
-        var matchEventPickDomain = new MatchEventPick(p.getMatchKey(), p.getOutcomeName(), p.getOdd());
+        var matchEventPickDomain = new MatchEventPick(p.getIdentity(),p.getMatchKey(), p.getOutcomeName(), p.getOdd());
         matchEventPickDomain.setMatchKey(p.getMatchKey());
         return matchEventPickDomain;
     }
 
     public MatchEventPick toMatchOutcomeDomain(MatchOutcomeEntity p) {
-        var matchEventPickDomain = new MatchEventPick(p.getMatchKey(), p.getOutcomeName(), p.getOdd());
+        var matchEventPickDomain = new MatchEventPick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd());
         matchEventPickDomain.setMatchKey(p.getOutcomeName());
         return matchEventPickDomain;
     }

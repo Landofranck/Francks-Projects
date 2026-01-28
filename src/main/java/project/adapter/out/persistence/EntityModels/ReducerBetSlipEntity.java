@@ -6,7 +6,10 @@ import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BrokerType;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class ReducerBetSlipEntity {
@@ -14,7 +17,7 @@ public class ReducerBetSlipEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @ElementCollection
-    private List<MatchEventPickEmbd> picks;
+    private List<MatchEventPickEmbd> picks=new ArrayList<>();
     private BetCategory category;
     private BrokerType brokerType;
     private BigDecimal planedStake;
@@ -22,8 +25,8 @@ public class ReducerBetSlipEntity {
     private double totalOdds;
     private int numberOfEvents;
     private BigDecimal potentialWinning;
-    @ManyToOne
-    @JoinColumn(name = "reducer_parent_id")
+    @ManyToOne(optional = false,fetch = FetchType.LAZY)
+    @JoinColumn(name = "reducer_parent_id",nullable = false)
     private ReducerEntity reducerParent;
 
     public void addMatchEventPickEntity(MatchEventPickEmbd entity) {

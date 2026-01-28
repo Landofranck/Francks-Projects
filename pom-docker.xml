@@ -11,8 +11,8 @@
         <maven.compiler.release>22</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+        <quarkus.platform.artifact-identity>quarkus-bom</quarkus.platform.artifact-identity>
+        <quarkus.platform.group-identity>io.quarkus.platform</quarkus.platform.group-identity>
         <quarkus.platform.version>3.12.3</quarkus.platform.version>
         <surefire-plugin.version>3.2.5</surefire-plugin.version>
         <skipITs>true</skipITs>
@@ -21,8 +21,8 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>${quarkus.platform.group-id}</groupId>
-                <artifactId>${quarkus.platform.artifact-id}</artifactId>
+                <groupId>${quarkus.platform.group-identity}</groupId>
+                <artifactId>${quarkus.platform.artifact-identity}</artifactId>
                 <version>${quarkus.platform.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -117,7 +117,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>${quarkus.platform.group-id}</groupId>
+                <groupId>${quarkus.platform.group-identity}</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
                 <version>${quarkus.platform.version}</version>
                 <extensions>true</extensions>
@@ -157,14 +157,14 @@
                 <version>${surefire-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>one</id>
+                        <identity>one</identity>
                         <phase>integration-test</phase>
                         <goals>
                             <goal>integration-test</goal>
                         </goals>
                     </execution>
                     <execution>
-                        <id>two</id>
+                        <identity>two</identity>
                         <phase>verify</phase>
                         <goals>
                             <goal>verify</goal>
@@ -185,7 +185,7 @@
 
     <profiles>
         <profile>
-            <id>native</id>
+            <identity>native</identity>
             <activation>
                 <property>
                     <name>native</name>

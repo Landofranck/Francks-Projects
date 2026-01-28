@@ -32,11 +32,8 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
         if (!slip.getDraftSlipOwner().getAccountId().equals(bettingAccountId)) {
             throw new IllegalArgumentException("ReducerBetSlip does not belong to betting account " + bettingAccountId);
         }
-        if (slip == null) {
-            throw new IllegalArgumentException("bet slip must not be null");
-        }
         if (matchId == null) {
-            throw new IllegalArgumentException("matchId must not be null");
+            throw new IllegalArgumentException("matchId must not be null AddEventPickToBetSlipUseCaseImpl 36");
         }
         if (outcomeName == null || outcomeName.isBlank()) {
             throw new IllegalArgumentException("outcomeName must not be blank addevent impl");
@@ -58,6 +55,7 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
 
         // Create pick from the outcome
         MatchEventPick pick = new MatchEventPick(
+                outcome.getIdentity(),
                 outcome.getMatchKey(),
                 outcome.getOutcomeName(),
                 outcome.getOdd()

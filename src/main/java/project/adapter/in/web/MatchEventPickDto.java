@@ -2,6 +2,7 @@ package project.adapter.in.web;
 
 
 public class MatchEventPickDto {
+    private Long matchId;
     private String matchKey;
     private String outcomeName;
     private double odd;
@@ -16,4 +17,12 @@ public class MatchEventPickDto {
 
     public double getOdd() { return odd; }
     public void setOdd(double odd) { this.odd = odd; }
+
+    public void setMatchId(Long matchId) {
+        this.matchId = matchId;
+    }
+
+    public Long getMatchId() {
+        return matchId;
+    }
 }

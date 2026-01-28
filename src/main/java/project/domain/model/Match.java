@@ -25,6 +25,7 @@ public class Match implements Event {
         this.matchOutComes.add(pick);
         pick.setMatchKey(home+" vs "+ away);
         pick.setOwner(this);
+        pick.setIdentity(matchId);
 
     }
 

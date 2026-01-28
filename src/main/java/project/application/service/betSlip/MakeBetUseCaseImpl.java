@@ -37,14 +37,16 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
 
     @Transactional
     @Override
-    public Long makeBet(Long bettingAccountId, List<Long> matchIds, List<String> matchOutcomes, BigDecimal stake, String description) {
+    public Long makeBet(Long bettingAccountId, List<Long> matchIds, List<String> matchOutcomes, Money stake, String description) {
 
         if (bettingAccountId == null) throw new IllegalArgumentException("bettingAccountId required");
-        if (stake == null || stake.signum() <= 0) throw new IllegalArgumentException("stake must be > 0");
+        if (stake == null || stake.getValue().signum() <= 0)
+            throw new IllegalArgumentException("stake must be > 0");
         if (matchIds != null) {
+
             removeAllPicks.removeAllPicks(bettingAccountId);
-            int i=0;
-            for (Long Ids:matchIds) {
+            int i = 0;
+            for (Long Ids : matchIds) {
                 addPicks.addPick(bettingAccountId, matchIds.get(i), matchOutcomes.get(i));
                 i++;
             }
@@ -53,13 +55,12 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
         var account = readAccount.getBettingAccount(bettingAccountId);
 
         Instant now = Instant.now(timeProvider.clock());
-        Money stakeMoney = new Money(stake);
 
 
-        var tx = account.placeBet(stakeMoney, now, description);
+        var tx = account.placeBet(stake, now, description);
         var draftSlip = account.getDraftBetSlip();
         // Put stake + timestamps on slip
-        draftSlip.setStake(stakeMoney);
+        draftSlip.setStake(stake);
         draftSlip.setCreatedAt(now);
         draftSlip.setStatus(BetStatus.PENDING);
 
@@ -70,6 +71,7 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
         // Persist betslip into betHistory
         Long slipId = persistSlip.persistSlipToAccount(bettingAccountId, draftSlip, description);
         return slipId;
+
     }
 }
 

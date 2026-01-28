@@ -43,7 +43,7 @@ public class BettingAccountResource {
         Long id = serviceAdapter.createNewBettingAccount(dto);
 
         // Either return created location only
-        return Response.created(URI.create("/betting-accounts/" + id)).build();
+        return Response.status(Response.Status.CREATED).entity(id).build();
 
         // Or if you prefer returning JSON: return Response.status(201).entity(Map.of("id", id)).build();
     }
@@ -61,17 +61,6 @@ public class BettingAccountResource {
         return Response.noContent().build();
     }
 
-    /**
-     * creates a new empty draft bet slip
-     */
-    @POST
-    @Path("/{bettingId}/betslips/new")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public BetSlipDto createSlip(
-            @PathParam("bettingId") Long bettingId
-    ) {
-        return serviceAdapter.createEmptySlip(bettingId);
-    }
 
     /**
      * adds pick to an empty slip on an account

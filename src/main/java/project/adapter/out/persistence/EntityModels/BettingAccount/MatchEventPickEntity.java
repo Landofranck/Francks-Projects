@@ -6,6 +6,7 @@ public class MatchEventPickEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    private Long identity;
     private String matchKey;
     private String outcomeName;
     private double odd;
@@ -68,5 +69,13 @@ public class MatchEventPickEntity {
 
     public void setParentBetSlipEntity(BetSlipEntity parentBetSlipEntity) {
         this.parentBetSlipEntity = parentBetSlipEntity;
+    }
+
+    public void setIdentity(Long identity) {
+        this.identity = identity;
+    }
+
+    public Long getIdentity() {
+        return identity;
     }
 }

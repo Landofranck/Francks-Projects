@@ -282,7 +282,7 @@ public class Reducer implements Account {
 
     private MatchEventPick copyPick(MatchEventPick original) {
         Objects.requireNonNull(original, "original pick");
-        MatchEventPick copy = new MatchEventPick(original.getMatchKey(), original.getOutcomeName(), original.getOdd());
+        MatchEventPick copy = new MatchEventPick(original.getIdentity(),original.getMatchKey(), original.getOutcomeName(), original.getOdd());
         copy.setMatchKey(original.getMatchKey());
         return copy;
     }
@@ -296,6 +296,7 @@ public class Reducer implements Account {
             double odds = s.getTotalOdds();
             if (odds <= 0) throw new IllegalStateException("totalOdds must be > 0");
             s.setPlanedStake(totalStake.divide(odds));
+            s.setRemainingStake(totalStake.divide(odds));
             s.calculatePotentialWinning();
         }
     }

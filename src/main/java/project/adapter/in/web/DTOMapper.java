@@ -79,7 +79,7 @@ public class DTOMapper {
     }
     public ReducerSlipDto toReducerSlipDto(ReducerBetSlip domain) {
         var picks=domain.getPicks().stream().map(this::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new));
-        var dto = new ReducerSlipDto(picks,domain.getCategory(),domain.getBrokerType(),domain.getPlanedStake().getValue(),domain.getRemainingStake().getValue(),domain.getTotalOdds(),domain.getNumberOfEvents());
+        var dto = new ReducerSlipDto(domain.getCategory(),domain.getBrokerType(),domain.getPlanedStake().getValue(),domain.getRemainingStake().getValue(),domain.getTotalOdds(),domain.getNumberOfEvents(),domain.getPotentialWinning().getValue(),picks);
         return dto;
     }
 
@@ -136,7 +136,7 @@ public class DTOMapper {
     }
 
     private MatchEventPick toMatchEventpick(MatchEventPickDto eventDto) {
-        var pick = new MatchEventPick(eventDto.getMatchKey(), eventDto.getOutcomeName(), eventDto.getOdd());
+        var pick = new MatchEventPick(eventDto.getMatchId(),eventDto.getMatchKey(), eventDto.getOutcomeName(), eventDto.getOdd());
         return pick;
     }
 
@@ -158,6 +158,7 @@ public class DTOMapper {
         var dto = new MatchEventPickDto();
         dto.setMatchKey(mP.getMatchKey());
         dto.setOdd(mP.getOdd());
+        dto.setMatchId(mP.getIdentity());
         dto.setOutcomeName(mP.getOutcomeName());
         return dto;
     }

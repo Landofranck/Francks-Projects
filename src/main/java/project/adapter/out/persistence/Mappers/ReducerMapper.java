@@ -80,7 +80,7 @@ public class ReducerMapper {
             out.setNumberOfEvents(betSlip.getNumberOfEvents());
             if (betSlip.getPicks() != null) {
                 for (MatchEventPick p : betSlip.getPicks()) {
-                    out.addMatchEventPickEntity(new MatchEventPickEmbd(p.getMatchKey(), p.getOutcomeName(), p.getOdd()));
+                    out.addMatchEventPickEntity(new MatchEventPickEmbd(p.getIdentity(),p.getMatchKey(), p.getOutcomeName(), p.getOdd()));
                 }
             }
             return out;
@@ -89,12 +89,12 @@ public class ReducerMapper {
         }
     }
 
-    private ReducerBetSlip toReducerBetSlipDomain(ReducerBetSlipEntity betSlip) {
+    public ReducerBetSlip toReducerBetSlipDomain(ReducerBetSlipEntity betSlip) {
         try {
             var out = new ReducerBetSlip(betSlip.getCategory());
             if (betSlip.getPicks() != null) {
                 for (MatchEventPickEmbd p : betSlip.getPicks()) {
-                    out.addMatchEventPick(new MatchEventPick(p.getMatchKey(),p.getOutcomeName(),p.getOdd()));
+                    out.addMatchEventPick(new MatchEventPick(p.getIdentity(),p.getMatchKey(),p.getOutcomeName(),p.getOdd()));
                 }
             }
             out.setPotentialWinning(new Money(betSlip.getPotentialWinning()));
@@ -106,7 +106,7 @@ public class ReducerMapper {
 
             return out;
         } catch (Exception e) {
-            throw new RuntimeException("could not convert to betslip entity jpa line 164" + e.getMessage());
+            throw new RuntimeException("could not convert to betslip entity mapper line 164" + e.getMessage());
         }
     }
 

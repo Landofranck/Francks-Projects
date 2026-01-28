@@ -8,6 +8,7 @@ public class MatchOutcomeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private Long identity;
     private String matchKey;
     private String outcomeName;
     private Double odd;
@@ -53,5 +54,13 @@ public class MatchOutcomeEntity {
 
     public Double getOdd() {
         return odd;
+    }
+
+    public void setIdentity(Long identity) {
+        this.identity = identity;
+    }
+
+    public Long getIdentity() {
+        return identity;
     }
 }

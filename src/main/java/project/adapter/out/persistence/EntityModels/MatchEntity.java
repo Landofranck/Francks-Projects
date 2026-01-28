@@ -3,7 +3,9 @@ package project.adapter.out.persistence.EntityModels;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class MatchEntity {
@@ -19,7 +21,7 @@ public class MatchEntity {
 
     //this line indicates that a match can also belong to a reducer
     @ManyToMany(mappedBy = "betMatchEntities")
-    private List<ReducerEntity> reducers = new ArrayList<>();
+    private Set<ReducerEntity> reducers = new HashSet<>();
 
     public MatchEntity() {
     }
@@ -62,7 +64,7 @@ public class MatchEntity {
         return matchOutComes;
     }
 
-    public List<ReducerEntity> getReducers() {
+    public Set<ReducerEntity> getReducers() {
         return reducers;
     }
 
@@ -70,7 +72,7 @@ public class MatchEntity {
         this.matchOutComes = matchOutComes;
     }
 
-    public void setReducers(List<ReducerEntity> reducers) {
+    public void setReducers(Set<ReducerEntity> reducers) {
         this.reducers = reducers;
     }
 }

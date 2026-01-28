@@ -158,7 +158,7 @@ public class DTOMapper {
         if (domain.getSlips() != null)
             betslips = domain.getSlips().stream().map(this::toBetSlipDto).collect(Collectors.toCollection(ArrayList::new));
 
-        var out = new ReadReducerDto(domain.getAccountId(), domain.getTotalStake().getValue(), matches, betslips, domain.getBonusAmount().getValue());
+        var out = new ReadReducerDto(domain.getAccountId(), domain.getTotalStake().getValue(),domain.getSlips().size(), matches, betslips, domain.getBonusAmount().getValue());
         return out;
     }
 

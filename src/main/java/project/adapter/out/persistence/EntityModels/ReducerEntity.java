@@ -6,9 +6,7 @@ import project.domain.model.Enums.BetCategory;
 import project.domain.model.MatchEventPick;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 public class ReducerEntity {
@@ -20,7 +18,7 @@ public class ReducerEntity {
     @JoinTable(name ="reducer_matches",
             joinColumns = @JoinColumn(name="reducer_id"),
             inverseJoinColumns = @JoinColumn(name="match_id"))
-    private List<MatchEntity> betMatchEntities = new ArrayList<>();
+    private Set<MatchEntity> betMatchEntities = new HashSet<>();
     @OneToMany(mappedBy = "betSlipReducerParent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<BetSlipEntity> slips = new ArrayList<>();
     private BigDecimal bonusAmount;
@@ -79,7 +77,7 @@ public class ReducerEntity {
         return this.slips;
     }
 
-    public List<MatchEntity> getBetMatcheEntities() {
+    public Set<MatchEntity> getBetMatcheEntities() {
         return betMatchEntities;
     }
 
@@ -91,7 +89,7 @@ public class ReducerEntity {
         return bonusAmount;
     }
 
-    public void setBetMatches(List<MatchEntity> betMatches) {
+    public void setBetMatches(Set<MatchEntity> betMatches) {
         this.betMatchEntities = betMatches;
     }
 

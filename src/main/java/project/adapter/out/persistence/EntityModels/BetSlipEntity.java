@@ -18,13 +18,14 @@ public class BetSlipEntity {
     private List<MatchEventPickEntity> picks = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     private BetStatus status;
+    @Enumerated
     private BetCategory category;
     private Instant createdAt;
     private double totalOdd;
 
     //this attribute shows the betting account in which the betslip was placed
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "parentAccountEntity_id", nullable = false)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "parentAccountEntity_id", nullable = true)
     private BettingAccountEntity parentAccountEntity;
 
     //this attribute shows the reducer in which the betslip was created

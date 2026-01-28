@@ -44,6 +44,7 @@ public class ReducerMapper {
         entity.setBonusAmount(dom.getBonusAmount().getValue());
         entity.setTotalStake(dom.getTotalStake().getValue());
         if(dom.getSlips()!=null)
+            entity.getSlips().clear();
             for (BetSlip e: dom.getSlips()) {
                 entity.addBetSlipEntity(betMapper.toBetslipEntity(e));
             }

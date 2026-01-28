@@ -9,9 +9,11 @@ public record ReadReducerDto(
 
         Long id,
         BigDecimal totalStake,
+        int numberOfSlips,
         List<MatchDto> betMatchDtos,
         List<BetSlipDto> slips,
-        BigDecimal bonusAmount) {
+        BigDecimal bonusAmount
+        ) {
 
 
 }

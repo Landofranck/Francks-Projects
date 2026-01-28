@@ -29,13 +29,13 @@ public class ReducerResource {
     }
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{ReducerId}")
+    @Path("/{ReducerId}/matches")
     public Response addMatchToReducer(@PathParam("ReducerId") Long id, IdDto MatchId){
         var out=adapter.addMatchToReducer(id, MatchId);
         return Response.ok().entity(out).build();
     }
     @PUT
-    @Path("/{ReducerId}")
+    @Path("/{ReducerId}/compute")
     public Response addMatchToReducer(@PathParam("ReducerId") Long id){
         var out=adapter.getComputeCombinations(id);
         return Response.ok().entity(out).build();

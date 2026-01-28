@@ -27,8 +27,8 @@ public class ReducerBetSlip implements Event {
         this.picks = new ArrayList<>();
         this.planedStake = new Money(BigDecimal.ZERO);
         this.remainingStake = new Money(BigDecimal.ZERO);
-        this.totalOdds=0;
-        this.numberOfEvents= 0;
+        this.totalOdds = 0;
+        this.numberOfEvents = 0;
         this.potentialWinning = new Money(BigDecimal.ZERO);
     }
 
@@ -44,22 +44,22 @@ public class ReducerBetSlip implements Event {
         this.picks.add(pick);
         pick.setOwner(this);
         makeTotalOdds();
-        this.numberOfEvents=picks.size();
+        this.numberOfEvents = picks.size();
     }
+
     public void removeMatchEventPicksByIndex(int i) {
         this.picks.remove(i);
         makeTotalOdds();
         this.numberOfEvents = picks.size();
         calculatePotentialWinning();
     }
-    public void placeParBet(Money stake){
-        if(stake.isGreaterThan(this.remainingStake))
+
+    public void placeParBet(Money stake) {
+        if (stake.isGreaterThan(this.remainingStake))
             throw new IllegalArgumentException("the bet ammount is greater than what is left to be bet");
-        if (stake ==null){
-            setRemainingStake(new Money(0));
-        }else {
-            setRemainingStake(remainingStake.subtract(stake));
-        }
+
+       setRemainingStake( this.remainingStake.subtract(stake));
+
     }
 
     public void calculatePotentialWinning() {

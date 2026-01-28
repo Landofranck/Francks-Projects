@@ -97,6 +97,7 @@ public class ReducerMapper {
                     out.addMatchEventPick(new MatchEventPick(p.getIdentity(),p.getMatchKey(),p.getOutcomeName(),p.getOdd()));
                 }
             }
+
             out.setPotentialWinning(new Money(betSlip.getPotentialWinning()));
             out.setCategory(betSlip.getCategory());
             out.setBrokerType(betSlip.getBrokerType());

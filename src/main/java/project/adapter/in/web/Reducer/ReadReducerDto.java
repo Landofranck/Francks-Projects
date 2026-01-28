@@ -13,7 +13,7 @@ public record ReadReducerDto(
         int numberOfSlips,
         String specifications,
         List<MatchDto> betMatchDtos,
-        List<BetSlipDto> slips,
+        List<ReducerSlipDto> slips,
         BigDecimal bonusAmount
         ) {
 

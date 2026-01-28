@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import project.adapter.in.web.Reducer.BlockDto;
 import project.adapter.in.web.Reducer.ComputeDto;
 import project.adapter.in.web.Reducer.ReadReducerDto;
+import project.adapter.in.web.Reducer.ReducerSlipDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.BettingAccountDto;
 import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
@@ -13,6 +14,7 @@ import project.adapter.in.web.TransactionDTO.TransactionDto;
 import project.domain.model.*;
 import project.domain.model.Reducer.Block;
 import project.domain.model.Reducer.Reducer;
+import project.domain.model.Reducer.ReducerBetSlip;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +75,11 @@ public class DTOMapper {
         dto.setTotalOdds(domain.getTotalOdds());
         dto.setCategory(domain.getCategory());
         dto.setPicks(domain.getPicks().stream().map(this::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new)));
+        return dto;
+    }
+    public ReducerSlipDto toReducerSlipDto(ReducerBetSlip domain) {
+        var picks=domain.getPicks().stream().map(this::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new));
+        var dto = new ReducerSlipDto(picks,domain.getCategory(),domain.getBrokerType(),domain.getPlanedStake().getValue(),domain.getRemainingStake().getValue(),domain.getTotalOdds(),domain.getNumberOfEvents());
         return dto;
     }
 
@@ -156,7 +163,7 @@ public class DTOMapper {
     }
 
     public ReadReducerDto toReducerDto(Reducer domain) {
-        List<BetSlipDto> betslips = new ArrayList<>();
+        List<ReducerSlipDto> betslips = new ArrayList<>();
         List<MatchDto> matches = new ArrayList<>();
         List<BlockDto> blocks = new ArrayList<>();
         String specifics = "";
@@ -167,9 +174,9 @@ public class DTOMapper {
         if (domain.getBetMatches() != null)
             matches = domain.getBetMatches().stream().map(this::toMatchDto).collect(Collectors.toCollection(ArrayList::new));
         if (domain.getSlips() != null)
-            betslips = domain.getSlips().stream().map(this::toBetSlipDto).collect(Collectors.toCollection(ArrayList::new));
+            betslips = domain.getSlips().stream().map(this::toReducerSlipDto).collect(Collectors.toCollection(ArrayList::new));
 
-        var out = new ReadReducerDto(domain.getAccountId(), domain.getTotalStake().getValue(), domain.getSlips().size(), blocks, matches, betslips, domain.getBonusAmount().getValue());
+        var out = new ReadReducerDto(domain.getAccountId(), domain.getTotalStake().getValue(), domain.getSlips().size(), specifics, matches, betslips, domain.getBonusAmount().getValue());
         return out;
     }
     public Reducer toReducerDomain(CreateReducerDto dto) {

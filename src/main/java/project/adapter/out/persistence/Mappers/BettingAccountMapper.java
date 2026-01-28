@@ -198,7 +198,7 @@ public class BettingAccountMapper {
     }
 
     public MatchEventPick toMatchEventDomain(MatchEventPickEntity p) {
-        var matchEventPickDomain = new MatchEventPick(p.getMatchKey(), p.outcomeName(), p.getOdd());
+        var matchEventPickDomain = new MatchEventPick(p.getMatchKey(), p.getOutcomeName(), p.getOdd());
         matchEventPickDomain.setMatchKey(p.getMatchKey());
         return matchEventPickDomain;
     }

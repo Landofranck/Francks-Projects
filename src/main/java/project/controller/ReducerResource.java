@@ -39,7 +39,7 @@ public class ReducerResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{ReducerId}/compute")
-    public Response addMatchToReducer(@PathParam("ReducerId") Long id, ComputeDto specifications){
+    public Response compute(@PathParam("ReducerId") Long id, ComputeDto specifications){
         var out=adapter.getComputeCombinations(id, specifications);
         return Response.ok().entity(out).build();
     }

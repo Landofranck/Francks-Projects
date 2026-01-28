@@ -1,21 +1,18 @@
 package project.adapter.out.persistence.EntityModels;
 
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Embeddable;
-import lombok.Getter;
-import lombok.Setter;
-import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEventPickEntity;
+import jakarta.persistence.*;
 import project.adapter.out.persistence.EntityModels.MomoEntites.MatchEventPickEmbd;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BrokerType;
-import project.domain.model.MatchEventPick;
-import project.domain.model.Money;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-@Embeddable
-public class ReducerBetSlipEmbed {
+@Entity
+public class ReducerBetSlipEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
     @ElementCollection
     private List<MatchEventPickEmbd> picks;
     private BetCategory category;
@@ -25,8 +22,28 @@ public class ReducerBetSlipEmbed {
     private double totalOdds;
     private int numberOfEvents;
     private BigDecimal potentialWinning;
+    @ManyToOne
+    @JoinColumn(name = "reducer_parent_id")
+    private ReducerEntity reducerParent;
+
     public void addMatchEventPickEntity(MatchEventPickEmbd entity) {
         this.picks.add(entity);
+    }
+
+    public ReducerEntity getReducerParent() {
+        return reducerParent;
+    }
+
+    public void setReducerParent(ReducerEntity reducerParent) {
+        this.reducerParent = reducerParent;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public List<MatchEventPickEmbd> getPicks() {
@@ -92,4 +109,5 @@ public class ReducerBetSlipEmbed {
     public void setPotentialWinning(BigDecimal potentialWinning) {
         this.potentialWinning = potentialWinning;
     }
+
 }

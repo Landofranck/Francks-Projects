@@ -74,7 +74,7 @@ public class BettingAccountEntity {
 
     public void addBetSlipEntity(BetSlipEntity betSlip) {
         this.betHistory.add(betSlip);
-        betSlip.setParentAccount(this);
+        betSlip.setParentAccountEntity(this);
     }
 
     public DraftSlipEntity getDraftBetSlip() {

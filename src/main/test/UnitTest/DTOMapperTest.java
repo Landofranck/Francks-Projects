@@ -14,6 +14,7 @@ import project.domain.model.*;
 import project.domain.model.Enums.*;
 import project.domain.model.Reducer.Block;
 import project.domain.model.Reducer.Reducer;
+import project.domain.model.Reducer.ReducerBetSlip;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -182,11 +183,10 @@ class DTOMapperTest {
         m.addPick(new MatchEventPick("KEY", "HOME_WIN", 1.5));
         r.setBetMatches(List.of(m));
 
-        var s = new BetSlip(BetCategory.SINGLE);
-        s.setId(20L);
-        s.setStake(new Money(BigDecimal.valueOf(100)));
+        var s = new ReducerBetSlip(BetCategory.SINGLE);
+
+
         s.setPotentialWinning(new Money(BigDecimal.valueOf(15)));
-        s.setStatus(BetStatus.WON);
         s.setPicks(new ArrayList<>());
         r.setSlips(List.of(s));
 
@@ -196,8 +196,6 @@ class DTOMapperTest {
         assertEquals(new Money(BigDecimal.valueOf(100)).getValue(), dto.totalStake());
         assertEquals(new Money(BigDecimal.valueOf(5)).getValue(), dto.bonusAmount());
         assertEquals(1, dto.betMatchDtos().size());
-        assertEquals(1, dto.specifications().size());
-        assertEquals(BlockType.FULL,dto.specifications().get(0).type());
         assertEquals(1, dto.slips().size());
     }
 }

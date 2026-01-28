@@ -4,9 +4,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import project.adapter.out.persistence.Embeddables.BlockEmb;
 import project.adapter.out.persistence.EntityModels.MomoEntites.MatchEventPickEmbd;
-import project.adapter.out.persistence.EntityModels.ReducerBetSlipEmbed;
+import project.adapter.out.persistence.EntityModels.ReducerBetSlipEntity;
 import project.adapter.out.persistence.EntityModels.ReducerEntity;
-import project.domain.model.BetSlip;
 import project.domain.model.Match;
 import project.domain.model.MatchEventPick;
 import project.domain.model.Money;
@@ -70,9 +69,9 @@ public class ReducerMapper {
         }
     }
 
-    public ReducerBetSlipEmbed toBetSlipEmbed(ReducerBetSlip betSlip) {
+    public ReducerBetSlipEntity toBetSlipEmbed(ReducerBetSlip betSlip) {
         try {
-            var out = new ReducerBetSlipEmbed();
+            var out = new ReducerBetSlipEntity();
             out.setPotentialWinning(betSlip.getPotentialWinning().getValue());
             out.setCategory(betSlip.getCategory());
             out.setBrokerType(betSlip.getBrokerType());
@@ -90,7 +89,7 @@ public class ReducerMapper {
         }
     }
 
-    private ReducerBetSlip toReducerBetSlipDomain(ReducerBetSlipEmbed betSlip) {
+    private ReducerBetSlip toReducerBetSlipDomain(ReducerBetSlipEntity betSlip) {
         try {
             var out = new ReducerBetSlip(betSlip.getCategory());
             if (betSlip.getPicks() != null) {

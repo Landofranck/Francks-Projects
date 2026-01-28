@@ -23,8 +23,8 @@ public class ReducerEntity {
             joinColumns = @JoinColumn(name = "reducer_id"),
             inverseJoinColumns = @JoinColumn(name = "match_id"))
     private Set<MatchEntity> betMatchEntities = new HashSet<>();
-    @ElementCollection
-    private List<ReducerBetSlipEmbed> slips = new ArrayList<>();
+    @OneToMany(mappedBy ="reducerParent",cascade = CascadeType.ALL,orphanRemoval = true)
+    private Set<ReducerBetSlipEntity> slips = new HashSet<>();
     private BigDecimal bonusAmount;
     @ElementCollection
     private List<BlockEmb> blockEmbs=new ArrayList<>();
@@ -49,7 +49,7 @@ public class ReducerEntity {
     }
 
 
-    public void addBetSlipEmbd(ReducerBetSlipEmbed b) {
+    public void addBetSlipEmbd(ReducerBetSlipEntity b) {
         Objects.requireNonNull(b, "betSlip");
         slips.add(b);
     }
@@ -111,11 +111,11 @@ public class ReducerEntity {
         this.betMatchEntities = betMatchEntities;
     }
 
-    public List<ReducerBetSlipEmbed> getSlips() {
+    public Set<ReducerBetSlipEntity> getSlips() {
         return slips;
     }
 
-    public void setSlips(List<ReducerBetSlipEmbed> slips) {
+    public void setSlips(Set<ReducerBetSlipEntity> slips) {
         this.slips = slips;
     }
 

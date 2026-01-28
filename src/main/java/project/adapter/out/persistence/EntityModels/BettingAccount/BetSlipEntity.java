@@ -123,7 +123,6 @@ public class BetSlipEntity {
     public BigDecimal getPotentialWinning() {
         return potentialWinning;
     }
-
     public void setPotentialWinning(BigDecimal potentialWinning) {
         this.potentialWinning = potentialWinning;
     }

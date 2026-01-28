@@ -1,20 +1,17 @@
 package UnitTest;
 
 
-import lombok.Data;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import project.adapter.out.persistence.Embeddables.BlockEmb;
 import project.adapter.out.persistence.EntityModels.*;
-import project.adapter.out.persistence.EntityModels.BettingAccount.BetSlipEntity;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 import project.adapter.out.persistence.Mappers.BettingAccountMapper;
 import project.adapter.out.persistence.Mappers.ReducerMapper;
 import project.domain.model.*;
 import project.domain.model.Enums.BetCategory;
-import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.BlockType;
 import project.domain.model.Enums.BrokerType;
 import project.domain.model.Reducer.Block;
@@ -80,7 +77,7 @@ class ReducerMapperTest {
         e.setTotalStake(new Money(100).getValue());
         e.setBonusAmount(new Money(5).getValue());
 
-        var slipE = new ReducerBetSlipEmbed();
+        var slipE = new ReducerBetSlipEntity();
         slipE.setCategory(BetCategory.SINGLE);
         slipE.setPlanedStake(new Money(10).getValue());
         slipE.setPotentialWinning(new Money(20).getValue());

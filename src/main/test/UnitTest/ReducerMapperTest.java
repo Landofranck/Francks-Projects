@@ -5,16 +5,23 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import project.adapter.out.persistence.Embeddables.BlockEmb;
 import project.adapter.out.persistence.EntityModels.*;
+import project.adapter.out.persistence.EntityModels.BettingAccount.BetSlipEntity;
+import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 import project.adapter.out.persistence.Mappers.BettingAccountMapper;
 import project.adapter.out.persistence.Mappers.ReducerMapper;
 import project.domain.model.*;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
+import project.domain.model.Enums.BlockType;
+import project.domain.model.Reducer.Block;
+import project.domain.model.Reducer.Reducer;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
@@ -50,14 +57,18 @@ class ReducerMapperTest {
         match.addPick(new MatchEventPick("K", "HOME", 1.5));
         r.setBetMatches(new ArrayList<>());
         r.getBetMatches().add(match);
+        var Block=new Block(BlockType.FULL,0,0);
+        r.setBlocks(List.of(Block));
 
         ReducerEntity e = mapper.toReducerEntity(r);
 
-        assertEquals(1L, e.getId());
+        assertEquals(null, e.getId());
         assertEquals(new Money(100).getValue(), e.getTotalStake());
         assertEquals(new Money(5).getValue(), e.getBonusAmount());
         assertEquals(1, e.getSlips().size());
         assertEquals(1, e.getBetMatcheEntities().size());
+        assertEquals(1, e.getBlockEmbs().size());
+        assertEquals(BlockType.FULL,e.getBlockEmbs().get(0).getType());
     }
 
     @Test
@@ -86,6 +97,12 @@ class ReducerMapperTest {
         matchE.addOutcome(out);
         e.addMatches(matchE);
 
+        var blockEmb=new BlockEmb();
+        blockEmb.setEndMatchIdx(0);
+        blockEmb.setStartMatchIdx(0);
+        blockEmb.setType(BlockType.FULL);
+        e.setBlockEmbs(List.of(blockEmb));
+
         Reducer dom = mapper.toReducerDomain(e);
 
         assertEquals(1L, dom.getAccountId());
@@ -94,6 +111,10 @@ class ReducerMapperTest {
         assertNotNull(dom.getSlips());
         assertEquals(1, dom.getSlips().size());
         assertNotNull(dom.getBetMatches());
+        assertEquals(BlockType.FULL,dom.getBlocks().get(0).getType());
+        assertEquals(1, dom.getBlocks().size());
+        assertNotNull(dom.getBlocks());
+
         assertEquals(1, dom.getBetMatches().size());
     }
 }

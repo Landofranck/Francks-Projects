@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import project.adapter.in.web.DTOMapper;
 import project.adapter.in.web.MatchDto;
-import project.adapter.in.web.ReadReducerDto;
+import project.adapter.in.web.Reducer.ReadReducerDto;
 import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
 import project.adapter.in.web.bettinAccountDTO.BettingAccountDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
@@ -12,6 +12,8 @@ import project.adapter.in.web.MobileMoneyDto.CreateMobileMoneyAccountDto;
 import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
 import project.domain.model.*;
 import project.domain.model.Enums.*;
+import project.domain.model.Reducer.Block;
+import project.domain.model.Reducer.Reducer;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -172,6 +174,8 @@ class DTOMapperTest {
     void toReducerDto_mapsMatchesAndSlips() {
         var r = new Reducer(new Money(BigDecimal.valueOf(100)), new Money(BigDecimal.valueOf(5)));
         r.setId(1L);
+        var b = new Block(BlockType.FULL, 0, 0);
+        r.setBlocks(List.of(b));
 
         var m = new Match("Home", "Away");
         m.setMatchId(10L);
@@ -192,6 +196,8 @@ class DTOMapperTest {
         assertEquals(new Money(BigDecimal.valueOf(100)).getValue(), dto.totalStake());
         assertEquals(new Money(BigDecimal.valueOf(5)).getValue(), dto.bonusAmount());
         assertEquals(1, dto.betMatchDtos().size());
+        assertEquals(1, dto.specifications().size());
+        assertEquals(BlockType.FULL,dto.specifications().get(0).type());
         assertEquals(1, dto.slips().size());
     }
 }

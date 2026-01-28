@@ -1,7 +1,7 @@
 package project.application.port.out;
 
-import project.domain.model.Reducer;
+import project.domain.model.Reducer.Reducer;
 
 public interface PersistReducerPort {
-    void persistReducerToDataBase(Reducer reducer);
+    Long persistReducerToDataBase(Reducer reducer);
 }

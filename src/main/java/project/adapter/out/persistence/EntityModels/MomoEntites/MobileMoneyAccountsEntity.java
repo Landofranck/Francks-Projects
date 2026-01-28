@@ -1,4 +1,4 @@
-package project.adapter.out.persistence.EntityModels;
+package project.adapter.out.persistence.EntityModels.MomoEntites;
 
 import jakarta.persistence.*;
 import project.domain.model.Enums.MomoAccountType;

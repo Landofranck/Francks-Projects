@@ -1,6 +1,10 @@
 package project.adapter.out.persistence.EntityModels;
 
 import jakarta.persistence.*;
+import project.adapter.out.persistence.Embeddables.BlockEmb;
+import project.adapter.out.persistence.EntityModels.BettingAccount.BetSlipEntity;
+import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
+import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEventPickEntity;
 import project.domain.model.BetSlip;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.MatchEventPick;
@@ -15,13 +19,15 @@ public class ReducerEntity {
     private Long id;
     private BigDecimal totalStake;
     @ManyToMany
-    @JoinTable(name ="reducer_matches",
-            joinColumns = @JoinColumn(name="reducer_id"),
-            inverseJoinColumns = @JoinColumn(name="match_id"))
+    @JoinTable(name = "reducer_matches",
+            joinColumns = @JoinColumn(name = "reducer_id"),
+            inverseJoinColumns = @JoinColumn(name = "match_id"))
     private Set<MatchEntity> betMatchEntities = new HashSet<>();
     @OneToMany(mappedBy = "betSlipReducerParent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<BetSlipEntity> slips = new ArrayList<>();
     private BigDecimal bonusAmount;
+    @ElementCollection
+    private List<BlockEmb> blockEmbs;
 
     public ReducerEntity() {
     }
@@ -111,5 +117,13 @@ public class ReducerEntity {
 
     public Long getId() {
         return id;
+    }
+
+    public void setBlockEmbs(List<BlockEmb> blockEmbs) {
+        this.blockEmbs = blockEmbs;
+    }
+
+    public List<BlockEmb> getBlockEmbs() {
+        return blockEmbs;
     }
 }

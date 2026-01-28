@@ -1,9 +1,7 @@
 package project.adapter.out.persistence.EntityModels;
 
 import jakarta.persistence.*;
-
-import java.math.BigDecimal;
-import java.util.Optional;
+import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 
 @Entity
 public class MatchOutcomeEntity {

@@ -4,7 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import project.adapter.out.persistence.EntityModels.MobileMoneyAccountsEntity;
+import project.adapter.out.persistence.EntityModels.MomoEntites.MobileMoneyAccountsEntity;
 import project.adapter.out.persistence.Mappers.MomoAccountMapper;
 import project.application.port.out.mobilMoney.*;
 import project.domain.model.Enums.BrokerType;

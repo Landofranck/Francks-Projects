@@ -1,5 +1,6 @@
-package project.adapter.in.web;
+package project.adapter.in.web.Reducer;
 
+import project.adapter.in.web.MatchDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
 
 import java.math.BigDecimal;
@@ -10,6 +11,7 @@ public record ReadReducerDto(
         Long id,
         BigDecimal totalStake,
         int numberOfSlips,
+        List<BlockDto> specifications,
         List<MatchDto> betMatchDtos,
         List<BetSlipDto> slips,
         BigDecimal bonusAmount

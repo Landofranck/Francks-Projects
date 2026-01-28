@@ -6,7 +6,10 @@ import project.application.port.in.Reducer.ComputeCombinationUseCase;
 import project.application.port.out.GetReducerByIdPort;
 import project.application.port.out.UpdateReducerPort;
 import project.domain.model.Enums.BetCategory;
-import project.domain.model.Reducer;
+import project.domain.model.Reducer.Block;
+import project.domain.model.Reducer.Reducer;
+
+import java.util.List;
 
 @ApplicationScoped
 public class ComputeCombinationsUseCaseImpl implements ComputeCombinationUseCase {
@@ -16,8 +19,9 @@ public class ComputeCombinationsUseCaseImpl implements ComputeCombinationUseCase
     UpdateReducerPort updateReducer;
 
     @Override
-    public Reducer computeCombination(Long id) {
+    public Reducer computeCombination(Long id, List<Block> specifications) {
         var reducer = getReducer.getReducer(id);
+        reducer.setBlocks(specifications);
         reducer.createSlips(BetCategory.SINGLE);
         var out = updateReducer.updateReducer(id, reducer);
         return out;

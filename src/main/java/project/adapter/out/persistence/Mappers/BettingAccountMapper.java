@@ -2,6 +2,7 @@ package project.adapter.out.persistence.Mappers;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import project.adapter.out.persistence.EntityModels.*;
+import project.adapter.out.persistence.EntityModels.BettingAccount.*;
 import project.domain.model.*;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class BettingAccountMapper {
         entityModel.setBrokerType(domainModel.getBrokerType());
         entityModel.setAccountName(domainModel.getAccountName());
         if (domainModel.getDraftBetSlip() != null) {
-            entityModel.putNewBetSlip(toDraftSlipEntity(domainModel.getDraftBetSlip()));//the part send the error     "message": "Cannot invoke \"project.adapter.out.persistence.EntityModels.BetSlipEntity.setStatus(project.domain.model.Enums.BetStatus)\" because the return value of \"project.adapter.out.persistence.EntityModels.BettingAccountEntity.$$_hibernate_read_draftBetSlip()\" is null"
+            entityModel.putNewBetSlip(toDraftSlipEntity(domainModel.getDraftBetSlip()));//the part send the error     "message": "Cannot invoke \"project.adapter.out.persistence.EntityModels.BettingAccount.BetSlipEntity.setStatus(project.domain.model.Enums.BetStatus)\" because the return value of \"project.adapter.out.persistence.EntityModels.BettingAccount.BettingAccountEntity.$$_hibernate_read_draftBetSlip()\" is null"
         }
 
         if (domainModel.getTransactionHistory() != null) {

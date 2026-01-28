@@ -1,6 +1,9 @@
-package project.adapter.out.persistence.EntityModels;
+package project.adapter.out.persistence.EntityModels.BettingAccount;
 
 import jakarta.persistence.*;
+import project.adapter.out.persistence.EntityModels.MatchOutcomeEntity;
+import project.adapter.out.persistence.EntityModels.ReducerEntity;
+import project.domain.model.Enums.BrokerType;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,6 +16,8 @@ public class MatchEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated
+    private BrokerType broker;
     private String home;
     private String away;
 
@@ -74,5 +79,13 @@ public class MatchEntity {
 
     public void setReducers(Set<ReducerEntity> reducers) {
         this.reducers = reducers;
+    }
+
+    public void setBroker(BrokerType broker) {
+        this.broker = broker;
+    }
+
+    public BrokerType getBroker() {
+        return broker;
     }
 }

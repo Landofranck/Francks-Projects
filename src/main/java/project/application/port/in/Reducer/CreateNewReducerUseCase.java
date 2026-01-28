@@ -1,7 +1,7 @@
 package project.application.port.in.Reducer;
 
-import project.domain.model.Reducer;
+import project.domain.model.Reducer.Reducer;
 
 public interface CreateNewReducerUseCase {
-    void createNewReducer(Reducer reducer);
+    Long createNewReducer(Reducer reducer);
 }

@@ -4,14 +4,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import project.adapter.out.persistence.EntityModels.MatchEntity;
+import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 import project.adapter.out.persistence.EntityModels.ReducerEntity;
 import project.adapter.out.persistence.Mappers.ReducerMapper;
 import project.application.port.out.AddMatchToReducerPort;
 import project.application.port.out.GetReducerByIdPort;
 import project.application.port.out.PersistReducerPort;
 import project.application.port.out.UpdateReducerPort;
-import project.domain.model.Reducer;
+import project.domain.model.Reducer.Reducer;
 
 @ApplicationScoped
 public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdPort, UpdateReducerPort, AddMatchToReducerPort {
@@ -22,9 +22,11 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
 
     @Transactional
     @Override
-    public void persistReducerToDataBase(Reducer reducer) {
+    public Long persistReducerToDataBase(Reducer reducer) {
         var entity = mapper.toReducerEntity(reducer);
         entityManager.persist(entity);
+        entityManager.flush();
+        return entity.getId();
     }
 
     @Override

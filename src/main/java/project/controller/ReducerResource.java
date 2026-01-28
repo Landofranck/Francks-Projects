@@ -7,6 +7,7 @@ import jakarta.ws.rs.core.Response;
 import project.adapter.in.web.BettingServiceAdapter;
 import project.adapter.in.web.CreateReducerDto;
 import project.adapter.in.web.IdDto;
+import project.adapter.in.web.Reducer.ComputeDto;
 import project.adapter.in.web.Reducer.ReducerServiceAdapter;
 
 @Path("/reducer")
@@ -17,8 +18,8 @@ public class ReducerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createReducer(CreateReducerDto Dto){
-        adapter.createReducer(Dto);
-        return Response.noContent().build();
+        var id=adapter.createReducer(Dto);
+        return Response.status(Response.Status.CREATED).entity(id).build();
     }
 
     @GET
@@ -35,9 +36,10 @@ public class ReducerResource {
         return Response.ok().entity(out).build();
     }
     @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{ReducerId}/compute")
-    public Response addMatchToReducer(@PathParam("ReducerId") Long id){
-        var out=adapter.getComputeCombinations(id);
+    public Response addMatchToReducer(@PathParam("ReducerId") Long id, ComputeDto specifications){
+        var out=adapter.getComputeCombinations(id, specifications);
         return Response.ok().entity(out).build();
     }
 }

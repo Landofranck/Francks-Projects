@@ -5,7 +5,6 @@ import jakarta.inject.Inject;
 import project.adapter.in.web.CreateReducerDto;
 import project.adapter.in.web.DTOMapper;
 import project.adapter.in.web.IdDto;
-import project.adapter.in.web.ReadReducerDto;
 import project.application.port.in.Reducer.AddMatchToReducerUseCase;
 import project.application.port.in.Reducer.ComputeCombinationUseCase;
 import project.application.port.in.Reducer.CreateNewReducerUseCase;
@@ -24,9 +23,10 @@ public class ReducerServiceAdapter {
     ComputeCombinationUseCase computeCombinations;
     @Inject
     DTOMapper mapper;
-    public void createReducer(CreateReducerDto dto) {
+    public Long createReducer(CreateReducerDto dto) {
         var dom = mapper.toReducerDomain(dto);
-        createNewReducer.createNewReducer(dom);
+        return createNewReducer.createNewReducer(dom);
+
     }
 
     public ReadReducerDto loadReducer(Long id) {
@@ -38,8 +38,9 @@ public class ReducerServiceAdapter {
         return mapper.toReducerDto(addMatchToReducer.addMatchToReducer(reducerId, match.Id()));
     }
 
-    public ReadReducerDto getComputeCombinations(Long id) {
-        var comp= computeCombinations.computeCombination(id);
+    public ReadReducerDto getComputeCombinations(Long id, ComputeDto specifications) {
+        var rule=mapper.toListOfBlocks(specifications);
+        var comp= computeCombinations.computeCombination(id, rule);
         var out=mapper.toReducerDto(comp);
         return out;
     }

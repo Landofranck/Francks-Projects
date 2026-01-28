@@ -2,11 +2,13 @@ package project.adapter.out.persistence.Mappers;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import project.adapter.out.persistence.Embeddables.BlockEmb;
 import project.adapter.out.persistence.EntityModels.ReducerEntity;
 import project.domain.model.BetSlip;
 import project.domain.model.Match;
 import project.domain.model.Money;
-import project.domain.model.Reducer;
+import project.domain.model.Reducer.Block;
+import project.domain.model.Reducer.Reducer;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -18,6 +20,9 @@ public class ReducerMapper {
     public Reducer toReducerDomain(ReducerEntity entity) {
         var domain = new Reducer(new Money(entity.getTotalStake()), new Money(entity.getBonusAmount()));
         domain.setId(entity.getId());
+        if (entity.getBlockEmbs()!=null)
+            domain.setBlocks(entity.getBlockEmbs().stream().map(this::toBlockDomain).collect(Collectors.toCollection(ArrayList::new)));
+
         if(entity.getSlips()!=null)
             domain.setSlips(entity.getSlips().stream().map(betMapper::toBetslipDomain).collect(Collectors.toCollection(ArrayList::new)));
         if(entity.getSlips()!=null)
@@ -29,6 +34,8 @@ public class ReducerMapper {
         var entity = new ReducerEntity();
         entity.setBonusAmount(dom.getBonusAmount().getValue());
         entity.setTotalStake(dom.getTotalStake().getValue());
+        if (dom.getBlocks()!=null)
+            entity.setBlockEmbs(dom.getBlocks().stream().map(this::toEmbedBlock).collect(Collectors.toCollection(ArrayList::new)));
         if(dom.getSlips()!=null)
             for (BetSlip e: dom.getSlips()){
                 entity.addBetSlipEntity(betMapper.toBetslipEntity(e));
@@ -48,5 +55,16 @@ public class ReducerMapper {
             for (BetSlip e: dom.getSlips()) {
                 entity.addBetSlipEntity(betMapper.toBetslipEntity(e));
             }
+    }
+    public BlockEmb toEmbedBlock(Block block){
+        var out=new BlockEmb();
+        out.setStartMatchIdx(block.getStartMatchIdx());
+        out.setType(block.getType());
+        out.setEndMatchIdx(block.getEndMatchIdx());
+        return out;
+    }
+    public Block toBlockDomain(BlockEmb emb){
+        var out=new Block(emb.getType(),emb.getStartMatchIdx(),emb.getEndMatchIdx());
+        return out;
     }
 }

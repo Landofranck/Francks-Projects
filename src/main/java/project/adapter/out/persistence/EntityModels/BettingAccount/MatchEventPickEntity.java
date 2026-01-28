@@ -1,8 +1,6 @@
-package project.adapter.out.persistence.EntityModels;
+package project.adapter.out.persistence.EntityModels.BettingAccount;
 
 import jakarta.persistence.*;
-
-import java.util.Objects;
 
 @Entity
 public class MatchEventPickEntity {

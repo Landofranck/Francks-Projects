@@ -1,6 +1,9 @@
 package project.adapter.in.web;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import project.adapter.in.web.Reducer.BlockDto;
+import project.adapter.in.web.Reducer.ComputeDto;
+import project.adapter.in.web.Reducer.ReadReducerDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.BettingAccountDto;
 import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
@@ -8,6 +11,8 @@ import project.adapter.in.web.MobileMoneyDto.CreateMobileMoneyAccountDto;
 import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
 import project.adapter.in.web.TransactionDTO.TransactionDto;
 import project.domain.model.*;
+import project.domain.model.Reducer.Block;
+import project.domain.model.Reducer.Reducer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -151,15 +156,19 @@ public class DTOMapper {
     }
 
     public ReadReducerDto toReducerDto(Reducer domain) {
-        List<BetSlipDto> betslips = new ArrayList<>();
+        try{List<BetSlipDto> betslips = new ArrayList<>();
         List<MatchDto> matches = new ArrayList<>();
+        List<BlockDto> blocks=new ArrayList<>();
+        String specifications=domain.getBlocks().toString();
+        if (domain.getBlocks() != null)
+             blocks= domain.getBlocks().stream().map(this::toBlockDto).collect(Collectors.toCollection(ArrayList::new));
         if (domain.getBetMatches() != null)
             matches = domain.getBetMatches().stream().map(this::toMatchDto).collect(Collectors.toCollection(ArrayList::new));
         if (domain.getSlips() != null)
             betslips = domain.getSlips().stream().map(this::toBetSlipDto).collect(Collectors.toCollection(ArrayList::new));
 
-        var out = new ReadReducerDto(domain.getAccountId(), domain.getTotalStake().getValue(),domain.getSlips().size(), matches, betslips, domain.getBonusAmount().getValue());
-        return out;
+        var out = new ReadReducerDto(domain.getAccountId(), domain.getTotalStake().getValue(), domain.getSlips().size(),blocks, matches, betslips, domain.getBonusAmount().getValue());
+        return out;}catch (Exception e){throw new RuntimeException("this is the issue");}
     }
 
     public Reducer toReducerDomain(CreateReducerDto dto) {
@@ -174,5 +183,16 @@ public class DTOMapper {
         domain.setTotalOdds(slip.getTotalOdds());
         domain.setStatus(slip.getStatus());
         return domain;
+    }
+
+    public Block toBlockDomain(BlockDto dto) {
+        return new Block(dto.type(),dto.start(),dto.end());
+    }
+    public BlockDto toBlockDto(Block dom) {
+        return new BlockDto(dom.getType(),dom.getStartMatchIdx(),dom.getEndMatchIdx());
+    }
+
+    public List<Block> toListOfBlocks(ComputeDto specifications) {
+            return specifications.specifications().stream().map(this::toBlockDomain).collect(Collectors.toCollection(ArrayList::new));
     }
 }

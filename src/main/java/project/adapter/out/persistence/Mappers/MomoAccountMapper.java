@@ -1,8 +1,8 @@
 package project.adapter.out.persistence.Mappers;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import project.adapter.out.persistence.EntityModels.MobileMoneyAccountsEntity;
-import project.adapter.out.persistence.EntityModels.MomoAccountTransactionEntity;
+import project.adapter.out.persistence.EntityModels.MomoEntites.MobileMoneyAccountsEntity;
+import project.adapter.out.persistence.EntityModels.MomoEntites.MomoAccountTransactionEntity;
 import project.domain.model.MobileMoneyAccount;
 import project.domain.model.Money;
 import project.domain.model.Transaction;

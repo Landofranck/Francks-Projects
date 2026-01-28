@@ -1,5 +1,7 @@
 package project.domain.model;
 
+import project.domain.model.Enums.BrokerType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -8,6 +10,7 @@ public class Match implements Event {
     private Long matchId;
     private String home;
     private String away;
+    private BrokerType broker;
     private List<MatchEventPick> matchOutComes=new ArrayList<>();
 
     public Match(String home, String away) {
@@ -55,5 +58,13 @@ public class Match implements Event {
 
     public String getAway() {
         return away;
+    }
+
+    public void setBroker(BrokerType broker) {
+        this.broker = broker;
+    }
+
+    public BrokerType getBroker() {
+        return broker;
     }
 }

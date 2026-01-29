@@ -7,6 +7,7 @@ import jakarta.transaction.Transactional;
 import project.adapter.out.persistence.EntityModels.BettingAccount.BettingAccountEntity;
 import project.adapter.out.persistence.Mappers.BettingAccountMapper;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
+import project.application.port.out.DeleteMatchByIdPort;
 import project.application.port.out.Match.PersistMatchPort;
 import project.application.port.out.Match.ReadAllMatchesPort;
 import project.application.port.out.Match.ReadMatchByIdPort;
@@ -20,9 +21,9 @@ import java.util.Objects;
 
 @ApplicationScoped
 public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadBettingAccountByIdPort, ReadAllBettingAccountsPort,
-         UpdateBettingAccountBalancePort, AppendBettingAccountTransactionPort,
-         PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort, PersistEmptyBetSlipPort,
-        ReadEmptSlipByParenPort{
+        UpdateBettingAccountBalancePort, AppendBettingAccountTransactionPort,
+        PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort, PersistEmptyBetSlipPort,
+        ReadEmptSlipByParenPort, DeleteMatchByIdPort {
     @Inject
     EntityManager entityManager;
     @Inject
@@ -70,26 +71,23 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     }
 
 
-
     @Transactional
     @Override
     public List<BettingAccount> getAllBettingAcounts() {
 
-        try{
-        List<BettingAccountEntity> entities = entityManager
-                .createQuery("SELECT d FROM BettingAccountEntity d", BettingAccountEntity.class).getResultList();
+        try {
+            List<BettingAccountEntity> entities = entityManager
+                    .createQuery("SELECT d FROM BettingAccountEntity d", BettingAccountEntity.class).getResultList();
 
-        List<BettingAccount> accounts = mapper.toListOfAccountDomains(entities);
+            List<BettingAccount> accounts = mapper.toListOfAccountDomains(entities);
 
 
-        return accounts;
-        }catch (Exception e){
+            return accounts;
+        } catch (Exception e) {
             throw new RuntimeException("error while returning list of all betting accounts jpa 101");
         }
 
     }
-
-
 
 
     @Transactional
@@ -100,9 +98,6 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
 
         entity.setBalance(account.getBalance().getValue()); // only update balance
     }
-
-
-
 
 
     @Transactional
@@ -118,7 +113,6 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
         // Optional: if you maintain bidirectional list in entity:
         owner.getTransactionHistory().add(txEntity);
     }
-
 
 
     @Transactional
@@ -147,9 +141,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
         var entities = entityManager
                 .createQuery("SELECT DISTINCT m FROM MatchEntity m LEFT JOIN FETCH m.matchOutComes", MatchEntity.class)
                 .getResultList();
-        if (entities.isEmpty())
-            throw new IllegalArgumentException("no matches found in the database repositoryJpa 192");
-        List<Match> matches = mapper.toMatchDomains(entities);
+         List<Match> matches = mapper.toMatchDomains(entities);
         return matches;
     }
 
@@ -195,5 +187,20 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
             throw new IllegalArgumentException("Betting account " + parentAccount.getAccountName()
                     + " does not have this and empty slip : " + parentAccountId);
         return slip;
+    }
+
+    @Transactional
+    @Override
+    public void deleteMatchById(Long id) {
+        var val = entityManager.find(MatchEntity.class, id);
+        if (val == null)
+            throw new NotFoundException("Match with id: " + id + " does not exist reducer jpa 85");
+        try {
+            entityManager.remove(val);
+
+        } catch
+        (Exception e) {
+            throw new RuntimeException("error jpa 205" + e);
+        }
     }
 }

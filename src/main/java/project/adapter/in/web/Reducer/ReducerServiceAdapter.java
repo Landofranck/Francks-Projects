@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import project.adapter.in.web.CreateReducerDto;
 import project.adapter.in.web.DTOMapper;
 import project.adapter.in.web.IdDto;
+import project.application.port.in.DeleteMatchByIdUsecase;
 import project.application.port.in.Reducer.*;
 import project.domain.model.Money;
 
@@ -54,4 +55,5 @@ public class ReducerServiceAdapter {
         var out =mapper.toReducerDto(placeBetFromReducer.placeBetFromReducer(reducerId,dto.bettingId(),dto.slipIndex(),new Money(dto.stake())));
         return out;
     }
+
 }

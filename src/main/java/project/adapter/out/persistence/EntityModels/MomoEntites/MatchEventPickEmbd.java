@@ -1,6 +1,7 @@
 package project.adapter.out.persistence.EntityModels.MomoEntites;
 
 import jakarta.persistence.*;
+import project.domain.model.Enums.League;
 
 
 @Embeddable
@@ -9,6 +10,8 @@ public class MatchEventPickEmbd {
     private String matchKey;
     private String outcomeName;
     private double odd;
+    private League league;
+
     public MatchEventPickEmbd(Long identity,String matchKey,String outcomeName,double odd){
         this.matchKey=matchKey;
         this.outcomeName=outcomeName;
@@ -49,5 +52,13 @@ public class MatchEventPickEmbd {
 
     public Long getIdentity() {
         return identity;
+    }
+
+    public League getLeague() {
+        return this.league;
+    }
+
+    public void setLeague(League league) {
+        this.league = league;
     }
 }

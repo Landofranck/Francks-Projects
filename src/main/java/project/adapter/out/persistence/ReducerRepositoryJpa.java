@@ -40,13 +40,16 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
     @Override
     public Reducer updateReducer(Long reducerId, Reducer update) {
         var oldReducer = entityManager.find(ReducerEntity.class, reducerId);
+
         if (oldReducer == null)
             throw new NotFoundException("Reducer with id " + reducerId + "not found");
         mapper.applyChangesToReducer(oldReducer, update);
         entityManager.flush();
         entityManager.clear();
-        var out = entityManager.find(ReducerEntity.class, reducerId);
-        return mapper.toReducerDomain(out);
+        var val = entityManager.find(ReducerEntity.class, reducerId);
+
+
+        return mapper.toReducerDomain(val);
     }
 
     @Transactional
@@ -73,4 +76,5 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
 
         reducer.deleteMatch(match);
     }
+
 }

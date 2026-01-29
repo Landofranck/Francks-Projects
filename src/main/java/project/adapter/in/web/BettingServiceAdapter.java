@@ -60,6 +60,9 @@ public class BettingServiceAdapter {
     @Inject
     LoadMomoAccountByIdUsecase loadMomoAccount;
 
+    @Inject
+    DeleteMatchByIdUsecase deleteMatchFromSystem;
+
     public Long createNewBettingAccount(CreateBettingAccountDto dto) {
         var domain = new BettingAccount(dto.getAccountName(), dto.getBrokerType());
         return createBettingAccountUseCase.createNewBettingAccount(domain);
@@ -127,4 +130,7 @@ public class BettingServiceAdapter {
         return out;
     }
 
+    public void deleteMatchFromSystem(IdDto id) {
+        deleteMatchFromSystem.deleteMatchById(id.Id());
+    }
 }

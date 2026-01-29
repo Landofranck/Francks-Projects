@@ -5,9 +5,7 @@ import project.adapter.out.persistence.Embeddables.BlockEmb;
 import project.adapter.out.persistence.EntityModels.BettingAccount.BetSlipEntity;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEventPickEntity;
-import project.domain.model.BetSlip;
 import project.domain.model.Enums.BetCategory;
-import project.domain.model.MatchEventPick;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -43,13 +41,7 @@ public class ReducerEntity {
         match.removeParent(this);
     }
 
-    public void addEventToSlip(BetSlip slip, MatchEventPick pick) {
-        slip.addMatchEventPick(pick);
-        slip.makeTotalOdds();
-    }
-
-
-    public void addBetSlipEmbd(ReducerBetSlipEntity b) {
+    public void addBetSlipEntity(ReducerBetSlipEntity b) {
         Objects.requireNonNull(b, "betSlip");
         slips.add(b);
         b.setReducerParent(this);

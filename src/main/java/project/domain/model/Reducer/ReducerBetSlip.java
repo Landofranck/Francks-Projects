@@ -65,6 +65,9 @@ public class ReducerBetSlip implements Event {
     public void calculatePotentialWinning() {
         this.potentialWinning = new Money(planedStake.getValue().multiply(BigDecimal.valueOf(totalOdds)));
     }
+    public void upDatePotentialWinning(Money potentialWinning) {
+        this.potentialWinning = new Money(planedStake.getValue().multiply(BigDecimal.valueOf(totalOdds)));
+    }
 
     public List<MatchEventPick> getPicks() {
         return picks;

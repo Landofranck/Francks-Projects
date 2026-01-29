@@ -31,7 +31,7 @@ public class ReducerMapper {
             domain.setSlips(entity.getSlips().stream().map(this::toReducerBetSlipDomain).collect(Collectors.toCollection(ArrayList::new)));
         if (entity.getBetMatcheEntities() != null)
             domain.setBetMatches(entity.getBetMatcheEntities().stream().map(betMapper::toMatchDomain).collect(Collectors.toCollection(ArrayList::new)));
-        domain.setTheSlipStakes();
+
         return domain;
     }
 
@@ -43,7 +43,7 @@ public class ReducerMapper {
             entity.setBlockEmbs(dom.getBlocks().stream().map(this::toEmbedBlock).collect(Collectors.toCollection(ArrayList::new)));
         if (dom.getSlips() != null)
             for (ReducerBetSlip e : dom.getSlips()) {
-                entity.addBetSlipEmbd(toBetSlipEmbed(e));
+                entity.addBetSlipEntity(toBetSlipEmbed(e));
             }
         if (dom.getBetMatches() != null)
             for (Match m : dom.getBetMatches()) {
@@ -56,12 +56,14 @@ public class ReducerMapper {
 
         entity.setBonusAmount(dom.getBonusAmount().getValue());
         entity.setTotalStake(dom.getTotalStake().getValue());
+
         if (dom.getSlips() != null) {
             entity.getSlips().clear();
             for (ReducerBetSlip e : dom.getSlips()) {
-                entity.addBetSlipEmbd(toBetSlipEmbed(e));
+                entity.addBetSlipEntity(toBetSlipEmbed(e));
             }
         }
+
         if (dom.getBlocks() != null) {
             entity.getBlockEmbs().clear();
             entity.getBlockEmbs().addAll(dom.getBlocks().stream()
@@ -95,7 +97,7 @@ public class ReducerMapper {
             var out = new ReducerBetSlip(betSlip.getCategory());
             if (betSlip.getPicks() != null) {
                 for (MatchEventPickEmbd p : betSlip.getPicks()) {
-                    out.addMatchEventPick(new MatchEventPick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd()));
+                    out.addMatchEventPick(new MatchEventPick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague()));
                 }
             }
 

@@ -282,7 +282,7 @@ public class Reducer implements Account {
 
     private MatchEventPick copyPick(MatchEventPick original) {
         Objects.requireNonNull(original, "original pick");
-        MatchEventPick copy = new MatchEventPick(original.getIdentity(),original.getMatchKey(), original.getOutcomeName(), original.getOdd());
+        MatchEventPick copy = new MatchEventPick(original.getIdentity(),original.getMatchKey(), original.getOutcomeName(), original.getOdd(),original.getLeague());
         copy.setMatchKey(original.getMatchKey());
         return copy;
     }

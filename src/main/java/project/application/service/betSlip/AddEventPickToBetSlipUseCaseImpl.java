@@ -58,7 +58,8 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
                 outcome.getIdentity(),
                 outcome.getMatchKey(),
                 outcome.getOutcomeName(),
-                outcome.getOdd()
+                outcome.getOdd(),
+                outcome.getLeague()
         );
         slip.addMatchEventPick(pick);
         putBetSlip.persistEmptyslip(bettingAccountId, slip);

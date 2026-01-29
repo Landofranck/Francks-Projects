@@ -32,24 +32,22 @@ public class PlaceBetFromReducerUseCaseImpl implements PlaceBetFromReducerUseCas
 
         if (slipNumber > red.getSlips().size())
             throw new NotFoundException("Slip number is out of range placebetfrom..impl 34");
-        if ( red.getSlips().isEmpty()||red.getSlips()==null)
+        if (red.getSlips().isEmpty() || red.getSlips() == null)
             throw new NotFoundException("there are no slips in the reducer you are using placebetfrom..impl 34");
 
         List<Long> matchIds = new ArrayList<>();
-        if(red.getSlips().get(0).getPicks().get(0).getIdentity()==null){throw new RuntimeException("id i s af");}
         for (MatchEventPick r : red.getSlips().get(slipNumber).getPicks()) {
             matchIds.add(r.getIdentity());
         }
 
-        List<String> outCome=new ArrayList<>();
+        List<String> outCome = new ArrayList<>();
         for (MatchEventPick r : red.getSlips().get(slipNumber).getPicks()) {
             outCome.add(r.getOutcomeName());
         }
-
         red.getSlips().get(slipNumber).placeParBet(stake);
-        var betStake=(stake==null)? red.getSlips().get(slipNumber).getPlanedStake():stake;
-        makeBetUseCase.makeBet(bettingId,matchIds,outCome,betStake,"reducer bet: "+reducerId);
-        return updateReducer.updateReducer(reducerId,red);
-
+        var betStake = (stake == null) ? red.getSlips().get(slipNumber).getPlanedStake() : stake;
+        makeBetUseCase.makeBet(bettingId, matchIds, outCome, betStake, "reducer bet: " + reducerId);
+        var out = updateReducer.updateReducer(reducerId, red);
+        return out;
     }
 }

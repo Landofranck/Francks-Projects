@@ -1,8 +1,10 @@
 package project.adapter.in.web.Reducer;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-public record ReducerPlaceBetDto(@NotNull Long bettingId, @NotNull int slipIndex, BigDecimal stake) {
+public record ReducerPlaceBetDto(@NotNull Long bettingId, @Min(0) int slipIndex, @Positive BigDecimal stake) {
 }

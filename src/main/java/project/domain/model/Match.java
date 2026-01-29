@@ -1,6 +1,7 @@
 package project.domain.model;
 
 import project.domain.model.Enums.BrokerType;
+import project.domain.model.Enums.League;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Objects;
 
 public class Match implements Event {
     private Long matchId;
+    private League matchLeague;
     private String home;
     private String away;
     private BrokerType broker;
@@ -26,7 +28,7 @@ public class Match implements Event {
         pick.setMatchKey(home+" vs "+ away);
         pick.setOwner(this);
         pick.setIdentity(matchId);
-
+        pick.setLeague(this.matchLeague);
     }
 
     public long getMatchId() {
@@ -67,5 +69,13 @@ public class Match implements Event {
 
     public BrokerType getBroker() {
         return broker;
+    }
+
+    public void setMatchLeague(League matchLeague) {
+        this.matchLeague = matchLeague;
+    }
+
+    public League getMatchLeague() {
+        return matchLeague;
     }
 }

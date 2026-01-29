@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import project.adapter.out.persistence.EntityModels.MatchOutcomeEntity;
 import project.adapter.out.persistence.EntityModels.ReducerEntity;
 import project.domain.model.Enums.BrokerType;
+import project.domain.model.Enums.League;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,6 +28,8 @@ public class MatchEntity {
     //this line indicates that a match can also belong to a reducer
     @ManyToMany(mappedBy = "betMatchEntities")
     private Set<ReducerEntity> reducers = new HashSet<>();
+    @Enumerated
+    private League league;
 
     public MatchEntity() {
     }
@@ -91,5 +94,13 @@ public class MatchEntity {
 
     public BrokerType getBroker() {
         return broker;
+    }
+
+    public League getMatchLeague() {
+        return this.league;
+    }
+
+    public void setLeague(League league) {
+        this.league = league;
     }
 }

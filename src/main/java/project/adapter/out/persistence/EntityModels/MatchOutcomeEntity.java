@@ -2,6 +2,7 @@ package project.adapter.out.persistence.EntityModels;
 
 import jakarta.persistence.*;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
+import project.domain.model.Enums.League;
 
 @Entity
 public class MatchOutcomeEntity {
@@ -15,6 +16,8 @@ public class MatchOutcomeEntity {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "parentMatch_id", nullable = false)
     private MatchEntity parentMatch;
+    @Enumerated
+    private League league;
 
     public MatchOutcomeEntity() {
 
@@ -62,5 +65,13 @@ public class MatchOutcomeEntity {
 
     public Long getIdentity() {
         return identity;
+    }
+
+    public League getLeague() {
+        return this.league;
+    }
+
+    public void setLeague(League league) {
+        this.league = league;
     }
 }

@@ -1,6 +1,8 @@
 package project.adapter.out.persistence.EntityModels.BettingAccount;
 
 import jakarta.persistence.*;
+import project.domain.model.Enums.League;
+
 @Entity
 public class MatchEventPickEntity {
     @Id
@@ -13,6 +15,8 @@ public class MatchEventPickEntity {
     @ManyToOne(optional = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "parentBetSlipEntity_id",nullable = true)
     private BetSlipEntity parentBetSlipEntity;
+    @Enumerated
+    private League league;
 
     public MatchEventPickEntity(){}
 
@@ -27,9 +31,6 @@ public class MatchEventPickEntity {
         this.parentBetSlipEntity = parent;
     }
 
-    public String matchKey() {
-        return matchKey;
-    }
 
     public Long getId() {
         return id;
@@ -77,5 +78,13 @@ public class MatchEventPickEntity {
 
     public Long getIdentity() {
         return identity;
+    }
+
+    public League getLeague() {
+        return this.league;
+    }
+
+    public void setLeague(League league) {
+        this.league = league;
     }
 }

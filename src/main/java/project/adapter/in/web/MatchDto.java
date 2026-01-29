@@ -3,6 +3,7 @@ package project.adapter.in.web;
 
 import jakarta.validation.constraints.NotNull;
 import project.domain.model.Enums.BrokerType;
+import project.domain.model.Enums.League;
 
 import java.util.List;
 
@@ -15,6 +16,8 @@ public class MatchDto {
     @NotNull
     private List<MatchEventPickDto> matchOutComes;
     private BrokerType broker;
+    @NotNull
+    private League matchLeague;
 
 
     public String getHome() {
@@ -51,6 +54,14 @@ public class MatchDto {
 
     public void setBroker(BrokerType broker) {
         this.broker = broker;
+    }
+
+    public void setMatchLeague(League matchLeague) {
+        this.matchLeague =matchLeague;
+    }
+
+    public League getMatchLeague() {
+        return matchLeague;
     }
 }
 

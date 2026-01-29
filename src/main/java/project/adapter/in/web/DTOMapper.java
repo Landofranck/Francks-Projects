@@ -132,11 +132,12 @@ public class DTOMapper {
         }
 
         domain.setMatchId(dto.getId());
+        domain.setMatchLeague(dto.getMatchLeague());
         return domain;
     }
 
     private MatchEventPick toMatchEventpick(MatchEventPickDto eventDto) {
-        var pick = new MatchEventPick(eventDto.getMatchId(),eventDto.getMatchKey(), eventDto.getOutcomeName(), eventDto.getOdd());
+        var pick = new MatchEventPick(eventDto.getMatchId(),eventDto.getMatchKey(), eventDto.getOutcomeName(), eventDto.getOdd(),eventDto.getLeague());
         return pick;
     }
 
@@ -149,6 +150,7 @@ public class DTOMapper {
         dto.setId(match.getMatchId());
         dto.setAway(match.getAway());
         dto.setHome(match.getHome());
+        dto.setMatchLeague(match.getMatchLeague());
         dto.setMatchOutComes(match.getMatchOutComes().stream().map(this::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new)));
 
         return dto;
@@ -160,6 +162,7 @@ public class DTOMapper {
         dto.setOdd(mP.getOdd());
         dto.setMatchId(mP.getIdentity());
         dto.setOutcomeName(mP.getOutcomeName());
+        dto.setLeague(mP.getLeague());
         return dto;
     }
 

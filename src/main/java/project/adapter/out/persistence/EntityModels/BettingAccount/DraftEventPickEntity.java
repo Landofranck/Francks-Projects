@@ -1,6 +1,7 @@
 package project.adapter.out.persistence.EntityModels.BettingAccount;
 
 import jakarta.persistence.*;
+import project.domain.model.Enums.League;
 
 
 @Entity
@@ -16,6 +17,8 @@ public class DraftEventPickEntity {
     @ManyToOne(optional = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "parentBetSlipEntity_id", nullable = true)
     private DraftSlipEntity parentBetSlipEntity;
+    @Enumerated
+    private League league;
 
     public DraftEventPickEntity() {
     }
@@ -75,6 +78,14 @@ public class DraftEventPickEntity {
 
     public Long getIdentity() {
         return identity;
+    }
+
+    public League getLeague() {
+        return this.league;
+    }
+
+    public void setLeague(League league) {
+        this.league = league;
     }
 }
 

@@ -1,11 +1,14 @@
 package project.adapter.in.web;
 
 
+import project.domain.model.Enums.League;
+
 public class MatchEventPickDto {
     private Long matchId;
     private String matchKey;
     private String outcomeName;
     private double odd;
+    private League league;
 
     public MatchEventPickDto() {}
 
@@ -24,5 +27,13 @@ public class MatchEventPickDto {
 
     public Long getMatchId() {
         return matchId;
+    }
+
+    public void setLeague(League league) {
+        this.league=league;
+    }
+
+    public League getLeague() {
+        return league;
     }
 }

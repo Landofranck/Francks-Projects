@@ -77,10 +77,11 @@ public class ReducerMapper {
             out.setBrokerType(betSlip.getBrokerType());
             out.setPlanedStake(betSlip.getPlanedStake().getValue());
             out.setTotalOdds(betSlip.getTotalOdds());
+            out.setRemainingStake(betSlip.getRemainingStake().getValue());
             out.setNumberOfEvents(betSlip.getNumberOfEvents());
             if (betSlip.getPicks() != null) {
                 for (MatchEventPick p : betSlip.getPicks()) {
-                    out.addMatchEventPickEntity(new MatchEventPickEmbd(p.getIdentity(),p.getMatchKey(), p.getOutcomeName(), p.getOdd()));
+                    out.addMatchEventPickEntity(new MatchEventPickEmbd(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd()));
                 }
             }
             return out;
@@ -94,7 +95,7 @@ public class ReducerMapper {
             var out = new ReducerBetSlip(betSlip.getCategory());
             if (betSlip.getPicks() != null) {
                 for (MatchEventPickEmbd p : betSlip.getPicks()) {
-                    out.addMatchEventPick(new MatchEventPick(p.getIdentity(),p.getMatchKey(),p.getOutcomeName(),p.getOdd()));
+                    out.addMatchEventPick(new MatchEventPick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd()));
                 }
             }
 
@@ -104,7 +105,7 @@ public class ReducerMapper {
             out.setPlanedStake(new Money(betSlip.getPlanedStake()));
             out.setTotalOdds(betSlip.getTotalOdds());
             out.setNumberOfEvents(betSlip.getNumberOfEvents());
-
+            out.setRemainingStake(new Money(betSlip.getRemainingStake()));
             return out;
         } catch (Exception e) {
             throw new RuntimeException("could not convert to betslip entity mapper line 164" + e.getMessage());

@@ -4,16 +4,17 @@ package project.domain.model.Reducer;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BrokerType;
 import project.domain.model.Event;
-import project.domain.model.MatchEventPick;
+import project.domain.model.MatchOutComePick;
 import project.domain.model.Money;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ReducerBetSlip implements Event {
 
-    private List<MatchEventPick> picks;
+    private List<MatchOutComePick> picks;
     private BetCategory category;
     private BrokerType brokerType;
     private Money planedStake;
@@ -34,13 +35,13 @@ public class ReducerBetSlip implements Event {
 
     public void makeTotalOdds() {
         double output = 1;
-        for (MatchEventPick m : picks) {
+        for (MatchOutComePick m : picks) {
             output *= m.getOdd();
         }
         this.totalOdds = output;
     }
 
-    public void addMatchEventPick(MatchEventPick pick) {
+    public void addMatchEventPick(MatchOutComePick pick) {
         this.picks.add(pick);
         pick.setOwner(this);
         makeTotalOdds();
@@ -61,6 +62,15 @@ public class ReducerBetSlip implements Event {
        setRemainingStake( this.remainingStake.subtract(stake));
 
     }
+    public void updateRemainingStake(BigDecimal oldRemainingStake,double oldOdd){
+        if (this.totalOdds <= 0.0) throw new IllegalStateException("totalOdds must be > 0");
+
+        BigDecimal numerator = BigDecimal.valueOf(oldOdd);
+        BigDecimal denominator = BigDecimal.valueOf(this.totalOdds);
+
+        BigDecimal ratio = numerator.divide(denominator, 10, RoundingMode.HALF_EVEN); // pick scale you want
+        this.remainingStake = new Money(oldRemainingStake.multiply(ratio));
+    }
 
     public void calculatePotentialWinning() {
         this.potentialWinning = new Money(planedStake.getValue().multiply(BigDecimal.valueOf(totalOdds)));
@@ -69,11 +79,11 @@ public class ReducerBetSlip implements Event {
         this.potentialWinning = new Money(planedStake.getValue().multiply(BigDecimal.valueOf(totalOdds)));
     }
 
-    public List<MatchEventPick> getPicks() {
+    public List<MatchOutComePick> getPicks() {
         return picks;
     }
 
-    public void setPicks(List<MatchEventPick> picks) {
+    public void setPicks(List<MatchOutComePick> picks) {
         this.picks = picks;
     }
 

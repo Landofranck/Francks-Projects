@@ -8,10 +8,11 @@ import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 import project.adapter.out.persistence.EntityModels.ReducerEntity;
 import project.adapter.out.persistence.Mappers.ReducerMapper;
 import project.application.port.out.*;
+import project.domain.model.Match;
 import project.domain.model.Reducer.Reducer;
 
 @ApplicationScoped
-public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdPort, UpdateReducerPort, AddMatchToReducerPort, DeleteMatchFromReducerPort {
+public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdPort, UpdateReducerPort, AddMatchToReducerPort, DeleteMatchFromReducerPort, RefreshReducerByIdPort {
     @Inject
     EntityManager entityManager;
     @Inject
@@ -33,6 +34,8 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
         if (entity == null)
             throw new NotFoundException("Reducer with Id " + id + " was not found");
         var out = mapper.toReducerDomain(entity);
+        entityManager.flush();
+        entityManager.clear();
         return out;
     }
 
@@ -76,5 +79,19 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
 
         reducer.deleteMatch(match);
     }
+
+    @Transactional
+    @Override
+    public Reducer refreshReducer(Long id, Reducer refreshed) {
+       var entity = entityManager.find(ReducerEntity.class, id);
+        if (entity == null)
+            throw new NotFoundException("reducer with id " + id + " not in database");
+        mapper.refreshChangesReducer(entity, refreshed);
+        entityManager.flush();
+        entityManager.clear();
+        var out =entityManager.find(ReducerEntity.class, id);
+        return mapper.toReducerDomain(out);
+    }
+
 
 }

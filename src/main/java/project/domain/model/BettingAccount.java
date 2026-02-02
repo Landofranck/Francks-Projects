@@ -16,6 +16,7 @@ public class BettingAccount implements Account {
     private List<Transaction> transactionHistory;
     private List<BetSlip> betHistory;
     private DraftBetSlip draftBetSlip;
+    private List<Bonus> Bonuses;
 
     public BettingAccount(String accountName, BrokerType brokerType) {
         this.accountName = accountName;

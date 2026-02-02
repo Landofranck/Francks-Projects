@@ -58,5 +58,10 @@ public class ReducerResource {
         var out=adapter.placeReducerBet(id,Dto);
         return Response.status(Response.Status.CREATED).entity(out).build();
     }
-
+    @PUT
+    @Path("/{ReducerId}/refresh")
+    public Response refresh(@PathParam("ReducerId") Long id){
+        var out=adapter.refreshReducer(id);
+        return Response.ok().entity(out).build();
+    }
 }

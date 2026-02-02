@@ -1,13 +1,19 @@
 package project.adapter.in.web;
 
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import project.domain.model.Enums.League;
 
 public class MatchEventPickDto {
     private Long matchId;
+    @NotNull
     private String matchKey;
+    @NotNull
     private String outcomeName;
+    @Positive
     private double odd;
+    @NotNull
     private League league;
 
     public MatchEventPickDto() {}

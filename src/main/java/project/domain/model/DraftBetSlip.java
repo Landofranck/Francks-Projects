@@ -10,7 +10,7 @@ import java.util.List;
 
 public class DraftBetSlip implements Event {
     private Long id;
-    private List<MatchEventPick> picks;
+    private List<MatchOutComePick> picks;
     private BetStatus status;
     private BetCategory category;
     private Instant createdAt;
@@ -33,7 +33,7 @@ public class DraftBetSlip implements Event {
 
     public void makeTotalOdds() {
         double output = 1;
-        for (MatchEventPick m : picks) {
+        for (MatchOutComePick m : picks) {
             output *= m.getOdd();
         }
         this.totalOdds = output;
@@ -43,7 +43,7 @@ public class DraftBetSlip implements Event {
         this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf(totalOdds)));
     }
 
-    public void addMatchEventPick(MatchEventPick pick) {
+    public void addMatchEventPick(MatchOutComePick pick) {
         this.picks.add(pick);
         pick.setOwner(this);
         makeTotalOdds();
@@ -97,7 +97,7 @@ public class DraftBetSlip implements Event {
         this.status = status;
     }
 
-    public List<MatchEventPick> getPicks() {
+    public List<MatchOutComePick> getPicks() {
         return picks;
     }
 
@@ -109,7 +109,7 @@ public class DraftBetSlip implements Event {
         this.category = category;
     }
 
-    public void setPicks(List<MatchEventPick> picks) {
+    public void setPicks(List<MatchOutComePick> picks) {
         this.picks = picks;
     }
 

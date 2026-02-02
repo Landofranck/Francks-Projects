@@ -13,7 +13,8 @@ public class Match implements Event {
     private String home;
     private String away;
     private BrokerType broker;
-    private List<MatchEventPick> matchOutComes=new ArrayList<>();
+    private List<MatchOutComePick> matchOutComes=new ArrayList<>();
+    private Long version;
 
     public Match(String home, String away) {
         this.home = home;
@@ -22,7 +23,7 @@ public class Match implements Event {
 
 
 
-    public void addPick(MatchEventPick pick) {
+    public void addPick(MatchOutComePick pick) {
         Objects.requireNonNull(pick, "error while adding pick to match");
         this.matchOutComes.add(pick);
         pick.setMatchKey(home+" vs "+ away);
@@ -35,11 +36,11 @@ public class Match implements Event {
         return matchId;
     }
 
-    public List<MatchEventPick> getMatchOutComes() {
+    public List<MatchOutComePick> getMatchOutComes() {
         return matchOutComes;
     }
 
-    public void setMatchOutComes(List<MatchEventPick> matchOutComes) {
+    public void setMatchOutComes(List<MatchOutComePick> matchOutComes) {
         this.matchOutComes = matchOutComes;
     }
 
@@ -77,5 +78,13 @@ public class Match implements Event {
 
     public League getMatchLeague() {
         return matchLeague;
+    }
+
+    public void setVersion(Long version) {
+        this.version=version;
+    }
+
+    public Long getVersion() {
+        return version;
     }
 }

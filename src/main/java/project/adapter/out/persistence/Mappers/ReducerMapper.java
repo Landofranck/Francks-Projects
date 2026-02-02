@@ -6,8 +6,9 @@ import project.adapter.out.persistence.Embeddables.BlockEmb;
 import project.adapter.out.persistence.EntityModels.MomoEntites.MatchEventPickEmbd;
 import project.adapter.out.persistence.EntityModels.ReducerBetSlipEntity;
 import project.adapter.out.persistence.EntityModels.ReducerEntity;
+import project.domain.model.BetSlip;
 import project.domain.model.Match;
-import project.domain.model.MatchEventPick;
+import project.domain.model.MatchOutComePick;
 import project.domain.model.Money;
 import project.domain.model.Reducer.Block;
 import project.domain.model.Reducer.Reducer;
@@ -15,6 +16,7 @@ import project.domain.model.Reducer.ReducerBetSlip;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @ApplicationScoped
 public class ReducerMapper {
@@ -24,6 +26,7 @@ public class ReducerMapper {
     public Reducer toReducerDomain(ReducerEntity entity) {
         var domain = new Reducer(new Money(entity.getTotalStake()), new Money(entity.getBonusAmount()));
         domain.setId(entity.getId());
+        domain.setMatchVersion(entity.getMatchVersion());
         if (entity.getBlockEmbs() != null)
             domain.setBlocks(entity.getBlockEmbs().stream().map(this::toBlockDomain).collect(Collectors.toCollection(ArrayList::new)));
 
@@ -39,6 +42,7 @@ public class ReducerMapper {
         var entity = new ReducerEntity();
         entity.setBonusAmount(dom.getBonusAmount().getValue());
         entity.setTotalStake(dom.getTotalStake().getValue());
+        entity.setMatchVersion(entity.getMatchVersion());
         if (dom.getBlocks() != null)
             entity.setBlockEmbs(dom.getBlocks().stream().map(this::toEmbedBlock).collect(Collectors.toCollection(ArrayList::new)));
         if (dom.getSlips() != null)
@@ -71,6 +75,34 @@ public class ReducerMapper {
         }
     }
 
+    //this method changes the value of the old betslip, while making sure if the new slip has the proper amount for remaining stake bases on how the slips odds change
+    public void refreshSlip(ReducerBetSlipEntity target, ReducerBetSlip source) {
+        source.updateRemainingStake(target.getRemainingStake(),target.getTotalOdds());
+        target.setRemainingStake(source.getRemainingStake().getValue());
+        target.setTotalOdds(source.getTotalOdds());
+        target.setBrokerType(source.getBrokerType());
+        target.setCategory(source.getCategory());
+        if (source.getPicks() != null) {
+            target.getPicks().clear();
+            for (MatchOutComePick p : source.getPicks()) {
+                target.addMatchEventPickEntity(new MatchEventPickEmbd(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague()));
+            }
+        }
+    }
+
+    public void refreshChangesReducer(ReducerEntity entity, Reducer refreshed) {
+
+        entity.setBonusAmount(refreshed.getBonusAmount().getValue());
+        entity.setTotalStake(refreshed.getTotalStake().getValue());
+        entity.setMatchVersion(refreshed.getMatchVersion());
+         if (refreshed.getSlips() != null) {
+            for (int i = 0; i < refreshed.getSlips().size(); i++) {
+                refreshSlip(entity.getSlips().get(i), refreshed.getSlips().get(i));
+            }
+        }
+
+    }
+
     public ReducerBetSlipEntity toBetSlipEmbed(ReducerBetSlip betSlip) {
         try {
             var out = new ReducerBetSlipEntity();
@@ -82,8 +114,8 @@ public class ReducerMapper {
             out.setRemainingStake(betSlip.getRemainingStake().getValue());
             out.setNumberOfEvents(betSlip.getNumberOfEvents());
             if (betSlip.getPicks() != null) {
-                for (MatchEventPick p : betSlip.getPicks()) {
-                    out.addMatchEventPickEntity(new MatchEventPickEmbd(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd()));
+                for (MatchOutComePick p : betSlip.getPicks()) {
+                    out.addMatchEventPickEntity(new MatchEventPickEmbd(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague()));
                 }
             }
             return out;
@@ -97,7 +129,7 @@ public class ReducerMapper {
             var out = new ReducerBetSlip(betSlip.getCategory());
             if (betSlip.getPicks() != null) {
                 for (MatchEventPickEmbd p : betSlip.getPicks()) {
-                    out.addMatchEventPick(new MatchEventPick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague()));
+                    out.addMatchEventPick(new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague()));
                 }
             }
 
@@ -123,7 +155,6 @@ public class ReducerMapper {
     }
 
     public Block toBlockDomain(BlockEmb emb) {
-        var out = new Block(emb.getType(), emb.getStartMatchIdx(), emb.getEndMatchIdx());
-        return out;
+        return new Block(emb.getType(), emb.getStartMatchIdx(), emb.getEndMatchIdx());
     }
 }

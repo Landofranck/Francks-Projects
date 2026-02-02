@@ -6,6 +6,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import project.adapter.in.web.IdDto;
+import project.adapter.in.web.MatchDto;
 import project.adapter.in.web.bettinAccountDTO.AddPickRequestBetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.BettingAccountDto;
 import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
@@ -81,11 +82,5 @@ public class BettingAccountResource {
         return Response.status(201).entity(java.util.Map.of("betSlipId", slipId)).build();
     }
 
-    @DELETE
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/delete_match")
-    public Response deleteMatchFromSystem( IdDto matchId){
-        serviceAdapter.deleteMatchFromSystem(matchId);
-        return Response.noContent().build();
-    }
+
 }

@@ -7,12 +7,10 @@ import project.application.port.in.Reducer.PlaceBetFromReducerUseCase;
 import project.application.port.out.GetReducerByIdPort;
 import project.application.port.out.UpdateReducerPort;
 import project.application.service.betSlip.MakeBetUseCaseImpl;
-import project.domain.model.MatchEventPick;
+import project.domain.model.MatchOutComePick;
 import project.domain.model.Money;
 import project.domain.model.Reducer.Reducer;
-import project.domain.model.Reducer.ReducerBetSlip;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,12 +34,12 @@ public class PlaceBetFromReducerUseCaseImpl implements PlaceBetFromReducerUseCas
             throw new NotFoundException("there are no slips in the reducer you are using placebetfrom..impl 34");
 
         List<Long> matchIds = new ArrayList<>();
-        for (MatchEventPick r : red.getSlips().get(slipNumber).getPicks()) {
+        for (MatchOutComePick r : red.getSlips().get(slipNumber).getPicks()) {
             matchIds.add(r.getIdentity());
         }
 
         List<String> outCome = new ArrayList<>();
-        for (MatchEventPick r : red.getSlips().get(slipNumber).getPicks()) {
+        for (MatchOutComePick r : red.getSlips().get(slipNumber).getPicks()) {
             outCome.add(r.getOutcomeName());
         }
         red.getSlips().get(slipNumber).placeParBet(stake);

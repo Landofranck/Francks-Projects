@@ -26,6 +26,7 @@ public class ReducerEntity {
     private BigDecimal bonusAmount;
     @ElementCollection
     private List<BlockEmb> blockEmbs=new ArrayList<>();
+    private Long matchVersion=0L;
 
     public ReducerEntity() {
     }
@@ -126,5 +127,13 @@ public class ReducerEntity {
 
     public void setBlockEmbs(List<BlockEmb> blockEmbs) {
         this.blockEmbs = blockEmbs;
+    }
+
+    public void setMatchVersion(Long matchVersion) {
+        this.matchVersion = matchVersion;
+    }
+
+    public Long getMatchVersion() {
+        return matchVersion;
     }
 }

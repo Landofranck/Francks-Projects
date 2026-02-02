@@ -62,7 +62,11 @@ public class BettingServiceAdapter {
 
     @Inject
     DeleteMatchByIdUsecase deleteMatchFromSystem;
+    @Inject
+    GetMatchByIdUseCase getMatchByIdUseCase;
 
+    @Inject
+    UpdateMatchUseCase updateMatchUse;
     public Long createNewBettingAccount(CreateBettingAccountDto dto) {
         var domain = new BettingAccount(dto.getAccountName(), dto.getBrokerType());
         return createBettingAccountUseCase.createNewBettingAccount(domain);
@@ -91,10 +95,10 @@ public class BettingServiceAdapter {
     }
 
     public Long createMatch(MatchDto dto) {
-        if (dto.getMatchOutComes().isEmpty() || dto.getMatchOutComes() == null)
+        if (dto.getMatchOutComes() == null||dto.getMatchOutComes().isEmpty())
             throw new IllegalArgumentException("you need outcomes BSA line 77");
         var domain = mapper.toMatchDomain(dto);
-        if (domain.getMatchOutComes().isEmpty() || domain.getMatchOutComes() == null)
+        if (domain.getMatchOutComes() == null||domain.getMatchOutComes().isEmpty())
             throw new IllegalArgumentException("you need outcomes BSA line 77");
 
         return createMatchUse.createMatch(domain);
@@ -132,5 +136,12 @@ public class BettingServiceAdapter {
 
     public void deleteMatchFromSystem(IdDto id) {
         deleteMatchFromSystem.deleteMatchById(id.Id());
+    }
+    public void updateMatch(Long id, MatchDto dto){
+        var in=mapper.toMatchDomain(dto);
+        updateMatchUse.updateMatch(id,in);
+    }
+    public MatchDto getMatchByid(Long id){
+        return mapper.toMatchDto(getMatchByIdUseCase.getMatchById(id));
     }
 }

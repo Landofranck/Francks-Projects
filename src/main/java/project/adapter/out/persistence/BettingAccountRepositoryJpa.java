@@ -8,9 +8,11 @@ import project.adapter.out.persistence.EntityModels.BettingAccount.BettingAccoun
 import project.adapter.out.persistence.Mappers.BettingAccountMapper;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 import project.application.port.out.DeleteMatchByIdPort;
+import project.application.port.out.Match.GetMatchByIdPort;
 import project.application.port.out.Match.PersistMatchPort;
 import project.application.port.out.Match.ReadAllMatchesPort;
 import project.application.port.out.Match.ReadMatchByIdPort;
+import project.application.port.out.UpdateMatchPort;
 import project.application.port.out.bettingAccount.*;
 import project.domain.model.*;
 import project.domain.model.Enums.BetCategory;
@@ -23,7 +25,7 @@ import java.util.Objects;
 public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadBettingAccountByIdPort, ReadAllBettingAccountsPort,
         UpdateBettingAccountBalancePort, AppendBettingAccountTransactionPort,
         PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort, PersistEmptyBetSlipPort,
-        ReadEmptSlipByParenPort, DeleteMatchByIdPort {
+        ReadEmptSlipByParenPort, DeleteMatchByIdPort, UpdateMatchPort, GetMatchByIdPort {
     @Inject
     EntityManager entityManager;
     @Inject
@@ -192,15 +194,34 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     @Transactional
     @Override
     public void deleteMatchById(Long id) {
-        var val = entityManager.find(MatchEntity.class, id);
-        if (val == null)
-            throw new NotFoundException("Match with id: " + id + " does not exist reducer jpa 85");
-        try {
-            entityManager.remove(val);
-
-        } catch
-        (Exception e) {
-            throw new RuntimeException("error jpa 205" + e);
+        MatchEntity match = entityManager.find(MatchEntity.class, id);
+        if (match == null) {
+            throw new NotFoundException("Match with id: " + id + " does not exist");
         }
+
+        // IMPORTANT: remove from the OWNING side (ReducerEntity.betMatchEntities)
+        for (var reducer : List.copyOf(match.getReducers())) {
+            reducer.deleteMatch(match); // this removes from reducer.betMatchEntities and from match.reducers
+        }
+
+        entityManager.flush(); // ensure join table rows are deleted first
+        entityManager.remove(match);
+    }
+    @Transactional
+    @Override
+    public void updateMatch(Long id, Match in) {
+        var out = entityManager.find(MatchEntity.class, id);
+        if(out==null)
+            throw new NotFoundException("Match with id "+id+" does'nt exist");
+        mapper.applytoMatchEntity(out,in);
+        entityManager.flush();
+        entityManager.clear();
+        mapper.toMatchDomain(out);
+    }
+
+    @Override
+    public Match getMatchById(Long id) {
+        var out=entityManager.find(MatchEntity.class,id);
+        return mapper.toMatchDomain(out);
     }
 }

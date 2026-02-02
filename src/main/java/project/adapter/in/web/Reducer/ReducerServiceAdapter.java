@@ -25,7 +25,10 @@ public class ReducerServiceAdapter {
     @Inject
     PlaceBetFromReducerUseCase placeBetFromReducer;
     @Inject
+    RefreshReducerUseCase refreshReducerUseCase;
+    @Inject
     DTOMapper mapper;
+
     public Long createReducer(CreateReducerDto dto) {
         var dom = mapper.toReducerDomain(dto);
         return createNewReducer.createNewReducer(dom);
@@ -42,18 +45,23 @@ public class ReducerServiceAdapter {
     }
 
     public ReadReducerDto getComputeCombinations(Long id, ComputeDto specifications) {
-        var rule=mapper.toListOfBlocks(specifications);
-        var comp= computeCombinations.computeCombination(id, rule);
-        var out=mapper.toReducerDto(comp);
+        var rule = mapper.toListOfBlocks(specifications);
+        var comp = computeCombinations.computeCombination(id, rule);
+        var out = mapper.toReducerDto(comp);
         return out;
     }
 
     public void deletMatchFromReducer(Long id, IdDto matchId) {
-        deleteMatchFromReducer.deletMatchFromReducer(id,matchId.Id());
+        deleteMatchFromReducer.deletMatchFromReducer(id, matchId.Id());
     }
-    public ReadReducerDto placeReducerBet(Long reducerId, ReducerPlaceBetDto dto){
-        var out =mapper.toReducerDto(placeBetFromReducer.placeBetFromReducer(reducerId,dto.bettingId(),dto.slipIndex(),new Money(dto.stake())));
-        return out;
+
+    public ReadReducerDto placeReducerBet(Long reducerId, ReducerPlaceBetDto dto) {
+        return mapper.toReducerDto(placeBetFromReducer.placeBetFromReducer(reducerId, dto.bettingId(), dto.slipIndex(), new Money(dto.stake())));
+    }
+
+    public ReadReducerDto refreshReducer(Long id) {
+        return mapper.toReducerDto(refreshReducerUseCase.refreshReducerById(id));
+
     }
 
 }

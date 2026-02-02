@@ -3,14 +3,10 @@ package project.application.service.betSlip;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;
 import project.application.port.in.betSlip.RemoveAllPicksFromDraftSlipUseCase;
-import project.application.port.out.Match.ReadMatchByIdPort;
 import project.application.port.out.bettingAccount.PersistEmptyBetSlipPort;
 import project.application.port.out.bettingAccount.ReadEmptSlipByParenPort;
 import project.domain.model.DraftBetSlip;
-import project.domain.model.Match;
-import project.domain.model.MatchEventPick;
 
 @ApplicationScoped
 public class RemoveAllPicksImpl implements RemoveAllPicksFromDraftSlipUseCase {

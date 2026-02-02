@@ -22,7 +22,7 @@ public class ComputeCombinationsUseCaseImpl implements ComputeCombinationUseCase
     public Reducer computeCombination(Long id, List<Block> specifications) {
         var reducer = getReducer.getReducer(id);
         reducer.setBlocks(specifications);
-        reducer.createSlips(BetCategory.SINGLE);
+        reducer.computeSlips(BetCategory.SINGLE);
         var out = updateReducer.updateReducer(id, reducer);
         return out;
     }

@@ -12,11 +12,12 @@ public class MatchEventPickEmbd {
     private double odd;
     private League league;
 
-    public MatchEventPickEmbd(Long identity,String matchKey,String outcomeName,double odd){
+    public MatchEventPickEmbd(Long identity,String matchKey,String outcomeName,double odd,League league){
         this.matchKey=matchKey;
         this.outcomeName=outcomeName;
         this.odd=odd;
         this.identity=identity;
+        this.league=league;
     }
 
     public MatchEventPickEmbd() {

@@ -5,7 +5,7 @@ import project.domain.model.Enums.League;
 
 import java.util.Objects;
 
-public class MatchEventPick {
+public class MatchOutComePick {
     private Long identity;
     private String matchKey;
     private final String outcomeName;
@@ -14,7 +14,7 @@ public class MatchEventPick {
     private League league;
 
     //when a pick is created we should only know the outcome  and odds first, match key and owner is added later
-    public MatchEventPick(Long id,String matchKey, String outcomeName, double odd, League league) {
+    public MatchOutComePick(Long id, String matchKey, String outcomeName, double odd, League league) {
         if(odd <=0)throw new IllegalArgumentException("odd must be > 0");
         this.outcomeName = outcomeName;
         this.odd = Objects.requireNonNull(odd, "odd");

@@ -17,6 +17,8 @@ public class MatchEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
     @Enumerated
     private BrokerType broker;
     private String home;
@@ -102,5 +104,13 @@ public class MatchEntity {
 
     public void setLeague(League league) {
         this.league = league;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public Long getVersion() {
+        return version;
     }
 }

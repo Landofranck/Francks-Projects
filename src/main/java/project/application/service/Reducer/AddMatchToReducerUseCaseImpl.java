@@ -9,12 +9,12 @@ import project.domain.model.Reducer.Reducer;
 public class AddMatchToReducerUseCaseImpl implements AddMatchToReducerUseCase {
 
     @Inject
-    AddMatchToReducerPort updateReducer;
+    AddMatchToReducerPort addMatchToReducer;
 
     @Override
     public Reducer addMatchToReducer(Long reducerId, Long in) {
 
-    var out=updateReducer.addMatchToReducer(reducerId,in);
+    var out= addMatchToReducer.addMatchToReducer(reducerId,in);
     return out;
     }
 }

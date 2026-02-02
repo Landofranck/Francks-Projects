@@ -8,7 +8,7 @@ import project.application.port.out.bettingAccount.PersistEmptyBetSlipPort;
 import project.application.port.out.bettingAccount.ReadEmptSlipByParenPort;
 import project.domain.model.DraftBetSlip;
 import project.domain.model.Match;
-import project.domain.model.MatchEventPick;
+import project.domain.model.MatchOutComePick;
 
 @ApplicationScoped
 public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUseCase {
@@ -54,7 +54,7 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
 
 
         // Create pick from the outcome
-        MatchEventPick pick = new MatchEventPick(
+        MatchOutComePick pick = new MatchOutComePick(
                 outcome.getIdentity(),
                 outcome.getMatchKey(),
                 outcome.getOutcomeName(),

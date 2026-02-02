@@ -46,6 +46,7 @@ import java.util.Objects;
 public class Reducer implements Account {
     private Long id;
     private Money totalStake;
+    private Long matchVersion;
     private List<Match> betMatches;
     private List<ReducerBetSlip> slips;
 
@@ -61,17 +62,24 @@ public class Reducer implements Account {
         this.slips = new ArrayList<>();
         this.betMatches = new ArrayList<>();
         this.blocks = new ArrayList<>();
+        this.matchVersion=-1L;
     }
 
+    public Long updateMatchVersion(){
+        this.matchVersion=-1L;
+        for(Match m: betMatches){
+            this.matchVersion+=m.getVersion();
+        }
+        return  this.matchVersion;
+    }
     public void addMatches(Match match) {
         this.betMatches.add(Objects.requireNonNull(match));
     }
 
-    public ReducerBetSlip createBetSlip(BetCategory category) {
+    public void createBetSlip(BetCategory category) {
         Objects.requireNonNull(category);
         ReducerBetSlip newBetslip = new ReducerBetSlip(category);
         addBetSlip(newBetslip);
-        return newBetslip;
     }
 
     public void addBetSlip(ReducerBetSlip b) {
@@ -87,7 +95,7 @@ public class Reducer implements Account {
         this.blocks = Objects.requireNonNull(blocks, "blocks");
     }
 
-    /* -------------------- NEW createSlips (replaces old Cartesian only) -------------------- */
+    /* -------------------- NEW computeSlips (replaces old Cartesian only) -------------------- */
     /**
      * Generates bet slips according to the configured block structure.
      *
@@ -98,7 +106,7 @@ public class Reducer implements Account {
      *
      * @param category bet category for generated slips
      */
-    public void createSlips(BetCategory category) {
+    public void computeSlips(BetCategory category) {
         Objects.requireNonNull(category, "category");
 
         slips.clear();
@@ -132,7 +140,7 @@ public class Reducer implements Account {
     private void backtrackBlocks(
             BetCategory category,
             int blockIndex,
-            List<MatchEventPick> prefixPicks,
+            List<MatchOutComePick> prefixPicks,
             List<ReducerBetSlip> out
     ) {
         if (blockIndex >= blocks.size()) {
@@ -154,7 +162,7 @@ public class Reducer implements Account {
             BetCategory category,
             Block block,
             int matchIdx,
-            List<MatchEventPick> prefixPicks,
+            List<MatchOutComePick> prefixPicks,
             List<ReducerBetSlip> out,
             boolean hasNext,
             int blockIndex
@@ -183,9 +191,9 @@ public class Reducer implements Account {
         }
 
         Match match = betMatches.get(matchIdx);
-        List<MatchEventPick> outcomes = requireOutcomes(match, matchIdx);
+        List<MatchOutComePick> outcomes = requireOutcomes(match, matchIdx);
 
-        for (MatchEventPick pick : outcomes) {
+        for (MatchOutComePick pick : outcomes) {
             prefixPicks.add(copyPick(pick));
             fullEnumerate(category, block, matchIdx + 1, prefixPicks, out, hasNext, blockIndex);
             prefixPicks.remove(prefixPicks.size() - 1);
@@ -200,7 +208,7 @@ public class Reducer implements Account {
             BetCategory category,
             Block block,
             int matchIdx,
-            List<MatchEventPick> prefixPicks,
+            List<MatchOutComePick> prefixPicks,
             List<ReducerBetSlip> out,
             boolean hasNext,
             int blockIndex
@@ -212,11 +220,11 @@ public class Reducer implements Account {
         }
 
         Match match = betMatches.get(matchIdx);
-        List<MatchEventPick> outcomes = requireOutcomes(match, matchIdx);
+        List<MatchOutComePick> outcomes = requireOutcomes(match, matchIdx);
 
-        MatchEventPick fPick = pickByCascadeOutcome(outcomes, CascadeOutcome.F);
-        MatchEventPick ePick = pickByCascadeOutcome(outcomes, CascadeOutcome.E);
-        MatchEventPick dPick = pickByCascadeOutcome(outcomes, CascadeOutcome.D);
+        MatchOutComePick fPick = pickByCascadeOutcome(outcomes, CascadeOutcome.F);
+        MatchOutComePick ePick = pickByCascadeOutcome(outcomes, CascadeOutcome.E);
+        MatchOutComePick dPick = pickByCascadeOutcome(outcomes, CascadeOutcome.D);
 
         // F terminates
         prefixPicks.add(fPick);
@@ -238,7 +246,7 @@ public class Reducer implements Account {
 
     private enum CascadeOutcome { F, E, D }
 
-    private MatchEventPick pickByCascadeOutcome(List<MatchEventPick> outcomes, CascadeOutcome which) {
+    private MatchOutComePick pickByCascadeOutcome(List<MatchOutComePick> outcomes, CascadeOutcome which) {
         if (outcomes.size() < 3) {
             throw new IllegalStateException("CASCADE requires >= 3 outcomes, got " + outcomes.size());
         }
@@ -250,19 +258,19 @@ public class Reducer implements Account {
         return copyPick(outcomes.get(idx));
     }
 
-    private boolean isDominantPick(MatchEventPick pick, Match match) {
-        List<MatchEventPick> outcomes = match.getMatchOutComes();
+    private boolean isDominantPick(MatchOutComePick pick, Match match) {
+        List<MatchOutComePick> outcomes = match.getMatchOutComes();
         if (outcomes == null || outcomes.isEmpty()) return false;
 
-        MatchEventPick dominant = outcomes.get(outcomes.size() - 1); // dominant = last
+        MatchOutComePick dominant = outcomes.get(outcomes.size() - 1); // dominant = last
         return Objects.equals(pick.getOutcomeName(), dominant.getOutcomeName())
                 && Double.compare(pick.getOdd(), dominant.getOdd()) == 0
                 && Objects.equals(pick.getMatchKey(), dominant.getMatchKey());
     }
 
-    private List<MatchEventPick> requireOutcomes(Match match, int matchIdx) {
+    private List<MatchOutComePick> requireOutcomes(Match match, int matchIdx) {
         Objects.requireNonNull(match, "match at index " + matchIdx);
-        List<MatchEventPick> outcomes = match.getMatchOutComes();
+        List<MatchOutComePick> outcomes = match.getMatchOutComes();
         if (outcomes == null || outcomes.isEmpty()) {
             throw new IllegalStateException("Match at index " + matchIdx + " has no outcomes");
         }
@@ -271,18 +279,18 @@ public class Reducer implements Account {
 
     /* -------------------- Slip building / copying -------------------- */
 
-    private ReducerBetSlip buildSlipFrom(List<MatchEventPick> picks, BetCategory category) {
+    private ReducerBetSlip buildSlipFrom(List<MatchOutComePick> picks, BetCategory category) {
         ReducerBetSlip s = new ReducerBetSlip(category);
-        for (MatchEventPick p : picks) {
+        for (MatchOutComePick p : picks) {
             s.addMatchEventPick(copyPick(p));
         }
         s.makeTotalOdds();
         return s;
     }
 
-    private MatchEventPick copyPick(MatchEventPick original) {
+    private MatchOutComePick copyPick(MatchOutComePick original) {
         Objects.requireNonNull(original, "original pick");
-        MatchEventPick copy = new MatchEventPick(original.getIdentity(),original.getMatchKey(), original.getOutcomeName(), original.getOdd(),original.getLeague());
+        MatchOutComePick copy = new MatchOutComePick(original.getIdentity(),original.getMatchKey(), original.getOutcomeName(), original.getOdd(),original.getLeague());
         copy.setMatchKey(original.getMatchKey());
         return copy;
     }
@@ -351,5 +359,13 @@ public class Reducer implements Account {
 
     public List<Block> getBlocks() {
         return blocks;
+    }
+
+    public Long getMatchVersion() {
+        return matchVersion;
+    }
+
+    public void setMatchVersion(Long matchVersion) {
+        this.matchVersion = matchVersion;
     }
 }

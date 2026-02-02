@@ -16,9 +16,10 @@ public class Match implements Event {
     private List<MatchOutComePick> matchOutComes=new ArrayList<>();
     private Long version;
 
-    public Match(String home, String away) {
+    public Match(String home, String away, BrokerType broker) {
         this.home = home;
         this.away = away;
+        this.broker=broker;
     }
 
 

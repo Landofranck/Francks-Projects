@@ -1,6 +1,7 @@
 package project.controller;
 
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -32,7 +33,7 @@ public class MatchResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(MatchDto dto) {
+    public Response create(@Valid MatchDto dto) {
         Long id = serviceAdapter.createMatch(dto);
         return Response.status(201).entity(java.util.Map.of("id", id)).build();
     }
@@ -40,7 +41,7 @@ public class MatchResource {
     @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/delete_match")
-    public Response deleteMatchFromSystem(IdDto matchId) {
+    public Response deleteMatchFromSystem(@Valid IdDto matchId) {
         serviceAdapter.deleteMatchFromSystem(matchId);
         return Response.noContent().build();
     }
@@ -48,7 +49,7 @@ public class MatchResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/updateMatch")
-    public Response updateMatch(MatchDto match) {
+    public Response updateMatch(@Valid MatchDto match) {
             serviceAdapter.updateMatch(match.getId(), match);
             return Response.noContent().build();
 

@@ -16,6 +16,7 @@ import project.adapter.in.web.MobileMoneyDto.MomoTopUpRequestDto;
 import project.adapter.in.web.MobileMoneyDto.MomoTransferRequestDto;
 import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
 import project.adapter.in.web.TransactionDTO.DepositDto;
+import project.adapter.in.web.bettinAccountDTO.BonusDto;
 import project.application.port.in.MomoAccounts.MakeDepositUseCase;
 
 @Path("/mobile-money-accounts")
@@ -32,7 +33,7 @@ public class MobileMoneyAccountResource {
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(CreateMobileMoneyAccountDto dto) {
+    public Response create(@Valid CreateMobileMoneyAccountDto dto) {
         Long id = serviceAdapter.createNewMobileMoneyAccount(dto.getId(), dto);
         return Response.created(URI.create("/mobile-money-accounts/" + id)).build();
     }
@@ -78,10 +79,11 @@ public class MobileMoneyAccountResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{momoId}/deposit-to-betting")
     public Response deposit(@PathParam("momoId") Long momoId,
-                            DepositDto dto) {
+                            @Valid DepositDto dto) {
 
         makeDepositUseCase.depositFromMobileMoneyToBettingAccount(momoId, dto.getBettingAccountId(), dto.getAmount(), dto.getDescription());
         return Response.ok().build();
     }
+
 
 }

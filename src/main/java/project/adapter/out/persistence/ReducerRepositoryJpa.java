@@ -7,12 +7,11 @@ import jakarta.transaction.Transactional;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 import project.adapter.out.persistence.EntityModels.ReducerEntity;
 import project.adapter.out.persistence.Mappers.ReducerMapper;
-import project.application.port.out.*;
-import project.domain.model.Match;
+import project.application.port.out.Reducer.*;
 import project.domain.model.Reducer.Reducer;
 
 @ApplicationScoped
-public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdPort, UpdateReducerPort, AddMatchToReducerPort, DeleteMatchFromReducerPort, RefreshReducerByIdPort {
+public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdPort, UpdateReducerPort, AddMatchToReducerPort, DeleteMatchFromReducerPort, RefreshReducerByIdPort, DeleteReducerByIdPort {
     @Inject
     EntityManager entityManager;
     @Inject
@@ -31,8 +30,7 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
     @Override
     public Reducer getReducer(Long id) {
         var entity = entityManager.find(ReducerEntity.class, id);
-        if (entity == null)
-            throw new NotFoundException("Reducer with Id " + id + " was not found");
+        if (entity == null) throw new NotFoundException("Reducer with Id " + id + " was not found");
         var out = mapper.toReducerDomain(entity);
         entityManager.flush();
         entityManager.clear();
@@ -44,8 +42,7 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
     public Reducer updateReducer(Long reducerId, Reducer update) {
         var oldReducer = entityManager.find(ReducerEntity.class, reducerId);
 
-        if (oldReducer == null)
-            throw new NotFoundException("Reducer with id " + reducerId + "not found");
+        if (oldReducer == null) throw new NotFoundException("Reducer with id " + reducerId + "not found");
         mapper.applyChangesToReducer(oldReducer, update);
         entityManager.flush();
         entityManager.clear();
@@ -61,6 +58,9 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
         var reducer = entityManager.find(ReducerEntity.class, reducerId);
         var match = entityManager.find(MatchEntity.class, matchId);
         if (reducer == null || match == null) throw new NotFoundException("enter valid Id's");
+        if (reducer.getBroker().equals(match.getBroker())) {
+            throw new IllegalArgumentException("you can only add matches with the broker: " + reducer.getBroker());
+        }
         reducer.addMatches(match);
         entityManager.flush();
         entityManager.clear();
@@ -72,7 +72,7 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
     @Override
     public void deleteMatch(Long reducerId, Long matchId) {
         var reducer = entityManager.find(ReducerEntity.class, reducerId);
-        if (reducer == null) throw new NotFoundException("Redcuer with id " + reducerId + " not found");
+        if (reducer == null) throw new NotFoundException("Reducer with id " + reducerId + " not found");
 
         var match = entityManager.find(MatchEntity.class, matchId);
         if (match == null) throw new NotFoundException("match with id " + matchId + " not found");
@@ -83,15 +83,20 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
     @Transactional
     @Override
     public Reducer refreshReducer(Long id, Reducer refreshed) {
-       var entity = entityManager.find(ReducerEntity.class, id);
-        if (entity == null)
-            throw new NotFoundException("reducer with id " + id + " not in database");
+        var entity = entityManager.find(ReducerEntity.class, id);
+        if (entity == null) throw new NotFoundException("reducer with id " + id + " not in database");
         mapper.refreshChangesReducer(entity, refreshed);
         entityManager.flush();
         entityManager.clear();
-        var out =entityManager.find(ReducerEntity.class, id);
+        var out = entityManager.find(ReducerEntity.class, id);
         return mapper.toReducerDomain(out);
     }
 
-
+    @Transactional
+    @Override
+    public void deleteReducerById(Long id) {
+        var entity = entityManager.find(ReducerEntity.class, id);
+        if (entity == null) throw new NotFoundException("Reducer not found in the database jpa 100");
+        entityManager.remove(entity);
+    }
 }

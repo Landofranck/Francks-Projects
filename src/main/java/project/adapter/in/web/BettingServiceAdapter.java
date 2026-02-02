@@ -1,8 +1,10 @@
 package project.adapter.in.web;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import project.adapter.in.web.TransactionDTO.WithdrawDto;
 import project.adapter.in.web.bettinAccountDTO.AddPickRequestBetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.BettingAccountDto;
+import project.adapter.in.web.bettinAccountDTO.BonusDto;
 import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
 import project.adapter.in.web.MobileMoneyDto.CreateMobileMoneyAccountDto;
 import project.adapter.in.web.MobileMoneyDto.MomoTopUpRequestDto;
@@ -12,23 +14,18 @@ import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.MakeBetRequestDto;
 import project.application.port.in.*;
 import jakarta.inject.Inject;
+import project.application.port.in.BettingAccount.CreatNewBonusUseCase;
 import project.application.port.in.BettingAccount.CreateBettingAccountUseCase;
 import project.application.port.in.BettingAccount.LoadAllBettingAccountsUseCase;
 import project.application.port.in.BettingAccount.LoadBettingAccountByIdUsecase;
 import project.application.port.in.MomoAccounts.*;
-import project.application.port.in.Reducer.AddMatchToReducerUseCase;
-import project.application.port.in.Reducer.CreateNewReducerUseCase;
-import project.application.port.in.Reducer.LoadReducerByIdUseCase;
 import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;
-import project.application.port.in.betSlip.CreateEmptyBetSlipUseCase;
 import project.application.port.in.betSlip.CreateMatchUseCase;
 import project.application.port.in.betSlip.MakeBetUseCase;
-import project.domain.model.BettingAccount;
-import project.domain.model.DraftBetSlip;
-import project.domain.model.Enums.BetCategory;
-import project.domain.model.MobileMoneyAccount;
-import project.domain.model.Money;
+import project.application.port.out.Reducer.DeleteReducerByIdPort;
+import project.domain.model.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @ApplicationScoped
@@ -64,9 +61,13 @@ public class BettingServiceAdapter {
     DeleteMatchByIdUsecase deleteMatchFromSystem;
     @Inject
     GetMatchByIdUseCase getMatchByIdUseCase;
-
+    @Inject
+    MakeWithdrawalUseCase makeWithdrawal;
     @Inject
     UpdateMatchUseCase updateMatchUse;
+    @Inject
+    CreatNewBonusUseCase creatNewBonus;
+
     public Long createNewBettingAccount(CreateBettingAccountDto dto) {
         var domain = new BettingAccount(dto.getAccountName(), dto.getBrokerType());
         return createBettingAccountUseCase.createNewBettingAccount(domain);
@@ -95,10 +96,10 @@ public class BettingServiceAdapter {
     }
 
     public Long createMatch(MatchDto dto) {
-        if (dto.getMatchOutComes() == null||dto.getMatchOutComes().isEmpty())
+        if (dto.getMatchOutComes() == null || dto.getMatchOutComes().isEmpty())
             throw new IllegalArgumentException("you need outcomes BSA line 77");
         var domain = mapper.toMatchDomain(dto);
-        if (domain.getMatchOutComes() == null||domain.getMatchOutComes().isEmpty())
+        if (domain.getMatchOutComes() == null || domain.getMatchOutComes().isEmpty())
             throw new IllegalArgumentException("you need outcomes BSA line 77");
 
         return createMatchUse.createMatch(domain);
@@ -121,7 +122,7 @@ public class BettingServiceAdapter {
     }
 
     public Long makeBet(Long bettingAccountId, MakeBetRequestDto dto) {
-        return makeBetUseCase.makeBet(bettingAccountId, dto.getMatchIds(), dto.getOutComes(), new Money(dto.getStake()), dto.getDescription());
+        return makeBetUseCase.makeBet(bettingAccountId, dto.getMatchIds(), dto.getOutComes(), new Money(dto.getStake()), dto.getStrategy(), dto.getBonusSlip());
     }
 
     public BettingAccountDto loadBettingAccount(Long id) {
@@ -137,11 +138,22 @@ public class BettingServiceAdapter {
     public void deleteMatchFromSystem(IdDto id) {
         deleteMatchFromSystem.deleteMatchById(id.Id());
     }
-    public void updateMatch(Long id, MatchDto dto){
-        var in=mapper.toMatchDomain(dto);
-        updateMatchUse.updateMatch(id,in);
+
+    public void updateMatch(Long id, MatchDto dto) {
+        var in = mapper.toMatchDomain(dto);
+        updateMatchUse.updateMatch(id, in);
     }
-    public MatchDto getMatchByid(Long id){
+
+    public MatchDto getMatchByid(Long id) {
         return mapper.toMatchDto(getMatchByIdUseCase.getMatchById(id));
+    }
+
+    public void createBonus(Long bettingAccountId, BonusDto bonus) {
+        Bonus in = mapper.toBonusDomain(bonus);
+        creatNewBonus.createNewBonus(bettingAccountId, in);
+    }
+
+    public void withdrawFromBettingToMobileMoney(Long bettingId, Long momoId, WithdrawDto dto) {
+        makeWithdrawal.withdrawFromBettingToMobileMoney(bettingId, momoId, dto.getAmount(), dto.getDescription());
     }
 }

@@ -3,7 +3,7 @@ package project.application.service.Reducer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import project.application.port.in.Reducer.DeleteMatchFromReducerUseCase;
-import project.application.port.out.DeleteMatchFromReducerPort;
+import project.application.port.out.Reducer.DeleteMatchFromReducerPort;
 
 @ApplicationScoped
 public class DeleteMatchFromReducerUseCaseImpl implements DeleteMatchFromReducerUseCase {

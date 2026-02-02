@@ -4,6 +4,8 @@ package project.adapter.out.persistence.EntityModels.BettingAccount;
 import jakarta.persistence.*;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
+import project.domain.model.Enums.BetStrategy;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -22,10 +24,12 @@ public class DraftSlipEntity {
     private Instant createdAt;
     private double totalOdd;
     private BigDecimal stake;
-    @OneToOne(optional = true,fetch = FetchType.LAZY)
-    @JoinColumn(name = "betting_account_id",unique = true)
+    @OneToOne(optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "betting_account_id", unique = true)
     private BettingAccountEntity draftBetSlipOwner;
-private BigDecimal potentialWinning;
+    private BigDecimal potentialWinning;
+    private BetStrategy strategy;
+    private Boolean bonusSlip;
 
     public BettingAccountEntity getDraftBetSlipOwner() {
         return draftBetSlipOwner;
@@ -88,8 +92,6 @@ private BigDecimal potentialWinning;
     }
 
 
-
-
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -112,4 +114,19 @@ private BigDecimal potentialWinning;
         this.stake = stake;
     }
 
+    public BetStrategy getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(BetStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public Boolean getBounsSlip() {
+        return bonusSlip;
+    }
+
+    public void setBonusSlip(Boolean bonusSlip) {
+        this.bonusSlip = bonusSlip;
+    }
 }

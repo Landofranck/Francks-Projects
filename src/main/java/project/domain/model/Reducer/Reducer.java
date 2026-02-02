@@ -3,7 +3,9 @@ package project.domain.model.Reducer;
 
 import project.domain.model.*;
 import project.domain.model.Enums.BetCategory;
+import project.domain.model.Enums.BetStrategy;
 import project.domain.model.Enums.BlockType;
+import project.domain.model.Enums.BrokerType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,20 +51,24 @@ public class Reducer implements Account {
     private Long matchVersion;
     private List<Match> betMatches;
     private List<ReducerBetSlip> slips;
+    private BrokerType broker;
 
     private Money bonusAmount;
 
     // Block configuration (optional; if null/empty -> FULL over all matches)
 
     private List<Block> blocks;
+    private BetStrategy strategy;
 
-    public Reducer(Money stake, Money bonusAmount) {
+    public Reducer(Money stake, Money bonusAmount, BetStrategy strategy, BrokerType broker) {
         this.totalStake = Objects.requireNonNull(stake);
         this.bonusAmount = Objects.requireNonNull(bonusAmount);
         this.slips = new ArrayList<>();
         this.betMatches = new ArrayList<>();
         this.blocks = new ArrayList<>();
         this.matchVersion=-1L;
+        this.strategy=strategy;
+        this.broker=broker;
     }
 
     public Long updateMatchVersion(){
@@ -76,15 +82,6 @@ public class Reducer implements Account {
         this.betMatches.add(Objects.requireNonNull(match));
     }
 
-    public void createBetSlip(BetCategory category) {
-        Objects.requireNonNull(category);
-        ReducerBetSlip newBetslip = new ReducerBetSlip(category);
-        addBetSlip(newBetslip);
-    }
-
-    public void addBetSlip(ReducerBetSlip b) {
-        this.slips.add(Objects.requireNonNull(b));
-    }
 
     /* -------------------- Block API -------------------- */
 
@@ -242,10 +239,11 @@ public class Reducer implements Account {
         prefixPicks.remove(prefixPicks.size() - 1);
     }
 
+
     /* -------------------- Outcome mapping (CASCADE) -------------------- */
 
-    private enum CascadeOutcome { F, E, D }
 
+    private enum CascadeOutcome { F, E, D;}
     private MatchOutComePick pickByCascadeOutcome(List<MatchOutComePick> outcomes, CascadeOutcome which) {
         if (outcomes.size() < 3) {
             throw new IllegalStateException("CASCADE requires >= 3 outcomes, got " + outcomes.size());
@@ -277,10 +275,10 @@ public class Reducer implements Account {
         return outcomes;
     }
 
-    /* -------------------- Slip building / copying -------------------- */
 
+    /* -------------------- Slip building / copying -------------------- */
     private ReducerBetSlip buildSlipFrom(List<MatchOutComePick> picks, BetCategory category) {
-        ReducerBetSlip s = new ReducerBetSlip(category);
+        ReducerBetSlip s = new ReducerBetSlip(category,this.strategy);
         for (MatchOutComePick p : picks) {
             s.addMatchEventPick(copyPick(p));
         }
@@ -295,8 +293,8 @@ public class Reducer implements Account {
         return copy;
     }
 
-    /* -------------------- Stakes (unchanged) -------------------- */
 
+    /* -------------------- Stakes (unchanged) -------------------- */
     public void setTheSlipStakes() {
         if (slips.isEmpty()) return;
 
@@ -309,8 +307,8 @@ public class Reducer implements Account {
         }
     }
 
-    /* -------------------- Account + getters/setters (unchanged) -------------------- */
 
+    /* -------------------- Account + getters/setters (unchanged) -------------------- */
     @Override
     public Long getAccountId() {
         return this.id;
@@ -367,5 +365,21 @@ public class Reducer implements Account {
 
     public void setMatchVersion(Long matchVersion) {
         this.matchVersion = matchVersion;
+    }
+
+    public BetStrategy getStrategy() {
+        return this.strategy;
+    }
+
+    public void setStrategy(BetStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public BrokerType getBroker() {
+        return broker;
+    }
+
+    public void setBroker(BrokerType broker) {
+        this.broker = broker;
     }
 }

@@ -1,7 +1,9 @@
 package project.domain.model;
 
+import net.bytebuddy.dynamic.loading.InjectionClassLoader;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
+import project.domain.model.Enums.BetStrategy;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -11,6 +13,7 @@ import java.util.List;
 public class BetSlip implements Event {
     private Long id;
     private List<MatchOutComePick> picks;
+    private BetStrategy strategy;
     private BetStatus status;
     private BetCategory category;
     private Instant createdAt;
@@ -20,14 +23,16 @@ public class BetSlip implements Event {
     private double totalOdds;
     private int numberOfEvents;
     private Money potentialWinning;
+    private Boolean bonusSlip;
 
-    public BetSlip(BetCategory category) {
-        this.category = category;
+    public BetSlip(Boolean bonusSlip, BetStrategy strategy) {
         this.picks = new ArrayList<>();
         this.status = BetStatus.PENDING;
         this.stake= new Money(BigDecimal.ZERO);
         this.totalOdds=0;
         this.numberOfEvents=picks.size();
+        this.strategy=strategy;
+        this.bonusSlip=bonusSlip;
     }
 
     public void makeTotalOdds() {
@@ -43,12 +48,21 @@ public class BetSlip implements Event {
         pick.setOwner(this);
         makeTotalOdds();
         this.numberOfEvents=picks.size();
+        updateCategory();
+    }
+    public void updateCategory(){
+        if(picks.size()>1){
+            category=BetCategory.COMBINATION;
+        }else {
+            category=BetCategory.SINGLE;
+        }
     }
     public void removeMatchEventPicksByIndex(int i) {
         this.picks.remove(i);
         makeTotalOdds();
         this.numberOfEvents = picks.size();
         calculatPotentialWinning();
+        updateCategory();
     }
 
     public void calculatPotentialWinning() {
@@ -131,5 +145,21 @@ public class BetSlip implements Event {
 
     public Money getStake() {
         return stake;
+    }
+
+    public void setStrategy(BetStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public BetStrategy getStrategy() {
+        return strategy;
+    }
+
+    public void setBonusSlip(Boolean bonusSlip) {
+        this.bonusSlip = bonusSlip;
+    }
+
+    public Boolean getBonusSlip() {
+        return bonusSlip;
     }
 }

@@ -5,5 +5,5 @@ import project.domain.model.Reducer.Reducer;
 
 
 public interface PlaceBetFromReducerUseCase {
-    Reducer placeBetFromReducer(Long reducerId, Long bettingId, int slipNumber, Money stake);
+    Reducer placeBetFromReducer(Long reducerId, Long bettingId, int slipNumber, Money stake, Integer bonusSlip);
 }

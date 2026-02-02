@@ -15,7 +15,7 @@ import project.application.port.out.Match.ReadMatchByIdPort;
 import project.application.port.out.UpdateMatchPort;
 import project.application.port.out.bettingAccount.*;
 import project.domain.model.*;
-import project.domain.model.Enums.BetCategory;
+import project.domain.model.Enums.BetStrategy;
 import project.domain.model.Enums.BrokerType;
 
 import java.util.List;
@@ -25,7 +25,7 @@ import java.util.Objects;
 public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadBettingAccountByIdPort, ReadAllBettingAccountsPort,
         UpdateBettingAccountBalancePort, AppendBettingAccountTransactionPort,
         PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort, PersistEmptyBetSlipPort,
-        ReadEmptSlipByParenPort, DeleteMatchByIdPort, UpdateMatchPort, GetMatchByIdPort {
+        ReadEmptSlipByParenPort, DeleteMatchByIdPort, UpdateMatchPort, GetMatchByIdPort, UpdateBettingAccountPort {
     @Inject
     EntityManager entityManager;
     @Inject
@@ -143,19 +143,19 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
         var entities = entityManager
                 .createQuery("SELECT DISTINCT m FROM MatchEntity m LEFT JOIN FETCH m.matchOutComes", MatchEntity.class)
                 .getResultList();
-         List<Match> matches = mapper.toMatchDomains(entities);
+        List<Match> matches = mapper.toMatchDomains(entities);
         return matches;
     }
 
     @Transactional
     @Override
-    public Long persistSlipToAccount(Long bettingAccountId, DraftBetSlip slip, String Strategy) {
+    public Long persistSlipToAccount(Long bettingAccountId, DraftBetSlip slip, BetStrategy strategy) {
         var owner = entityManager.find(BettingAccountEntity.class, bettingAccountId);
-        if (owner == null) throw new IllegalArgumentException("Betting account not found: " + bettingAccountId);
+        if (owner == null)
+            throw new IllegalArgumentException("Betting account not found: bettingAccountJpa 155 id" + bettingAccountId);
 
         var slipEntity = mapper.fromDraftToBetslipEntity(slip);
-        slipEntity.setCategory(BetCategory.SINGLE);
-
+        slipEntity.setStrategy(strategy);
         owner.addBetSlipEntity(slipEntity);     // ✅ sets parentAccountEntity
         entityManager.persist(owner);
         entityManager.flush();
@@ -207,13 +207,14 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
         entityManager.flush(); // ensure join table rows are deleted first
         entityManager.remove(match);
     }
+
     @Transactional
     @Override
     public void updateMatch(Long id, Match in) {
         var out = entityManager.find(MatchEntity.class, id);
-        if(out==null)
-            throw new NotFoundException("Match with id "+id+" does'nt exist");
-        mapper.applytoMatchEntity(out,in);
+        if (out == null)
+            throw new NotFoundException("Match with id " + id + " does'nt exist");
+        mapper.applyToMatchEntity(out, in);
         entityManager.flush();
         entityManager.clear();
         mapper.toMatchDomain(out);
@@ -221,7 +222,14 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
 
     @Override
     public Match getMatchById(Long id) {
-        var out=entityManager.find(MatchEntity.class,id);
+        var out = entityManager.find(MatchEntity.class, id);
         return mapper.toMatchDomain(out);
+    }
+
+    @Transactional
+    @Override
+    public void updateBettingAccount(Long bettingId, BettingAccount updated) {
+        var oldVersion = entityManager.find(BettingAccountEntity.class, bettingId);
+        mapper.applyTobettingAccount(oldVersion, updated);
     }
 }

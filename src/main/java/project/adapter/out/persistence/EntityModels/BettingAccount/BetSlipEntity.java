@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import project.adapter.out.persistence.EntityModels.ReducerEntity;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
+import project.domain.model.Enums.BetStrategy;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Entity
 public class BetSlipEntity {
+    private BetStrategy strategy;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -29,12 +31,9 @@ public class BetSlipEntity {
     @JoinColumn(name = "parentAccountEntity_id", nullable = true)
     private BettingAccountEntity parentAccountEntity;
 
-
-
-
     private BigDecimal stake;
     private BigDecimal potentialWinning;
-
+    private Boolean bonusSlip;
 
     public BetSlipEntity() {
     }
@@ -102,8 +101,6 @@ public class BetSlipEntity {
     }
 
 
-
-
     public BigDecimal getStake() {
         return stake;
     }
@@ -115,7 +112,23 @@ public class BetSlipEntity {
     public BigDecimal getPotentialWinning() {
         return potentialWinning;
     }
+
     public void setPotentialWinning(BigDecimal potentialWinning) {
         this.potentialWinning = potentialWinning;
+    }
+
+    public BetStrategy getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(BetStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public void setBonusSlip(Boolean bonusSlip){
+        this.bonusSlip=bonusSlip;
+    }
+    public Boolean getBonusSlip() {
+        return this.bonusSlip;
     }
 }

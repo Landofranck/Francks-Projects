@@ -15,6 +15,11 @@ public class Bonus {
         this.status = status;
     }
 
+    public void updateStatus(){
+        if(Instant.now().isAfter(expiryDate)&&status!=BonusStatus.EXPIRED){
+            status=BonusStatus.EXPIRED;
+        }
+    }
     public Money getAmount() {
         return amount;
     }
@@ -25,10 +30,6 @@ public class Bonus {
 
     public Instant getExpiryDate() {
         return expiryDate;
-    }
-
-    public void setExpiryDate(Instant expiryDate) {
-        this.expiryDate = expiryDate;
     }
 
     public BonusStatus getStatus() {

@@ -6,6 +6,7 @@ import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
 import project.domain.model.Enums.BrokerType;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BettingAccountDto {
@@ -16,6 +17,11 @@ public class BettingAccountDto {
     private List<TransactionDto> transactionHistory;
     private List<BetSlipDto> betHistory;
     private BetSlipDto draftAccount;
+    private List<BonusDto> bonuses;
+
+    public BettingAccountDto() {
+        bonuses = new ArrayList<>();
+    }
 
 
     public void setDraftAccount(BetSlipDto draftAccount) {
@@ -43,4 +49,12 @@ public class BettingAccountDto {
 
     public List<BetSlipDto> getBetHistory() { return betHistory; }
     public void setBetHistory(List<BetSlipDto> betHistory) { this.betHistory = betHistory; }
+
+    public void setBonuses(List<BonusDto> bonuses) {
+        this.bonuses = bonuses;
+    }
+
+    public List<BonusDto> getBonuses() {
+        return bonuses;
+    }
 }

@@ -1,6 +1,8 @@
 package project.adapter.in.web.bettinAccountDTO.betslip;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import project.domain.model.Enums.BetStrategy;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,7 +12,10 @@ public class MakeBetRequestDto {
     private List<String> outComes;
     @Positive
     private BigDecimal stake;
-    private String description;//use for now as category
+    @NotNull
+    private BetStrategy strategy;//use for now as category
+    @NotNull
+    private Integer bonusSlip;
 
     public void setMatchIds(List<Long> matchIds) {
         this.matchIds = matchIds;
@@ -28,12 +33,12 @@ public class MakeBetRequestDto {
         return outComes;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setStrategy(BetStrategy strategy) {
+        this.strategy = strategy;
     }
 
-    public String getDescription() {
-        return description;
+    public BetStrategy getStrategy() {
+        return strategy;
     }
 
     public void setStake(BigDecimal stake) {
@@ -42,5 +47,13 @@ public class MakeBetRequestDto {
 
     public BigDecimal getStake() {
         return stake;
+    }
+
+    public void setBonusSlip(Integer bonusSlip) {
+        this.bonusSlip = bonusSlip;
+    }
+
+    public Integer getBonusSlip() {
+        return bonusSlip;
     }
 }

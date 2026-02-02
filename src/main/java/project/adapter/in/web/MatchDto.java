@@ -15,6 +15,7 @@ public class MatchDto {
     private String away;
     @NotNull
     private List<MatchEventPickDto> matchOutComes;
+    @NotNull()
     private BrokerType broker;
     @NotNull
     private League matchLeague;
@@ -62,6 +63,10 @@ public class MatchDto {
 
     public League getMatchLeague() {
         return matchLeague;
+    }
+
+    public BrokerType getBroker() {
+        return broker;
     }
 }
 

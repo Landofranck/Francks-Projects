@@ -2,6 +2,7 @@ package project.domain.model.Reducer;
 
 
 import project.domain.model.Enums.BetCategory;
+import project.domain.model.Enums.BetStrategy;
 import project.domain.model.Enums.BrokerType;
 import project.domain.model.Event;
 import project.domain.model.MatchOutComePick;
@@ -22,8 +23,9 @@ public class ReducerBetSlip implements Event {
     private double totalOdds;
     private int numberOfEvents;
     private Money potentialWinning;
+    private BetStrategy betStrategy;
 
-    public ReducerBetSlip(BetCategory category) {
+    public ReducerBetSlip(BetCategory category, BetStrategy strategy) {
         this.category = category;
         this.picks = new ArrayList<>();
         this.planedStake = new Money(BigDecimal.ZERO);
@@ -31,6 +33,7 @@ public class ReducerBetSlip implements Event {
         this.totalOdds = 0;
         this.numberOfEvents = 0;
         this.potentialWinning = new Money(BigDecimal.ZERO);
+        this.betStrategy = strategy;
     }
 
     public void makeTotalOdds() {
@@ -55,14 +58,24 @@ public class ReducerBetSlip implements Event {
         calculatePotentialWinning();
     }
 
-    public void placeParBet(Money stake) {
-        if (stake.isGreaterThan(this.remainingStake))
-            throw new IllegalArgumentException("the bet ammount is greater than what is left to be bet");
+    public void placeParBet(Money stake, Boolean t) {
 
-       setRemainingStake( this.remainingStake.subtract(stake));
+
+        if (t) {
+            if (stake.isGreaterOrEqual(this.remainingStake))
+                setRemainingStake(new Money(0));
+            else
+                setRemainingStake(this.remainingStake.subtract(stake));
+
+        } else if (stake.isGreaterThan(this.remainingStake)) {
+            throw new IllegalArgumentException("the bet ammount is greater than what is left to be bet");
+        } else {
+            setRemainingStake(this.remainingStake.subtract(stake));
+        }
 
     }
-    public void updateRemainingStake(BigDecimal oldRemainingStake,double oldOdd){
+
+    public void updateRemainingStake(BigDecimal oldRemainingStake, double oldOdd) {
         if (this.totalOdds <= 0.0) throw new IllegalStateException("totalOdds must be > 0");
 
         BigDecimal numerator = BigDecimal.valueOf(oldOdd);
@@ -75,6 +88,7 @@ public class ReducerBetSlip implements Event {
     public void calculatePotentialWinning() {
         this.potentialWinning = new Money(planedStake.getValue().multiply(BigDecimal.valueOf(totalOdds)));
     }
+
     public void upDatePotentialWinning(Money potentialWinning) {
         this.potentialWinning = new Money(planedStake.getValue().multiply(BigDecimal.valueOf(totalOdds)));
     }
@@ -141,5 +155,13 @@ public class ReducerBetSlip implements Event {
 
     public void setPotentialWinning(Money potentialWinning) {
         this.potentialWinning = potentialWinning;
+    }
+
+    public void setBetStrategy(BetStrategy betStrategy) {
+        this.betStrategy = betStrategy;
+    }
+
+    public BetStrategy getBetStrategy() {
+        return betStrategy;
     }
 }

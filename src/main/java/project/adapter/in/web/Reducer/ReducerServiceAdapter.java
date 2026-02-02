@@ -2,11 +2,10 @@ package project.adapter.in.web.Reducer;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import project.adapter.in.web.CreateReducerDto;
 import project.adapter.in.web.DTOMapper;
 import project.adapter.in.web.IdDto;
-import project.application.port.in.DeleteMatchByIdUsecase;
 import project.application.port.in.Reducer.*;
+import project.application.port.out.Reducer.DeleteReducerByIdPort;
 import project.domain.model.Money;
 
 @ApplicationScoped
@@ -26,6 +25,9 @@ public class ReducerServiceAdapter {
     PlaceBetFromReducerUseCase placeBetFromReducer;
     @Inject
     RefreshReducerUseCase refreshReducerUseCase;
+
+    @Inject
+    DeleteReducerByIdPort deleteReducerById;
     @Inject
     DTOMapper mapper;
 
@@ -56,7 +58,7 @@ public class ReducerServiceAdapter {
     }
 
     public ReadReducerDto placeReducerBet(Long reducerId, ReducerPlaceBetDto dto) {
-        return mapper.toReducerDto(placeBetFromReducer.placeBetFromReducer(reducerId, dto.bettingId(), dto.slipIndex(), new Money(dto.stake())));
+        return mapper.toReducerDto(placeBetFromReducer.placeBetFromReducer(reducerId, dto.bettingId(), dto.slipIndex(), new Money(dto.stake()), dto.bonusSlip()));
     }
 
     public ReadReducerDto refreshReducer(Long id) {
@@ -64,4 +66,7 @@ public class ReducerServiceAdapter {
 
     }
 
+    public void deleteReducer(Long id) {
+        deleteReducerById.deleteReducerById(id);
+    }
 }

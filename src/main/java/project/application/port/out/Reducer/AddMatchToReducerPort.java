@@ -1,4 +1,4 @@
-package project.application.port.out;
+package project.application.port.out.Reducer;
 
 import project.domain.model.Reducer.Reducer;
 

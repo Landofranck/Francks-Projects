@@ -2,6 +2,7 @@ package project.controller;
 
 
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -9,6 +10,7 @@ import project.adapter.in.web.IdDto;
 import project.adapter.in.web.MatchDto;
 import project.adapter.in.web.bettinAccountDTO.AddPickRequestBetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.BettingAccountDto;
+import project.adapter.in.web.bettinAccountDTO.BonusDto;
 import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
 import project.adapter.in.web.BettingServiceAdapter;
 import project.adapter.in.web.TransactionDTO.WithdrawDto;
@@ -25,8 +27,6 @@ public class BettingAccountResource {
 
     @Inject
     BettingServiceAdapter serviceAdapter;
-    @Inject
-    MakeWithdrawalUseCase makeWithdrawalUseCase;
 
     //gets all betting accounts from database
     @GET
@@ -41,7 +41,7 @@ public class BettingAccountResource {
     }
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(CreateBettingAccountDto dto) {
+    public Response create(@Valid CreateBettingAccountDto dto) {
         Long id = serviceAdapter.createNewBettingAccount(dto);
 
         // Either return created location only
@@ -58,8 +58,8 @@ public class BettingAccountResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response withdrawToMomo(@PathParam("bettingId") Long bettingId,
                                    @PathParam("momoId") Long momoId,
-                                   WithdrawDto dto) {
-        makeWithdrawalUseCase.withdrawFromBettingToMobileMoney(bettingId, momoId, dto.getAmount(), dto.getDescription());
+                                   @Valid WithdrawDto dto) {
+        serviceAdapter.withdrawFromBettingToMobileMoney(bettingId, momoId, dto);
         return Response.noContent().build();
     }
 
@@ -70,17 +70,23 @@ public class BettingAccountResource {
     @PUT
     @Path("/{bettingId}/betslips/add-pick")
     @Consumes(MediaType.APPLICATION_JSON)
-    public BetSlipDto addPick(@PathParam("bettingId") Long bettingId, AddPickRequestBetSlipDto dto) {
+    public BetSlipDto addPick(@PathParam("bettingId") Long bettingId,@Valid AddPickRequestBetSlipDto dto) {
         return serviceAdapter.addPickToBetSlip(bettingId, dto);
     }
 
     @PUT
     @Path("/{bettingId}/betslips/make-bet")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response makeBet(@PathParam("bettingId") Long bettingId, MakeBetRequestDto dto) {
+    public Response makeBet(@PathParam("bettingId") Long bettingId, @Valid MakeBetRequestDto dto) {
         Long slipId = serviceAdapter.makeBet(bettingId, dto);
         return Response.status(201).entity(java.util.Map.of("betSlipId", slipId)).build();
     }
-
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{id}/create_bonus")
+    public  Response createBonus(@PathParam("id") Long id, @Valid BonusDto dto){
+        serviceAdapter.createBonus(id,dto);
+        return Response.noContent().build();
+    }
 
 }

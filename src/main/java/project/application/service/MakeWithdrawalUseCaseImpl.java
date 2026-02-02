@@ -51,7 +51,7 @@ public class MakeWithdrawalUseCaseImpl implements MakeWithdrawalUseCase {
         var money = new Money(amount);
 
         // 1) withdraw from betting
-        var bettingTx = betting.withdraw(money, now, description + ": to " + momo.getAccountId());
+        var bettingTx = betting.withdraw(money, description + ": to " + momo.getAccountId());
 
         // 2) deposit to momo
         var momoDepositTx = momo.deposit(money, now, description + ": from " + betting.getAccountName());

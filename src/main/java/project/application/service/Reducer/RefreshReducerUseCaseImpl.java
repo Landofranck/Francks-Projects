@@ -3,8 +3,8 @@ package project.application.service.Reducer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import project.application.port.in.Reducer.RefreshReducerUseCase;
-import project.application.port.out.GetReducerByIdPort;
-import project.application.port.out.RefreshReducerByIdPort;
+import project.application.port.out.Reducer.GetReducerByIdPort;
+import project.application.port.out.Reducer.RefreshReducerByIdPort;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Reducer.Reducer;
 

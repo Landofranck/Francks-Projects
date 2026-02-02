@@ -3,6 +3,7 @@ package project.adapter.out.persistence.EntityModels;
 import jakarta.persistence.*;
 import project.adapter.out.persistence.EntityModels.MomoEntites.MatchEventPickEmbd;
 import project.domain.model.Enums.BetCategory;
+import project.domain.model.Enums.BetStrategy;
 import project.domain.model.Enums.BrokerType;
 
 import java.math.BigDecimal;
@@ -28,6 +29,8 @@ public class ReducerBetSlipEntity {
     @ManyToOne(optional = false,fetch = FetchType.LAZY)
     @JoinColumn(name = "reducer_parent_id",nullable = false)
     private ReducerEntity reducerParent;
+    @Enumerated
+    private BetStrategy betStrategy;
 
     public void addMatchEventPickEntity(MatchEventPickEmbd entity) {
         this.picks.add(entity);
@@ -113,4 +116,11 @@ public class ReducerBetSlipEntity {
         this.potentialWinning = potentialWinning;
     }
 
+    public BetStrategy getBetStrategy() {
+        return this.betStrategy;
+    }
+
+    public void setBetStrategy(BetStrategy betStrategy) {
+        this.betStrategy = betStrategy;
+    }
 }

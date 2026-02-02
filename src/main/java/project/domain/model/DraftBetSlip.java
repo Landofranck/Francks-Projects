@@ -2,6 +2,7 @@ package project.domain.model;
 
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
+import project.domain.model.Enums.BetStrategy;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -20,6 +21,8 @@ public class DraftBetSlip implements Event {
     private double totalOdds;
     private int numberOfEvents;
     private Money potentialWinning;
+    private BetStrategy strategy;
+    private Boolean bonusSlip;
 
     public DraftBetSlip(BetCategory category) {
         this.category = category;
@@ -29,6 +32,7 @@ public class DraftBetSlip implements Event {
         this.potentialWinning = new Money(BigDecimal.ZERO);
         this.totalOdds = 0;
         this.numberOfEvents = picks.size();
+        this.bonusSlip=false;
     }
 
     public void makeTotalOdds() {
@@ -43,6 +47,12 @@ public class DraftBetSlip implements Event {
         this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf(totalOdds)));
     }
 
+    public void checkCategory(){
+        if(picks.size()>1)
+            this.category=BetCategory.COMBINATION;
+        else
+            this.category=BetCategory.SINGLE;
+    }
     public void addMatchEventPick(MatchOutComePick pick) {
         this.picks.add(pick);
         pick.setOwner(this);
@@ -141,5 +151,21 @@ public class DraftBetSlip implements Event {
 
     public Money getStake() {
         return stake;
+    }
+
+    public void setStrategy(BetStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public BetStrategy getStrategy() {
+        return strategy;
+    }
+
+    public void setBonusSlip(Boolean bonusSlip) {
+        this.bonusSlip = bonusSlip;
+    }
+
+    public Boolean getBonusSlip() {
+        return bonusSlip;
     }
 }

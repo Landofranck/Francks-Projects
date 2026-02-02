@@ -11,9 +11,9 @@ import project.application.port.out.bettingAccount.PersistBetSlipToAccountPort;
 import project.application.port.out.bettingAccount.UpdateBettingAccountBalancePort;
 import project.config.TimeProvider;
 import project.domain.model.Enums.BetStatus;
+import project.domain.model.Enums.BetStrategy;
 import project.domain.model.Money;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -37,11 +37,11 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
 
     @Transactional
     @Override
-    public Long makeBet(Long bettingAccountId, List<Long> matchIds, List<String> matchOutcomes, Money stake, String description) {
-
+    public Long makeBet(Long bettingAccountId, List<Long> matchIds, List<String> matchOutcomes, Money stake, BetStrategy strategy, Integer bonusSlip) {
+        var isBonus = bonusSlip != null && bonusSlip >= 0;
+        var test=(bonusSlip==null||bonusSlip<0);
         if (bettingAccountId == null) throw new IllegalArgumentException("bettingAccountId required");
-        if (stake == null || stake.getValue().signum() <= 0)
-            throw new IllegalArgumentException("stake must be > 0");
+        if (stake == null || stake.getValue().signum() <= 0 &&test) throw new IllegalArgumentException("stake must be > 0, or you choose a bonus");
         if (matchIds != null) {
 
             removeAllPicks.removeAllPicks(bettingAccountId);
@@ -53,24 +53,25 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
         }
 
         var account = readAccount.getBettingAccount(bettingAccountId);
-
         Instant now = Instant.now(timeProvider.clock());
 
 
-        var tx = account.placeBet(stake, now, description);
+        var tx = account.placeBetTransaction(stake, strategy.toString());
         var draftSlip = account.getDraftBetSlip();
-        // Put stake + timestamps on slip
-        draftSlip.setStake(stake);
-        draftSlip.setCreatedAt(now);
-        draftSlip.setStatus(BetStatus.PENDING);
 
-        // Persist account balance and tx
-        updateBalance.updateBalance(account);
-        appendTx.appendToBettingAccount(bettingAccountId, tx);
+        if (isBonus) {
+            account.placeBonusBet(bonusSlip, now);
 
+        } else {
+            account.placeBet(stake, now);
+
+            // Persist account balance and tx
+            updateBalance.updateBalance(account);
+            appendTx.appendToBettingAccount(bettingAccountId, tx);
+        }
+        draftSlip.checkCategory();
         // Persist betslip into betHistory
-        Long slipId = persistSlip.persistSlipToAccount(bettingAccountId, draftSlip, description);
-        return slipId;
+        return persistSlip.persistSlipToAccount(bettingAccountId, draftSlip, strategy);
 
     }
 }

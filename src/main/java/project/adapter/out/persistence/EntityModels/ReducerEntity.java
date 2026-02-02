@@ -6,6 +6,8 @@ import project.adapter.out.persistence.EntityModels.BettingAccount.BetSlipEntity
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEventPickEntity;
 import project.domain.model.Enums.BetCategory;
+import project.domain.model.Enums.BetStrategy;
+import project.domain.model.Enums.BrokerType;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -27,6 +29,9 @@ public class ReducerEntity {
     @ElementCollection
     private List<BlockEmb> blockEmbs=new ArrayList<>();
     private Long matchVersion=0L;
+    private BetStrategy strategy;
+    @Enumerated
+    private BrokerType broker;
 
     public ReducerEntity() {
     }
@@ -135,5 +140,21 @@ public class ReducerEntity {
 
     public Long getMatchVersion() {
         return matchVersion;
+    }
+
+    public BetStrategy getStrategy() {
+        return this.strategy;
+    }
+
+    public void setStrategy(BetStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public BrokerType getBroker() {
+        return broker;
+    }
+
+    public void setBroker(BrokerType broker) {
+        this.broker = broker;
     }
 }

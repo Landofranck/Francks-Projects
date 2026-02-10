@@ -1,6 +1,7 @@
 package project.adapter.in.web;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import project.adapter.in.web.Reducer.UpdateMatchDto;
 import project.adapter.in.web.TransactionDTO.WithdrawDto;
 import project.adapter.in.web.bettinAccountDTO.AddPickRequestBetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.BettingAccountDto;
@@ -22,10 +23,8 @@ import project.application.port.in.MomoAccounts.*;
 import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;
 import project.application.port.in.betSlip.CreateMatchUseCase;
 import project.application.port.in.betSlip.MakeBetUseCase;
-import project.application.port.out.Reducer.DeleteReducerByIdPort;
 import project.domain.model.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @ApplicationScoped
@@ -98,7 +97,7 @@ public class BettingServiceAdapter {
     public Long createMatch(MatchDto dto) {
         if (dto.getMatchOutComes() == null || dto.getMatchOutComes().isEmpty())
             throw new IllegalArgumentException("you need outcomes BSA line 77");
-        var domain = mapper.toMatchDomain(dto);
+        var domain = mapper.matchOutComePickList(dto);
         if (domain.getMatchOutComes() == null || domain.getMatchOutComes().isEmpty())
             throw new IllegalArgumentException("you need outcomes BSA line 77");
 
@@ -139,8 +138,8 @@ public class BettingServiceAdapter {
         deleteMatchFromSystem.deleteMatchById(id.Id());
     }
 
-    public void updateMatch(Long id, MatchDto dto) {
-        var in = mapper.toMatchDomain(dto);
+    public void updateMatch(Long id, UpdateMatchDto dto) {
+        var in = mapper.matchOutComePickList(dto);
         updateMatchUse.updateMatch(id, in);
     }
 

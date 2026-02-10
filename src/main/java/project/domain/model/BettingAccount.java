@@ -15,10 +15,10 @@ public class BettingAccount implements Account {
     private final String accountName;
     private final BrokerType brokerType;
     private Money balance;
-    private final List<Transaction> transactionHistory;
-    private final List<BetSlip> betHistory;
+    private List<Transaction> transactionHistory;
+    private List<BetSlip> betHistory;
     private DraftBetSlip draftBetSlip;
-    private final List<Bonus> bonuses;
+    private List<Bonus> bonuses;
 
     public BettingAccount(String accountName, BrokerType brokerType) {
         this.accountName = accountName;
@@ -91,8 +91,8 @@ public class BettingAccount implements Account {
         try {
             var b=this.bonuses.get(bonusIndex);
 
-        if(b.getStatus().equals(BonusStatus.EXPIRED))
-            throw new IllegalArgumentException("This bonus has expired; bettingAccount 83");
+        if(b.getStatus().equals(BonusStatus.EXPIRED)||b.getStatus().equals(BonusStatus.REDEEMED))
+            throw new IllegalArgumentException("This bonus has expired or has been redeemed; bettingAccount 83");
         b.setStatus(BonusStatus.REDEEMED);
         this.draftBetSlip.setStatus(BetStatus.PENDING);
         this.draftBetSlip.setStake(b.getAmount());
@@ -156,5 +156,6 @@ public class BettingAccount implements Account {
     public List<Bonus> getBonuses() {
         return bonuses;
     }
+
 
 }

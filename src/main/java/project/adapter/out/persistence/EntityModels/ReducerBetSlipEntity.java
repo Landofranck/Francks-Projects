@@ -31,6 +31,7 @@ public class ReducerBetSlipEntity {
     private ReducerEntity reducerParent;
     @Enumerated
     private BetStrategy betStrategy;
+    private double bonusOdds;
 
     public void addMatchEventPickEntity(MatchEventPickEmbd entity) {
         this.picks.add(entity);
@@ -122,5 +123,12 @@ public class ReducerBetSlipEntity {
 
     public void setBetStrategy(BetStrategy betStrategy) {
         this.betStrategy = betStrategy;
+    }
+
+    public void setBonusOdds(double bonusOdds) {
+        this.bonusOdds=bonusOdds;
+    }
+    public double getBonusOdds(){
+        return this.bonusOdds;
     }
 }

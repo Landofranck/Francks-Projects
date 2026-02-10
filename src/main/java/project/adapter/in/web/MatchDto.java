@@ -13,12 +13,13 @@ public class MatchDto {
     private String home;
     @NotNull
     private String away;
-    @NotNull
-    private List<MatchEventPickDto> matchOutComes;
     @NotNull()
     private BrokerType broker;
     @NotNull
     private League matchLeague;
+    @NotNull
+    private List<MatchEventPickDto> matchOutComes;
+
 
 
     public String getHome() {

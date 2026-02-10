@@ -210,7 +210,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
 
     @Transactional
     @Override
-    public void updateMatch(Long id, Match in) {
+    public void updateMatch(Long id, List<MatchOutComePick> in) {
         var out = entityManager.find(MatchEntity.class, id);
         if (out == null)
             throw new NotFoundException("Match with id " + id + " does'nt exist");

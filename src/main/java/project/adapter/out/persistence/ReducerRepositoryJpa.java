@@ -58,9 +58,6 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
         var reducer = entityManager.find(ReducerEntity.class, reducerId);
         var match = entityManager.find(MatchEntity.class, matchId);
         if (reducer == null || match == null) throw new NotFoundException("enter valid Id's");
-        if (reducer.getBroker().equals(match.getBroker())) {
-            throw new IllegalArgumentException("you can only add matches with the broker: " + reducer.getBroker());
-        }
         reducer.addMatches(match);
         entityManager.flush();
         entityManager.clear();

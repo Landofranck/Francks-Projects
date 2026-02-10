@@ -4,11 +4,9 @@ package project.application.service.betSlip;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import org.hibernate.Incubating;
 import project.application.port.in.betSlip.MakeBetUseCase;
-import project.application.port.out.bettingAccount.ReadBettingAccountByIdPort;
-import project.application.port.out.bettingAccount.AppendBettingAccountTransactionPort;
-import project.application.port.out.bettingAccount.PersistBetSlipToAccountPort;
-import project.application.port.out.bettingAccount.UpdateBettingAccountBalancePort;
+import project.application.port.out.bettingAccount.*;
 import project.config.TimeProvider;
 import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.BetStrategy;
@@ -34,6 +32,8 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
     RemoveAllPicksImpl removeAllPicks;
     @Inject
     TimeProvider timeProvider;
+    @Inject
+    UpdateBettingAccountPort updateBettingAccount;
 
     @Transactional
     @Override
@@ -69,8 +69,9 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
             updateBalance.updateBalance(account);
             appendTx.appendToBettingAccount(bettingAccountId, tx);
         }
-        draftSlip.checkCategory();
+         draftSlip.checkCategory();
         // Persist betslip into betHistory
+        updateBettingAccount.updateBettingAccount(bettingAccountId,account);
         return persistSlip.persistSlipToAccount(bettingAccountId, draftSlip, strategy);
 
     }

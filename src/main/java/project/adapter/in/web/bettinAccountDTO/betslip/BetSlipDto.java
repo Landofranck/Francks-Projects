@@ -5,6 +5,7 @@ import project.adapter.in.web.MatchEventPickDto;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.BetStrategy;
+import project.domain.model.Enums.BrokerType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -24,6 +25,7 @@ public class BetSlipDto {
     private BigDecimal potentialWinning;
     private BetStrategy strategy;
     private Boolean bonusSlip;
+    private double bonusOdds;
 
     public BetSlipDto() {
     }
@@ -114,5 +116,13 @@ public class BetSlipDto {
 
     public void setBonusSlip(Boolean bonusSlip) {
         this.bonusSlip = bonusSlip;
+    }
+
+    public void setBonusOdds(double bonusOdds) {
+        this.bonusOdds=bonusOdds;
+    }
+
+    public double getBonusOdds() {
+        return bonusOdds;
     }
 }

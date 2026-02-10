@@ -23,6 +23,7 @@ public class DraftBetSlip implements Event {
     private Money potentialWinning;
     private BetStrategy strategy;
     private Boolean bonusSlip;
+    private double bonusOdds;
 
     public DraftBetSlip(BetCategory category) {
         this.category = category;
@@ -61,6 +62,13 @@ public class DraftBetSlip implements Event {
         calculatPotentialWinning();
     }
 
+    public void removeMatchEventPicksByIndex(int i) {
+        this.picks.remove(i);
+        makeTotalOdds();
+        this.numberOfEvents = picks.size();
+        calculatPotentialWinning();
+    }
+
     public void removeAllMatchEventPicks() {
         this.picks.clear();
         this.totalOdds = 0;
@@ -73,13 +81,6 @@ public class DraftBetSlip implements Event {
 
     public Money getPotentialWinning() {
         return potentialWinning;
-    }
-
-    public void removeMatchEventPicksByIndex(int i) {
-        this.picks.remove(i);
-        makeTotalOdds();
-        this.numberOfEvents = picks.size();
-        calculatPotentialWinning();
     }
 
     public int getNumberOfEvents() {
@@ -167,5 +168,13 @@ public class DraftBetSlip implements Event {
 
     public Boolean getBonusSlip() {
         return bonusSlip;
+    }
+
+    public double getBonusOdds() {
+        return this.bonusOdds;
+    }
+
+    public void setBonusOdds(double bonusOdds) {
+        this.bonusOdds = bonusOdds;
     }
 }

@@ -51,6 +51,7 @@ public class Reducer implements Account {
     private Long matchVersion;
     private List<Match> betMatches;
     private List<ReducerBetSlip> slips;
+    //determines which type of matches are to be added here
     private BrokerType broker;
 
     private Money bonusAmount;
@@ -278,11 +279,12 @@ public class Reducer implements Account {
 
     /* -------------------- Slip building / copying -------------------- */
     private ReducerBetSlip buildSlipFrom(List<MatchOutComePick> picks, BetCategory category) {
-        ReducerBetSlip s = new ReducerBetSlip(category,this.strategy);
+        ReducerBetSlip s = new ReducerBetSlip(category,this.strategy,this.broker);
         for (MatchOutComePick p : picks) {
             s.addMatchEventPick(copyPick(p));
         }
         s.makeTotalOdds();
+        s.updateCategory();
         return s;
     }
 

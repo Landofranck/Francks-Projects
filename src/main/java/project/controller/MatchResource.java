@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.Response;
 import project.adapter.in.web.BettingServiceAdapter;
 import project.adapter.in.web.IdDto;
 import project.adapter.in.web.MatchDto;
+import project.adapter.in.web.Reducer.UpdateMatchDto;
 
 import java.util.List;
 
@@ -49,8 +50,8 @@ public class MatchResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/updateMatch")
-    public Response updateMatch(@Valid MatchDto match) {
-            serviceAdapter.updateMatch(match.getId(), match);
+    public Response updateMatch(@Valid UpdateMatchDto match) {
+            serviceAdapter.updateMatch(match.id(), match);
             return Response.noContent().build();
 
     }

@@ -14,7 +14,6 @@ public class AddMatchToReducerUseCaseImpl implements AddMatchToReducerUseCase {
     @Override
     public Reducer addMatchToReducer(Long reducerId, Long in) {
 
-    var out= addMatchToReducer.addMatchToReducer(reducerId,in);
-    return out;
+        return addMatchToReducer.addMatchToReducer(reducerId,in);
     }
 }

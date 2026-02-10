@@ -121,6 +121,7 @@ public class ReducerMapper {
             out.setRemainingStake(betSlip.getRemainingStake().getValue());
             out.setNumberOfEvents(betSlip.getNumberOfEvents());
             out.setBetStrategy(betSlip.getBetStrategy());
+            out.setBonusOdds(betSlip.getBonusOdds());
             if (betSlip.getPicks() != null) {
                 for (MatchOutComePick p : betSlip.getPicks()) {
                     out.addMatchEventPickEntity(new MatchEventPickEmbd(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague()));
@@ -134,7 +135,7 @@ public class ReducerMapper {
 
     public ReducerBetSlip toReducerBetSlipDomain(ReducerBetSlipEntity betSlip) {
         try {
-            var out = new ReducerBetSlip(betSlip.getCategory(), betSlip.getBetStrategy());
+            var out = new ReducerBetSlip(betSlip.getCategory(), betSlip.getBetStrategy(),betSlip.getBrokerType());
             if (betSlip.getPicks() != null) {
                 for (MatchEventPickEmbd p : betSlip.getPicks()) {
                     out.addMatchEventPick(new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague()));
@@ -149,6 +150,7 @@ public class ReducerMapper {
             out.setNumberOfEvents(betSlip.getNumberOfEvents());
             out.setRemainingStake(new Money(betSlip.getRemainingStake()));
             out.setBetStrategy(betSlip.getBetStrategy());
+            out.setBonusOdds(betSlip.getBonusOdds());
             return out;
         } catch (Exception e) {
             throw new RuntimeException("could not convert to betslip entity mapper line 164" + e.getMessage());

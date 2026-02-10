@@ -4,6 +4,7 @@ import net.bytebuddy.dynamic.loading.InjectionClassLoader;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.BetStrategy;
+import project.domain.model.Enums.BrokerType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -17,10 +18,12 @@ public class BetSlip implements Event {
     private BetStatus status;
     private BetCategory category;
     private Instant createdAt;
+    private BrokerType brokerType;
     //int the reducer method betslips will be created without parent accounts
     private BettingAccount parentAccount;
     private Money stake;
     private double totalOdds;
+    private double bonusOdds;
     private int numberOfEvents;
     private Money potentialWinning;
     private Boolean bonusSlip;
@@ -28,35 +31,74 @@ public class BetSlip implements Event {
     public BetSlip(Boolean bonusSlip, BetStrategy strategy) {
         this.picks = new ArrayList<>();
         this.status = BetStatus.PENDING;
-        this.stake= new Money(BigDecimal.ZERO);
-        this.totalOdds=0;
-        this.numberOfEvents=picks.size();
-        this.strategy=strategy;
-        this.bonusSlip=bonusSlip;
+        this.stake = new Money(BigDecimal.ZERO);
+        this.totalOdds = 0;
+        this.bonusOdds = 0;
+        this.strategy = strategy;
+        this.bonusSlip = bonusSlip;
     }
 
+    //this method calculates the odds for the slip and accummulator bonus odds
     public void makeTotalOdds() {
         double output = 1;
-        for (MatchOutComePick m : picks) {
-            output *= m.getOdd();
+        int count = 1;
+        double bonusOutput = 1;
+        if (this.brokerType == BrokerType.ONE_X_BET) {
+
+            for (MatchOutComePick m : picks) {
+                output *= m.getOdd();
+                if (count == 3)
+                    bonusOutput = 1.03;
+                if (count > 3)
+                    bonusOutput += 0.01;
+                count++;
+            }
+
+            this.totalOdds = output * bonusOutput;
+        } else if (this.brokerType == BrokerType.BETPAWA) {
+            for (MatchOutComePick m : picks) {
+                output *= m.getOdd();
+                if (count == 3)
+                    bonusOutput = 1.03;
+                if (count == 4)
+                    bonusOutput = 1.05;
+                if (count > 4)
+                    bonusOutput += 0.05;
+                if (count > 20)
+                    bonusOutput += 1.1;
+                if (count > 29)
+                    bonusOutput += 1.15;
+                if (count == 28)
+                    bonusOutput = 2.85;
+                if (m.getOdd() > 1.2)
+                    count++;
+            }
+
+            this.totalOdds = (((100+ (output*100)-100)+((output*100)-100)*(bonusOutput-1))/100);
+        } else {
+            for (MatchOutComePick m : picks) {
+                output *= m.getOdd();
+            }
         }
-        this.totalOdds = output;
+        this.bonusOdds = bonusOutput;
     }
 
     public void addMatchEventPick(MatchOutComePick pick) {
         this.picks.add(pick);
         pick.setOwner(this);
         makeTotalOdds();
-        this.numberOfEvents=picks.size();
+        this.numberOfEvents = picks.size();
         updateCategory();
     }
-    public void updateCategory(){
-        if(picks.size()>1){
-            category=BetCategory.COMBINATION;
-        }else {
-            category=BetCategory.SINGLE;
+
+    public void updateCategory() {
+        if (picks.size() > 1) {
+            category = BetCategory.COMBINATION;
+        } else {
+            category = BetCategory.SINGLE;
         }
     }
+
     public void removeMatchEventPicksByIndex(int i) {
         this.picks.remove(i);
         makeTotalOdds();
@@ -161,5 +203,21 @@ public class BetSlip implements Event {
 
     public Boolean getBonusSlip() {
         return bonusSlip;
+    }
+
+    public double getBonusOdds() {
+        return bonusOdds;
+    }
+
+    public void setBonusOdds(double bonusOdds) {
+        this.bonusOdds = bonusOdds;
+    }
+
+    public void setBrokerType(BrokerType brokerType) {
+        this.brokerType = brokerType;
+    }
+
+    public BrokerType getBrokerType() {
+        return brokerType;
     }
 }

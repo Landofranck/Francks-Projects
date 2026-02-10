@@ -83,6 +83,7 @@ public class DTOMapper {
         dto.setTotalOdds(domain.getTotalOdds());
         dto.setCategory(domain.getCategory());
         dto.setBonusSlip(domain.getBonusSlip());
+        dto.setBonusOdds(domain.getBonusOdds());
         dto.setStrategy(domain.getStrategy());
         dto.setPicks(domain.getPicks().stream().map(this::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new)));
         return dto;
@@ -90,7 +91,7 @@ public class DTOMapper {
 
     public ReducerSlipDto toReducerSlipDto(ReducerBetSlip domain) {
         var picks = domain.getPicks().stream().map(this::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new));
-        return new ReducerSlipDto(domain.getCategory(), domain.getBrokerType(), domain.getPlanedStake().getValue(), domain.getRemainingStake().getValue(), domain.getTotalOdds(), domain.getBetStrategy(), domain.getNumberOfEvents(), domain.getPotentialWinning().getValue(), picks);
+        return new ReducerSlipDto(domain.getCategory(), domain.getBrokerType(), domain.getPlanedStake().getValue(), domain.getRemainingStake().getValue(), domain.getTotalOdds(), domain.getBetStrategy(), domain.getNumberOfEvents(), domain.getPotentialWinning().getValue(), domain.getBonusOdds(),picks);
     }
 
     public MobileMoneyAccount toMobileMoneyDomain(Long id, CreateMobileMoneyAccountDto dto) {
@@ -132,7 +133,7 @@ public class DTOMapper {
         return accounts.stream().map(this::toMobileMoneyDto).toList();
     }
 
-    public Match toMatchDomain(MatchDto dto) {
+    public Match matchOutComePickList(MatchDto dto) {
         if (dto.getMatchOutComes() == null || dto.getMatchOutComes().isEmpty())
             throw new IllegalArgumentException("match must have outcomes :Dto mapper line 94");
 
@@ -144,6 +145,14 @@ public class DTOMapper {
         domain.setMatchId(dto.getId());
         domain.setMatchLeague(dto.getMatchLeague());
         return domain;
+    }
+    public List<MatchOutComePick> matchOutComePickList(UpdateMatchDto dto) {
+
+            List<MatchOutComePick> out=new ArrayList<>();
+        for (MatchEventPickDto o : dto.matchOutComes()) {
+            out.add(toMatchEventpick(o));
+        }
+        return out;
     }
 
     private MatchOutComePick toMatchEventpick(MatchEventPickDto eventDto) {
@@ -229,8 +238,8 @@ public class DTOMapper {
         domain.setStake(new Money(slip.getStake()));
         domain.setTotalOdds(slip.getTotalOdds());
         domain.setStatus(slip.getStatus());
-        domain.setBonusSlip(slip.getBonusSlip());
         domain.setPotentialWinning(new Money(slip.getPotentialWinning()));
+        domain.setBonusOdds(slip.getBonusOdds());
 
         return domain;
     }

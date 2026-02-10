@@ -5,6 +5,7 @@ import project.adapter.out.persistence.EntityModels.ReducerEntity;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.BetStrategy;
+import project.domain.model.Enums.BrokerType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -34,6 +35,7 @@ public class BetSlipEntity {
     private BigDecimal stake;
     private BigDecimal potentialWinning;
     private Boolean bonusSlip;
+    private double bonusOdds;
 
     public BetSlipEntity() {
     }
@@ -131,4 +133,13 @@ public class BetSlipEntity {
     public Boolean getBonusSlip() {
         return this.bonusSlip;
     }
+
+    public double getBonusOdds() {
+        return this.bonusOdds;
+    }
+
+    public void setBonusOdds(double bonusOdds) {
+        this.bonusOdds = bonusOdds;
+    }
+
 }

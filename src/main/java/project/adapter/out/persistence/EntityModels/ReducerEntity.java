@@ -37,6 +37,8 @@ public class ReducerEntity {
     }
 
     public void addMatches(MatchEntity match) {
+        if(match.getBroker()!=this.broker)
+            throw new InputMismatchException("You can only add match of the broker: "+ this.broker+", to the reducer");
         Objects.requireNonNull(match, "match");
         betMatchEntities.add(match);
         match.addParent(this);

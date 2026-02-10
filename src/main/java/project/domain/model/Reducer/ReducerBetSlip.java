@@ -24,8 +24,9 @@ public class ReducerBetSlip implements Event {
     private int numberOfEvents;
     private Money potentialWinning;
     private BetStrategy betStrategy;
+    private double bonusOdds;
 
-    public ReducerBetSlip(BetCategory category, BetStrategy strategy) {
+    public ReducerBetSlip(BetCategory category, BetStrategy strategy, BrokerType type) {
         this.category = category;
         this.picks = new ArrayList<>();
         this.planedStake = new Money(BigDecimal.ZERO);
@@ -34,16 +35,65 @@ public class ReducerBetSlip implements Event {
         this.numberOfEvents = 0;
         this.potentialWinning = new Money(BigDecimal.ZERO);
         this.betStrategy = strategy;
+        this.brokerType=type;
     }
 
     public void makeTotalOdds() {
         double output = 1;
-        for (MatchOutComePick m : picks) {
-            output *= m.getOdd();
-        }
-        this.totalOdds = output;
-    }
+        int count = 1;
+        double bonusOutput = 1;
+        if (this.brokerType == BrokerType.ONE_X_BET) {
 
+            for (MatchOutComePick m : picks) {
+                output *= m.getOdd();
+                if (count == 3)
+                    bonusOutput = 1.03;
+                if (count > 3)
+                    bonusOutput += 0.01;
+                count++;
+            }
+            this.totalOdds = output * bonusOutput;
+        } else if (this.brokerType == BrokerType.BETPAWA) {
+            for (MatchOutComePick m : picks) {
+                output *= m.getOdd();
+                if (count == 3) {
+                    bonusOutput = 1.03;
+                }
+                if (count == 4) {
+                    bonusOutput = 1.05;
+                }
+                if (count > 4) {
+                    bonusOutput += 0.05;
+                }
+                if (count > 20) {
+                    bonusOutput += 1.1;
+                }
+                if (count > 29) {
+                    bonusOutput += 1.15;
+                }
+                if (count == 28) {
+                    bonusOutput = 2.85;
+                }
+                if (m.getOdd() > 1.2) {
+                    count++;
+                }
+            }
+
+            this.totalOdds = (((100+ (output*100)-100)+((output*100)-100)*(bonusOutput-1))/100);
+        } else {
+            for (MatchOutComePick m : picks) {
+                output *= m.getOdd();
+            }
+        }
+        this.bonusOdds = bonusOutput;
+    }
+    public void updateCategory() {
+        if (picks.size() > 1) {
+            category = BetCategory.COMBINATION;
+        } else {
+            category = BetCategory.SINGLE;
+        }
+    }
     public void addMatchEventPick(MatchOutComePick pick) {
         this.picks.add(pick);
         pick.setOwner(this);
@@ -163,5 +213,13 @@ public class ReducerBetSlip implements Event {
 
     public BetStrategy getBetStrategy() {
         return betStrategy;
+    }
+
+    public double getBonusOdds() {
+        return this.bonusOdds;
+    }
+
+    public void setBonusOdds(double bonusOdds) {
+        this.bonusOdds = bonusOdds;
     }
 }

@@ -30,6 +30,7 @@ public class DraftSlipEntity {
     private BigDecimal potentialWinning;
     private BetStrategy strategy;
     private Boolean bonusSlip;
+    private double bonusOdds;
 
     public BettingAccountEntity getDraftBetSlipOwner() {
         return draftBetSlipOwner;
@@ -128,5 +129,13 @@ public class DraftSlipEntity {
 
     public void setBonusSlip(Boolean bonusSlip) {
         this.bonusSlip = bonusSlip;
+    }
+
+    public double getBonusOdds() {
+        return this.bonusOdds;
+    }
+
+    public void setBonusOdds(double bonusOdds) {
+        this.bonusOdds = bonusOdds;
     }
 }

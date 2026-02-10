@@ -24,6 +24,7 @@ public record ReducerSlipDto(
         BetStrategy betStrategy,
         int numberOfEvents,
         BigDecimal potentialWinings,
+        double bonusOdds,
         List<MatchEventPickDto> picks
 ) {
 }

@@ -91,7 +91,7 @@ public class DTOMapper {
 
     public ReducerSlipDto toReducerSlipDto(ReducerBetSlip domain) {
         var picks = domain.getPicks().stream().map(this::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new));
-        return new ReducerSlipDto(domain.getCategory(), domain.getBrokerType(), domain.getPlanedStake().getValue(), domain.getRemainingStake().getValue(), domain.getTotalOdds(), domain.getBetStrategy(), domain.getNumberOfEvents(), domain.getPotentialWinning().getValue(), domain.getBonusOdds(),picks);
+        return new ReducerSlipDto(domain.getCategory(), domain.getBrokerType(), domain.getPlanedStake().getValue(), domain.getRemainingStake().getValue(), domain.getTotalOdds(), domain.getBetStrategy(), domain.getNumberOfEvents(), domain.getPotentialWinning().getValue(), domain.getBonusOdds(), picks);
     }
 
     public MobileMoneyAccount toMobileMoneyDomain(Long id, CreateMobileMoneyAccountDto dto) {
@@ -133,22 +133,19 @@ public class DTOMapper {
         return accounts.stream().map(this::toMobileMoneyDto).toList();
     }
 
-    public Match matchOutComePickList(MatchDto dto) {
-        if (dto.getMatchOutComes() == null || dto.getMatchOutComes().isEmpty())
-            throw new IllegalArgumentException("match must have outcomes :Dto mapper line 94");
-
+    public Match toMatchDomain(MatchDto dto) {
         var domain = new Match(dto.getHome(), dto.getAway(), dto.getBroker());
+        domain.setMatchId(dto.getId());
+        domain.setMatchLeague(dto.getMatchLeague());
         for (MatchEventPickDto o : dto.getMatchOutComes()) {
             domain.addPick(toMatchEventpick(o));
         }
-
-        domain.setMatchId(dto.getId());
-        domain.setMatchLeague(dto.getMatchLeague());
         return domain;
     }
+
     public List<MatchOutComePick> matchOutComePickList(UpdateMatchDto dto) {
 
-            List<MatchOutComePick> out=new ArrayList<>();
+        List<MatchOutComePick> out = new ArrayList<>();
         for (MatchEventPickDto o : dto.matchOutComes()) {
             out.add(toMatchEventpick(o));
         }
@@ -157,6 +154,7 @@ public class DTOMapper {
 
     private MatchOutComePick toMatchEventpick(MatchEventPickDto eventDto) {
         var pick = new MatchOutComePick(eventDto.getMatchId(), eventDto.getMatchKey(), eventDto.getOutcomeName(), eventDto.getOdd(), eventDto.getLeague());
+        pick.setOutcomePickStatus(eventDto.getStatus());
         return pick;
     }
 
@@ -176,12 +174,13 @@ public class DTOMapper {
         return dto;
     }
 
-    private MatchEventPickDto toMatchEventPickDto(MatchOutComePick mP) {
+    public MatchEventPickDto toMatchEventPickDto(MatchOutComePick mP) {
         var dto = new MatchEventPickDto();
         dto.setMatchKey(mP.getMatchKey());
         dto.setOdd(mP.getOdd());
         dto.setMatchId(mP.getIdentity());
         dto.setOutcomeName(mP.getOutcomeName());
+        dto.setLeague(mP.getLeague());
         dto.setLeague(mP.getLeague());
         return dto;
     }
@@ -229,7 +228,7 @@ public class DTOMapper {
 
 
     public Reducer toReducerDomain(CreateReducerDto dto) {
-        return  new Reducer(new Money(dto.getTotalStake()), new Money(dto.getBonusAmount()), dto.getBetStrategy(), dto.getBroker());
+        return new Reducer(new Money(dto.getTotalStake()), new Money(dto.getBonusAmount()), dto.getBetStrategy(), dto.getBroker());
     }
 
 
@@ -257,6 +256,6 @@ public class DTOMapper {
     }
 
     public Bonus toBonusDomain(BonusDto bonus) {
-        return new Bonus(bonus.amount(),bonus.expiryDate(),bonus.status());
+        return new Bonus(bonus.amount(), bonus.expiryDate(), bonus.status());
     }
 }

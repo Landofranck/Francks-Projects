@@ -14,6 +14,7 @@ import project.domain.model.Reducer.Reducer;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 
 @ApplicationScoped
@@ -31,7 +32,7 @@ public class PlaceBetFromReducerUseCaseImpl implements PlaceBetFromReducerUseCas
     @Override
     public Reducer placeBetFromReducer(Long reducerId, Long bettingAccountId, int slipNumber, Money stake, Integer bonusSlip) {
         var red = getReducerById.getReducer(reducerId);
-        var test= (bonusSlip == null || bonusSlip<0);
+        var test = (bonusSlip == null || bonusSlip < 0);
         if (stake.equals(new Money(0)) && (test)) {
             throw new IllegalArgumentException("you have to put a stake or pick a bonus slip");
         } else if (stake.isGreaterOrEqual(new Money(1)) && (bonusSlip != null)) {
@@ -49,15 +50,16 @@ public class PlaceBetFromReducerUseCaseImpl implements PlaceBetFromReducerUseCas
         }
 
 
-        var acc=readBettingAccount.getBettingAccount(bettingAccountId);
+        var acc = readBettingAccount.getBettingAccount(bettingAccountId);
         List<String> outCome = new ArrayList<>();
         for (MatchOutComePick r : red.getSlips().get(slipNumber).getPicks()) {
             outCome.add(r.getOutcomeName());
         }
+        if (acc.getBrokerType() != red.getBroker())
+            throw new InputMismatchException("The Reducer account must have the same brokerType as the betting account placeBetFromRedimpl 59");
 
-
-        var betStake=(!test)? acc.getBonuses().get(bonusSlip).getAmount():stake;
-        red.getSlips().get(slipNumber).placeParBet(betStake,!test);
+            var betStake = (!test) ? acc.getBonuses().get(bonusSlip).getAmount() : stake;
+        red.getSlips().get(slipNumber).placeParBet(betStake, !test);
         makeBetUseCase.makeBet(bettingAccountId, matchIds, outCome, stake, red.getStrategy(), bonusSlip);
 
         return updateReducer.updateReducer(reducerId, red);

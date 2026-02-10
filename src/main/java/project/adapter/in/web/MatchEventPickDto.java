@@ -3,6 +3,7 @@ package project.adapter.in.web;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.League;
 
 public class MatchEventPickDto {
@@ -15,6 +16,8 @@ public class MatchEventPickDto {
     private double odd;
     @NotNull
     private League league;
+    @NotNull
+    private BetStatus status;
 
     public MatchEventPickDto() {}
 
@@ -41,5 +44,13 @@ public class MatchEventPickDto {
 
     public League getLeague() {
         return league;
+    }
+
+    public void setStatus(BetStatus status) {
+        this.status = status;
+    }
+
+    public BetStatus getStatus() {
+        return status;
     }
 }

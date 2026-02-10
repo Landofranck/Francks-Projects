@@ -12,9 +12,6 @@ public class CreateMatchUseCaseImpl implements CreateMatchUseCase {
     PersistMatchPort persist;
 
     public Long createMatch(Match match) {
-        if (match.getMatchOutComes() == null || match.getMatchOutComes().isEmpty())
-            throw new IllegalArgumentException("Match must have at least 1 outcome");
-
         return persist.saveMatch(match);
     }
 }

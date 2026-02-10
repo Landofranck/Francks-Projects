@@ -79,6 +79,10 @@ public class BettingAccount implements Account {
         this.balance = balance.subtract(money);
         return new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.BET_PLACED, description);
     }
+    public Transaction betWonTransction(Money money, String description) {
+        this.balance = balance.add(money);
+        return new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.BET_WON, description);
+    }
 
     public void placeBet(Money stake, Instant now) {
         this.draftBetSlip.setStake(stake);

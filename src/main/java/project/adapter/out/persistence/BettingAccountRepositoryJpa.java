@@ -5,18 +5,18 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import project.adapter.out.persistence.EntityModels.BettingAccount.BettingAccountEntity;
+import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEventPickEntity;
 import project.adapter.out.persistence.Mappers.BettingAccountMapper;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 import project.application.port.out.DeleteMatchByIdPort;
-import project.application.port.out.Match.GetMatchByIdPort;
-import project.application.port.out.Match.PersistMatchPort;
-import project.application.port.out.Match.ReadAllMatchesPort;
-import project.application.port.out.Match.ReadMatchByIdPort;
+import project.application.port.out.Match.*;
 import project.application.port.out.UpdateMatchPort;
 import project.application.port.out.bettingAccount.*;
 import project.domain.model.*;
+import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.BetStrategy;
 import project.domain.model.Enums.BrokerType;
+import project.domain.model.Enums.League;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +25,7 @@ import java.util.Objects;
 public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadBettingAccountByIdPort, ReadAllBettingAccountsPort,
         UpdateBettingAccountBalancePort, AppendBettingAccountTransactionPort,
         PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort, PersistEmptyBetSlipPort,
-        ReadEmptSlipByParenPort, DeleteMatchByIdPort, UpdateMatchPort, GetMatchByIdPort, UpdateBettingAccountPort {
+        ReadEmptSlipByParenPort, DeleteMatchByIdPort, UpdateMatchPort, GetMatchByIdPort, UpdateBettingAccountPort, UpdateMatchPickStatusPort, FindMatchOutComeByParametersPort {
     @Inject
     EntityManager entityManager;
     @Inject
@@ -231,5 +231,30 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     public void updateBettingAccount(Long bettingId, BettingAccount updated) {
         var oldVersion = entityManager.find(BettingAccountEntity.class, bettingId);
         mapper.applyTobettingAccount(oldVersion, updated);
+    }
+
+    @Transactional
+    @Override
+    public List<MatchOutComePick> findMatchOutComes(String matchKey, String outcomeName,League outComePickLeague){
+        List<MatchEventPickEntity> matchEventPicks = entityManager.createQuery(
+                        "SELECT r FROM MatchEventPickEntity r WHERE LOWER(r.matchKey)=LOWER(:matchKey) AND LOWER(r.outcomeName)=LOWER(:outcomeName) AND r.league=(:league)", MatchEventPickEntity.class
+                )
+                .setParameter("matchKey", matchKey)
+                .setParameter("outcomeName", outcomeName)
+                .setParameter("league", outComePickLeague)
+                .getResultList();
+        return mapper.toListOfMatchOutComePick(matchEventPicks);
+    }
+
+    @Transactional
+    @Override
+    public Long updateMatchPick(Long matchPickId, BetStatus newPickStatus) {
+        var out=entityManager.find(MatchEventPickEntity.class,matchPickId);
+        if(out==null)
+            throw new NotFoundException("MatcheventPickentity with Id "+matchPickId+" not found: betting accoutn JPA 260");
+        out.setOutComePickStatus(newPickStatus);
+        entityManager.flush();
+        entityManager.clear();
+        return out.getParentBetSlipEntity().getParentAccountEntity().getId();
     }
 }

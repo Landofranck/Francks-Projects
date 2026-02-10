@@ -1,7 +1,9 @@
 package project.adapter.in.web;
 
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.jboss.logging.annotations.Message;
 import project.domain.model.Enums.BrokerType;
 import project.domain.model.Enums.League;
 
@@ -17,7 +19,8 @@ public class MatchDto {
     private BrokerType broker;
     @NotNull
     private League matchLeague;
-    @NotNull
+    @NotNull(message = "you cannot create match without outcomes: MatchDto 22")
+    @NotEmpty(message = "you cannot create match without outcomes: MatchDto 23")
     private List<MatchEventPickDto> matchOutComes;
 
 

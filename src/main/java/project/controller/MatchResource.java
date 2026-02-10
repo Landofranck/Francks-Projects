@@ -9,8 +9,8 @@ import project.adapter.in.web.BettingServiceAdapter;
 import project.adapter.in.web.IdDto;
 import project.adapter.in.web.MatchDto;
 import project.adapter.in.web.Reducer.UpdateMatchDto;
-
-import java.util.List;
+import project.adapter.in.web.bettinAccountDTO.betslip.UpdateMatchOutcomeDto;
+import project.domain.model.Enums.League;
 
 @Path("/matches")
 @Produces(MediaType.APPLICATION_JSON)
@@ -29,6 +29,12 @@ public class MatchResource {
     @Path("{MatchId}")
     public Response getAll(@PathParam("MatchId") Long id) {
         var out = serviceAdapter.getMatchByid(id);
+        return Response.ok().entity(out).build();
+    }
+    @GET
+    @Path("/byParams")
+    public Response getAll(@QueryParam("matchKey") String matchKey, @QueryParam ("outcomeName") String outComeName, @QueryParam("league")League league) {
+        var out = serviceAdapter.getMatchOutcomesByParam(matchKey,outComeName,league);
         return Response.ok().entity(out).build();
     }
 
@@ -55,5 +61,14 @@ public class MatchResource {
             return Response.noContent().build();
 
     }
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/updateMatchOutcome")
+    public Response updateMatchOutcomeEntity(@Valid UpdateMatchOutcomeDto dto) {
+        serviceAdapter.updateMatchOutcomes(dto);
+        return Response.noContent().build();
+
+    }
+
 }
 

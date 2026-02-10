@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import project.adapter.out.persistence.EntityModels.*;
 import project.adapter.out.persistence.EntityModels.BettingAccount.*;
 import project.domain.model.*;
+import project.domain.model.Enums.BetStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,15 +88,15 @@ public class BettingAccountMapper {
         return transactionEntity;
     }
 
-    public MatchEntity toMatchEntity(Match domainPick) {
+    public MatchEntity toMatchEntity(Match domain) {
         var matchEntity = new MatchEntity();
-        matchEntity.setAway(domainPick.getAway());
-        matchEntity.setHome(domainPick.getHome());
-        matchEntity.setLeague(domainPick.getMatchLeague());
-        matchEntity.setBroker(domainPick.getBroker());
-        if (domainPick.getMatchOutComes() == null || domainPick.getMatchOutComes().isEmpty())
+        matchEntity.setAway(domain.getAway());
+        matchEntity.setHome(domain.getHome());
+        matchEntity.setLeague(domain.getMatchLeague());
+        matchEntity.setBroker(domain.getBroker());
+        if (domain.getMatchOutComes() == null || domain.getMatchOutComes().isEmpty())
             throw new RuntimeException("match must have outcomes line 78 mapper");
-        for (MatchOutComePick m : domainPick.getMatchOutComes()) {
+        for (MatchOutComePick m : domain.getMatchOutComes()) {
             matchEntity.addOutcome(toMatchOutcomeEntity(m));
         }
         return matchEntity;
@@ -108,6 +109,7 @@ public class BettingAccountMapper {
         matchEventPickEntity.setOdd(domainPick.getOdd());
         matchEventPickEntity.setOutcomeName(domainPick.getOutcomeName());
         matchEventPickEntity.setLeague(domainPick.getLeague());
+        matchEventPickEntity.setOutComePickStatus(domainPick.getOutcomePickStatus());
         return matchEventPickEntity;
     }
 
@@ -119,6 +121,7 @@ public class BettingAccountMapper {
         outcomeEntity.setMatchKey(m.getMatchKey());
         outcomeEntity.setLeague(m.getLeague());
         outcomeEntity.setIdentity(m.getIdentity());
+        outcomeEntity.setOutcomePickStatus(m.getOutcomePickStatus());
         return outcomeEntity;
     }
 
@@ -245,11 +248,16 @@ public class BettingAccountMapper {
     public MatchOutComePick toMatchEventDomain(MatchEventPickEntity p) {
         var matchEventPickDomain = new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague());
         matchEventPickDomain.setMatchKey(p.getMatchKey());
+        matchEventPickDomain.setId(p.getId());
+        matchEventPickDomain.setOutcomePickStatus(p.getOutComePickStatus());
         return matchEventPickDomain;
     }
 
     public MatchOutComePick toMatchOutcomeDomain(MatchOutcomeEntity p) {
-        return new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague());
+        var out= new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague());
+        out.setOutcomePickStatus(p.getOutComePickStatus());
+        out.setId(p.getId());
+        return out;
     }
 
 
@@ -275,8 +283,11 @@ public class BettingAccountMapper {
 
         if (domain != null) {
             entity.getOutcomes().clear();
-            for (MatchOutComePick e : domain) {
-                entity.addOutcome(toMatchOutcomeEntity(e));
+            for (int i=0;i<entity.getMatchOutComes().size();i++) {
+                var a=entity.getOutcomes().get(i);
+                var b=domain.get(i);
+                a.setOutcomeName(b.getOutcomeName());
+                a.setOdd(b.getOdd());
             }
         }
 
@@ -284,6 +295,9 @@ public class BettingAccountMapper {
 
     public List<BettingAccount> toListOfAccountDomains(List<BettingAccountEntity> list) {
         return list.stream().map(this::toBettingAccountDomain).collect(Collectors.toCollection(ArrayList::new));
+    }
+    public List<MatchOutComePick> toListOfMatchOutComePick(List<MatchEventPickEntity> list) {
+        return list.stream().map(this::toMatchEventDomain).collect(Collectors.toCollection(ArrayList::new));
     }
 
 

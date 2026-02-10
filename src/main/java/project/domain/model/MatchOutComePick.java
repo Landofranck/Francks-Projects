@@ -1,17 +1,20 @@
 package project.domain.model;
 
 
+import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.League;
 
 import java.util.Objects;
 
 public class MatchOutComePick {
+    private Long id;
     private Long identity;
     private String matchKey;
     private final String outcomeName;
     private final double odd;
     private Event owner;
     private League league;
+    private BetStatus outcomePickStatus;
 
     //when a pick is created we should only know the outcome  and odds first, match key and owner is added later
     public MatchOutComePick(Long id, String matchKey, String outcomeName, double odd, League league) {
@@ -21,6 +24,7 @@ public class MatchOutComePick {
         this.matchKey=matchKey;
         this.identity =id;
         this.league=league;
+        this.outcomePickStatus=BetStatus.PENDING;
     }
 
     public String getMatchKey() {
@@ -61,5 +65,21 @@ public class MatchOutComePick {
 
     public League getLeague() {
         return league;
+    }
+
+    public BetStatus getOutcomePickStatus() {
+        return outcomePickStatus;
+    }
+
+    public void setOutcomePickStatus(BetStatus outcomePickStatus) {
+        this.outcomePickStatus = outcomePickStatus;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

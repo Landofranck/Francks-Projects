@@ -4,11 +4,9 @@ package project.application.service.betSlip;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import org.hibernate.Incubating;
 import project.application.port.in.betSlip.MakeBetUseCase;
 import project.application.port.out.bettingAccount.*;
 import project.config.TimeProvider;
-import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.BetStrategy;
 import project.domain.model.Money;
 

@@ -28,6 +28,7 @@ public class BetSlip implements Event {
     private Money potentialWinning;
     private Boolean bonusSlip;
 
+
     public BetSlip(Boolean bonusSlip, BetStrategy strategy) {
         this.picks = new ArrayList<>();
         this.status = BetStatus.PENDING;
@@ -41,23 +42,25 @@ public class BetSlip implements Event {
     //this method calculates the odds for the slip and accummulator bonus odds
     public void makeTotalOdds() {
         double output = 1;
-        int count = 1;
+        int count = 0;
         double bonusOutput = 1;
         if (this.brokerType == BrokerType.ONE_X_BET) {
 
             for (MatchOutComePick m : picks) {
+                count++;
                 output *= m.getOdd();
                 if (count == 3)
                     bonusOutput = 1.03;
                 if (count > 3)
                     bonusOutput += 0.01;
-                count++;
             }
 
             this.totalOdds = output * bonusOutput;
         } else if (this.brokerType == BrokerType.BETPAWA) {
             for (MatchOutComePick m : picks) {
                 output *= m.getOdd();
+                if (m.getOdd() > 1.2)
+                    count++;
                 if (count == 3)
                     bonusOutput = 1.03;
                 if (count == 4)
@@ -70,8 +73,7 @@ public class BetSlip implements Event {
                     bonusOutput += 1.15;
                 if (count == 28)
                     bonusOutput = 2.85;
-                if (m.getOdd() > 1.2)
-                    count++;
+
             }
 
             this.totalOdds = (((100+ (output*100)-100)+((output*100)-100)*(bonusOutput-1))/100);

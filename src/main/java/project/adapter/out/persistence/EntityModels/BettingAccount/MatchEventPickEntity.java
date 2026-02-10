@@ -1,6 +1,7 @@
 package project.adapter.out.persistence.EntityModels.BettingAccount;
 
 import jakarta.persistence.*;
+import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.League;
 
 @Entity
@@ -17,6 +18,7 @@ public class MatchEventPickEntity {
     private BetSlipEntity parentBetSlipEntity;
     @Enumerated
     private League league;
+    private BetStatus outComePickStatus;
 
     public MatchEventPickEntity(){}
 
@@ -86,5 +88,13 @@ public class MatchEventPickEntity {
 
     public void setLeague(League league) {
         this.league = league;
+    }
+
+    public BetStatus getOutComePickStatus() {
+        return this.outComePickStatus;
+    }
+
+    public void setOutComePickStatus(BetStatus outComePickStatus) {
+        this.outComePickStatus = outComePickStatus;
     }
 }

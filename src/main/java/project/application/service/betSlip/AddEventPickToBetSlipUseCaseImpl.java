@@ -7,6 +7,7 @@ import project.application.port.out.Match.ReadMatchByIdPort;
 import project.application.port.out.bettingAccount.PersistEmptyBetSlipPort;
 import project.application.port.out.bettingAccount.ReadEmptSlipByParenPort;
 import project.domain.model.DraftBetSlip;
+import project.domain.model.Enums.BetStatus;
 import project.domain.model.Match;
 import project.domain.model.MatchOutComePick;
 
@@ -61,6 +62,7 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
                 outcome.getOdd(),
                 outcome.getLeague()
         );
+        pick.setOutcomePickStatus(BetStatus.PENDING);
         slip.addMatchEventPick(pick);
         putBetSlip.persistEmptyslip(bettingAccountId, slip);
         // Recalculate slip odds if you store total odds

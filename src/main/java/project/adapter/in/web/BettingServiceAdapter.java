@@ -13,19 +13,21 @@ import project.adapter.in.web.MobileMoneyDto.MomoTransferRequestDto;
 import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
 import project.adapter.in.web.bettinAccountDTO.betslip.MakeBetRequestDto;
+import project.adapter.in.web.bettinAccountDTO.betslip.UpdateMatchOutcomeDto;
 import project.application.port.in.*;
 import jakarta.inject.Inject;
-import project.application.port.in.BettingAccount.CreatNewBonusUseCase;
-import project.application.port.in.BettingAccount.CreateBettingAccountUseCase;
-import project.application.port.in.BettingAccount.LoadAllBettingAccountsUseCase;
-import project.application.port.in.BettingAccount.LoadBettingAccountByIdUsecase;
+import project.application.port.in.BettingAccount.*;
 import project.application.port.in.MomoAccounts.*;
 import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;
 import project.application.port.in.betSlip.CreateMatchUseCase;
 import project.application.port.in.betSlip.MakeBetUseCase;
+import project.application.port.in.betSlip.UpdateMatchPickStatusUsecase;
 import project.domain.model.*;
+import project.domain.model.Enums.League;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class BettingServiceAdapter {
@@ -66,6 +68,10 @@ public class BettingServiceAdapter {
     UpdateMatchUseCase updateMatchUse;
     @Inject
     CreatNewBonusUseCase creatNewBonus;
+    @Inject
+    FindMatchOutComeByParametersUseCases findMatchOutComeByParameters;
+    @Inject
+    UpdateMatchPickStatusUsecase updateStatus;
 
     public Long createNewBettingAccount(CreateBettingAccountDto dto) {
         var domain = new BettingAccount(dto.getAccountName(), dto.getBrokerType());
@@ -95,11 +101,7 @@ public class BettingServiceAdapter {
     }
 
     public Long createMatch(MatchDto dto) {
-        if (dto.getMatchOutComes() == null || dto.getMatchOutComes().isEmpty())
-            throw new IllegalArgumentException("you need outcomes BSA line 77");
-        var domain = mapper.matchOutComePickList(dto);
-        if (domain.getMatchOutComes() == null || domain.getMatchOutComes().isEmpty())
-            throw new IllegalArgumentException("you need outcomes BSA line 77");
+        var domain = mapper.toMatchDomain(dto);
 
         return createMatchUse.createMatch(domain);
 
@@ -111,8 +113,7 @@ public class BettingServiceAdapter {
 
     public List<MatchDto> getAllMatches() {
         var matches = loadAllMatches.getAllMatches();
-        List<MatchDto> list = mapper.toMatchDtos(matches);
-        return list;
+        return mapper.toMatchDtos(matches);
     }
 
     public BetSlipDto addPickToBetSlip(Long bettingAccountId, AddPickRequestBetSlipDto dto) {
@@ -154,5 +155,15 @@ public class BettingServiceAdapter {
 
     public void withdrawFromBettingToMobileMoney(Long bettingId, Long momoId, WithdrawDto dto) {
         makeWithdrawal.withdrawFromBettingToMobileMoney(bettingId, momoId, dto.getAmount(), dto.getDescription());
+    }
+
+    public List<MatchEventPickDto> getMatchOutcomesByParam(String matchKey, String outComeName, League league) {
+        var matchOutComes=findMatchOutComeByParameters.findMatches(matchKey,outComeName,league);
+        return matchOutComes.stream().map(mapper::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new));
+    }
+    public void updateMatchOutcomes(UpdateMatchOutcomeDto dto){
+        var in=new MatchOutComePick(null,dto.matchKey(),dto.outComeName(),1,dto.league());
+        in.setOutcomePickStatus(dto.status());
+        updateStatus.updateMatchPickStatus(in);
     }
 }

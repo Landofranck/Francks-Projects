@@ -26,11 +26,11 @@ public class Match implements Event {
 
     public void addPick(MatchOutComePick pick) {
         Objects.requireNonNull(pick, "error while adding pick to match");
-        this.matchOutComes.add(pick);
         pick.setMatchKey(home+" vs "+ away);
         pick.setOwner(this);
         pick.setIdentity(matchId);
         pick.setLeague(this.matchLeague);
+        this.matchOutComes.add(pick);
     }
 
     public long getMatchId() {

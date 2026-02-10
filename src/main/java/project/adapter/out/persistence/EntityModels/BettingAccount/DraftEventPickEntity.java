@@ -1,6 +1,7 @@
 package project.adapter.out.persistence.EntityModels.BettingAccount;
 
 import jakarta.persistence.*;
+import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.League;
 
 
@@ -87,6 +88,7 @@ public class DraftEventPickEntity {
     public void setLeague(League league) {
         this.league = league;
     }
+
 }
 
 

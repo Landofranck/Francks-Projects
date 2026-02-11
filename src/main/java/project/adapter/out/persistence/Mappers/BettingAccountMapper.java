@@ -206,14 +206,16 @@ public class BettingAccountMapper {
     }
 
     public DraftBetSlip toDraftSlipDomain(DraftSlipEntity draftSlipEntity) {
-        var draftDomain = new DraftBetSlip(draftSlipEntity.getCategory());
+       try{ var draftDomain = new DraftBetSlip(draftSlipEntity.getCategory());
         draftDomain.setId(draftSlipEntity.getId());
         draftDomain.setCreatedAt(draftSlipEntity.getCreatedAt());
         draftDomain.setStatus(draftSlipEntity.getStatus());
         draftDomain.setTotalOdds(draftSlipEntity.getTotalOdd());
         draftDomain.setStrategy(draftSlipEntity.getStrategy());
         draftDomain.setBonusSlip(draftSlipEntity.getBounsSlip());
-        draftDomain.setBonusOdds(draftSlipEntity.getBonusOdds());
+
+
+        draftDomain.setBrokerType(draftSlipEntity.getDraftBetSlipOwner().getBrokerType());
         if (draftSlipEntity.getStake() != null) {
             draftDomain.setStake(new Money(draftSlipEntity.getStake()));
         }
@@ -226,7 +228,9 @@ public class BettingAccountMapper {
                 draftSlipEntity.getDraftBetSlipOwner().getBrokerType());
         draftSlipOwner.setId(draftSlipEntity.getDraftBetSlipOwner().getId());
         draftDomain.setDraftSlipOwner(draftSlipOwner);
-        return draftDomain;
+        return draftDomain;} catch (Exception e) {
+           throw new RuntimeException("error while converting to draft slip domain"+e.getMessage());
+       }
     }
 
     public DraftEventPickEntity toDraftEventEntity(MatchOutComePick domainPick) {
@@ -326,6 +330,13 @@ public class BettingAccountMapper {
 
     public void applyTobettingAccount(BettingAccountEntity oldVersion, BettingAccount updated) {
         oldVersion.getBounuses().clear();
+        var old=oldVersion.getBetHistory();
+        var newVersion=this.toBettingAccountEntity(updated).getBetHistory();
         oldVersion.setBounuses(updated.getBonuses().stream().map(this::toBonusEmb).collect(Collectors.toCollection(ArrayList::new)));
+        for (int i = 0; i <old.size(); i++) {
+            if(old.get(i).getStatus()!=BetStatus.PENDING)
+                continue;
+            old.get(i).setStatus(newVersion.get(i).getStatus());
+        }
     }
 }

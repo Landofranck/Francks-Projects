@@ -180,7 +180,7 @@ public class DTOMapper {
         dto.setOdd(mP.getOdd());
         dto.setMatchId(mP.getIdentity());
         dto.setOutcomeName(mP.getOutcomeName());
-        dto.setLeague(mP.getLeague());
+        dto.setStatus(mP.getOutcomePickStatus());
         dto.setLeague(mP.getLeague());
         return dto;
     }

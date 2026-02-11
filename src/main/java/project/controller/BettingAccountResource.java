@@ -39,6 +39,7 @@ public class BettingAccountResource {
     public BettingAccountDto getById(@PathParam("bettingId") Long bettingId) {
         return serviceAdapter.loadBettingAccount(bettingId);
     }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(@Valid CreateBettingAccountDto dto) {
@@ -56,9 +57,7 @@ public class BettingAccountResource {
     @PUT
     @Path("/{bettingId}/withdraw-to-momo/{momoId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response withdrawToMomo(@PathParam("bettingId") Long bettingId,
-                                   @PathParam("momoId") Long momoId,
-                                   @Valid WithdrawDto dto) {
+    public Response withdrawToMomo(@PathParam("bettingId") Long bettingId, @PathParam("momoId") Long momoId, @Valid WithdrawDto dto) {
         serviceAdapter.withdrawFromBettingToMobileMoney(bettingId, momoId, dto);
         return Response.noContent().build();
     }
@@ -70,7 +69,7 @@ public class BettingAccountResource {
     @PUT
     @Path("/{bettingId}/betslips/add-pick")
     @Consumes(MediaType.APPLICATION_JSON)
-    public BetSlipDto addPick(@PathParam("bettingId") Long bettingId,@Valid AddPickRequestBetSlipDto dto) {
+    public BetSlipDto addPick(@PathParam("bettingId") Long bettingId, @Valid AddPickRequestBetSlipDto dto) {
         return serviceAdapter.addPickToBetSlip(bettingId, dto);
     }
 
@@ -81,12 +80,20 @@ public class BettingAccountResource {
         Long slipId = serviceAdapter.makeBet(bettingId, dto);
         return Response.status(201).entity(java.util.Map.of("betSlipId", slipId)).build();
     }
+
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{id}/create_bonus")
-    public  Response createBonus(@PathParam("id") Long id, @Valid BonusDto dto){
-        serviceAdapter.createBonus(id,dto);
+    public Response createBonus(@PathParam("id") Long id, @Valid BonusDto dto) {
+        serviceAdapter.createBonus(id, dto);
         return Response.noContent().build();
     }
 
+
+    @PUT
+    @Path("/{bettingId}/refund/{slipId}")
+    public Response setSlipToRefund(@PathParam("bettingId") Long bettingId, @PathParam("slipId") Long slipId) {
+        serviceAdapter.setSlipToRefund(bettingId, slipId);
+        return Response.noContent().build();
+    }
 }

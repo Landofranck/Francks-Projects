@@ -1,4 +1,4 @@
-package project.application.service.betSlip;
+package project.application.service.MomoAccounts;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

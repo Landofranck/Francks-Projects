@@ -44,8 +44,9 @@ public class RefreshBettingStatusOfBetSlipsUseCaseImpl implements refreshBetting
                 }
             }
             b.setStatus(finalstatus);
-            if (finalstatus == BetStatus.PAID_OUT) {
-                var tx = account.betWonTransction(b.getPotentialWinning(), b.getStrategy().toString());
+
+            if (b.getStatus() == BetStatus.PAID_OUT) {
+                var tx = account.betWonTransaction(b.getPotentialWinning(), b.getStrategy().toString());
                 updateBalance.updateBalance(account);
                 appendTx.appendToBettingAccount(bettingAccountId, tx);
                 updateBettingAccount.updateBettingAccount(bettingAccountId, account);

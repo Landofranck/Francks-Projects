@@ -37,22 +37,22 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
     @Override
     public Long makeBet(Long bettingAccountId, List<Long> matchIds, List<String> matchOutcomes, Money stake, BetStrategy strategy, Integer bonusSlip) {
         var isBonus = bonusSlip != null && bonusSlip >= 0;
-        var test=(bonusSlip==null||bonusSlip<0);
+        var test = (bonusSlip == null || bonusSlip < 0);
         if (bettingAccountId == null) throw new IllegalArgumentException("bettingAccountId required");
-        if (stake == null || stake.getValue().signum() <= 0 &&test) throw new IllegalArgumentException("stake must be > 0, or you choose a bonus");
+        if (stake == null || stake.getValue().signum() <= 0 && test)
+            throw new IllegalArgumentException("stake must be > 0, or you choose a bonus");
         if (matchIds != null) {
 
             removeAllPicks.removeAllPicks(bettingAccountId);
             int i = 0;
-            for (Long Ids : matchIds) {
-                addPicks.addPick(bettingAccountId, matchIds.get(i), matchOutcomes.get(i));
+            for (Long id : matchIds) {
+                addPicks.addPick(bettingAccountId, id, matchOutcomes.get(i));
                 i++;
             }
         }
 
         var account = readAccount.getBettingAccount(bettingAccountId);
         Instant now = Instant.now(timeProvider.clock());
-
 
         var tx = account.placeBetTransaction(stake, strategy.toString());
         var draftSlip = account.getDraftBetSlip();
@@ -67,9 +67,11 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
             updateBalance.updateBalance(account);
             appendTx.appendToBettingAccount(bettingAccountId, tx);
         }
-         draftSlip.checkCategory();
+        draftSlip.checkCategory();
+
         // Persist betslip into betHistory
-        updateBettingAccount.updateBettingAccount(bettingAccountId,account);
+        updateBettingAccount.updateBettingAccount(bettingAccountId, account);
+
         return persistSlip.persistSlipToAccount(bettingAccountId, draftSlip, strategy);
 
     }

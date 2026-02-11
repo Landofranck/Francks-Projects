@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import project.adapter.out.persistence.EntityModels.BettingAccount.BetSlipEntity;
 import project.adapter.out.persistence.EntityModels.BettingAccount.BettingAccountEntity;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEventPickEntity;
 import project.adapter.out.persistence.Mappers.BettingAccountMapper;
@@ -22,23 +23,14 @@ import java.util.List;
 import java.util.Objects;
 
 @ApplicationScoped
-public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadBettingAccountByIdPort, ReadAllBettingAccountsPort,
-        UpdateBettingAccountBalancePort, AppendBettingAccountTransactionPort,
-        PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort, PersistEmptyBetSlipPort,
-        ReadEmptSlipByParenPort, DeleteMatchByIdPort, UpdateMatchPort, GetMatchByIdPort, UpdateBettingAccountPort, UpdateMatchPickStatusPort, FindMatchOutComeByParametersPort {
+public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadBettingAccountByIdPort, ReadAllBettingAccountsPort, UpdateBettingAccountBalancePort, AppendBettingAccountTransactionPort, PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort, PersistEmptyBetSlipPort, ReadEmptSlipByParenPort, DeleteMatchByIdPort, UpdateMatchPort, GetMatchByIdPort, UpdateBettingAccountPort, UpdateMatchPickStatusPort, FindMatchOutComeByParametersPort, GetBetSlipByIdPort, SetSlipStatustoRefundPort {
     @Inject
     EntityManager entityManager;
     @Inject
     BettingAccountMapper mapper;
 
     private boolean existsByNameAndType(String name, BrokerType type) {
-        Long count = entityManager.createQuery(
-                        "SELECT COUNT(b) FROM BettingAccountEntity b WHERE b.accountName = :name AND b.brokerType = :type",
-                        Long.class
-                )
-                .setParameter("name", name)
-                .setParameter("type", type)
-                .getSingleResult();
+        Long count = entityManager.createQuery("SELECT COUNT(b) FROM BettingAccountEntity b WHERE b.accountName = :name AND b.brokerType = :type", Long.class).setParameter("name", name).setParameter("type", type).getSingleResult();
 
         return count > 0;
     }
@@ -52,10 +44,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
 
         var entity = mapper.toBettingAccountEntity(account);
         if (existsByNameAndType(entity.getAccountName(), entity.getBrokerType())) {
-            throw new IllegalArgumentException(
-                    "Betting account with name '" + entity.getAccountName() +
-                            "' already exists for broker " + entity.getBrokerType()
-            );
+            throw new IllegalArgumentException("Betting account with name '" + entity.getAccountName() + "' already exists for broker " + entity.getBrokerType());
         }
 
         entityManager.persist(entity);
@@ -68,8 +57,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     public BettingAccount getBettingAccount(Long id) {
         var entity = entityManager.find(BettingAccountEntity.class, id);
         if (entity == null) throw new NotFoundException("Account not found: jpa 68. With Id:" + id);
-        var output = mapper.toBettingAccountDomain(entity);
-        return output;
+        return mapper.toBettingAccountDomain(entity);
     }
 
 
@@ -78,8 +66,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     public List<BettingAccount> getAllBettingAcounts() {
 
         try {
-            List<BettingAccountEntity> entities = entityManager
-                    .createQuery("SELECT d FROM BettingAccountEntity d", BettingAccountEntity.class).getResultList();
+            List<BettingAccountEntity> entities = entityManager.createQuery("SELECT d FROM BettingAccountEntity d", BettingAccountEntity.class).getResultList();
 
             List<BettingAccount> accounts = mapper.toListOfAccountDomains(entities);
 
@@ -140,9 +127,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     @Transactional
     @Override
     public List<Match> getAllMatches() {
-        var entities = entityManager
-                .createQuery("SELECT DISTINCT m FROM MatchEntity m LEFT JOIN FETCH m.matchOutComes", MatchEntity.class)
-                .getResultList();
+        var entities = entityManager.createQuery("SELECT DISTINCT m FROM MatchEntity m LEFT JOIN FETCH m.matchOutComes", MatchEntity.class).getResultList();
         List<Match> matches = mapper.toMatchDomains(entities);
         return matches;
     }
@@ -155,11 +140,11 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
             throw new IllegalArgumentException("Betting account not found: bettingAccountJpa 155 id" + bettingAccountId);
 
         var slipEntity = mapper.fromDraftToBetslipEntity(slip);
+
         slipEntity.setStrategy(strategy);
         owner.addBetSlipEntity(slipEntity);     // ✅ sets parentAccountEntity
         entityManager.persist(owner);
         entityManager.flush();
-
         return slipEntity.getId();
     }
 
@@ -186,8 +171,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
             throw new IllegalArgumentException("Betting account not found jpa line 231: " + parentAccountId);
         var slip = mapper.toDraftSlipDomain(parentAccount.getDraftBetSlip());
         if (slip == null)
-            throw new IllegalArgumentException("Betting account " + parentAccount.getAccountName()
-                    + " does not have this and empty slip : " + parentAccountId);
+            throw new IllegalArgumentException("Betting account " + parentAccount.getAccountName() + " does not have this and empty slip : " + parentAccountId);
         return slip;
     }
 
@@ -212,8 +196,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     @Override
     public void updateMatch(Long id, List<MatchOutComePick> in) {
         var out = entityManager.find(MatchEntity.class, id);
-        if (out == null)
-            throw new NotFoundException("Match with id " + id + " does'nt exist");
+        if (out == null) throw new NotFoundException("Match with id " + id + " does'nt exist");
         mapper.applyToMatchEntity(out, in);
         entityManager.flush();
         entityManager.clear();
@@ -231,30 +214,47 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     public void updateBettingAccount(Long bettingId, BettingAccount updated) {
         var oldVersion = entityManager.find(BettingAccountEntity.class, bettingId);
         mapper.applyTobettingAccount(oldVersion, updated);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        var acc=entityManager.find(BettingAccountEntity.class,bettingId);
+        if (true) {
+            throw new RuntimeException("this is the error"+acc.getDraftBetSlip().getPicks().size());
+        }
     }
 
     @Transactional
     @Override
-    public List<MatchOutComePick> findMatchOutComes(String matchKey, String outcomeName,League outComePickLeague){
-        List<MatchEventPickEntity> matchEventPicks = entityManager.createQuery(
-                        "SELECT r FROM MatchEventPickEntity r WHERE LOWER(r.matchKey)=LOWER(:matchKey) AND LOWER(r.outcomeName)=LOWER(:outcomeName) AND r.league=(:league)", MatchEventPickEntity.class
-                )
-                .setParameter("matchKey", matchKey)
-                .setParameter("outcomeName", outcomeName)
-                .setParameter("league", outComePickLeague)
-                .getResultList();
+    public List<MatchOutComePick> findMatchOutComes(String matchKey, String outcomeName, League outComePickLeague) {
+        List<MatchEventPickEntity> matchEventPicks = entityManager.createQuery("SELECT r FROM MatchEventPickEntity r WHERE LOWER(r.matchKey)=LOWER(:matchKey) AND LOWER(r.outcomeName)=LOWER(:outcomeName) AND r.league=(:league)", MatchEventPickEntity.class).setParameter("matchKey", matchKey).setParameter("outcomeName", outcomeName).setParameter("league", outComePickLeague).getResultList();
         return mapper.toListOfMatchOutComePick(matchEventPicks);
     }
 
     @Transactional
     @Override
     public Long updateMatchPick(Long matchPickId, BetStatus newPickStatus) {
-        var out=entityManager.find(MatchEventPickEntity.class,matchPickId);
-        if(out==null)
-            throw new NotFoundException("MatcheventPickentity with Id "+matchPickId+" not found: betting accoutn JPA 260");
+        var out = entityManager.find(MatchEventPickEntity.class, matchPickId);
+        if (out == null)
+            throw new NotFoundException("MatcheventPickentity with Id " + matchPickId + " not found: betting accoutn JPA 260");
         out.setOutComePickStatus(newPickStatus);
         entityManager.flush();
         entityManager.clear();
         return out.getParentBetSlipEntity().getParentAccountEntity().getId();
+    }
+
+    @Override
+    public BetSlip getBetSlip(Long id) {
+        var out = entityManager.find(BetSlipEntity.class, id);
+        return mapper.toBetSlipDomain(out);
+    }
+
+    @Transactional
+    @Override
+    public Long setSlipStatusToRefund(Long id) {
+        var out = entityManager.find(BetSlipEntity.class, id);
+        if (out.getBonusSlip()) throw new IllegalArgumentException("you cannot refund bonus slips jpa 275");
+        out.setStatus(BetStatus.REFUNDED);
+        return out.getParentAccountEntity().getId();
     }
 }

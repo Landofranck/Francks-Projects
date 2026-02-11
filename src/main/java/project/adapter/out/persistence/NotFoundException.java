@@ -1,6 +1,8 @@
 package project.adapter.out.persistence;
 
-public class NotFoundException extends RuntimeException {
+import java.util.InputMismatchException;
+
+public class NotFoundException extends InputMismatchException {
     public NotFoundException(String message) {
         super(message);
     }

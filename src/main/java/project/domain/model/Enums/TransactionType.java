@@ -1,5 +1,5 @@
 package project.domain.model.Enums;
 
 public enum TransactionType {
-    BET_PLACED, BET_WON, DEPOSIT, WITHDRAWAL,FEE
+    BET_PLACED, BET_WON, DEPOSIT, WITHDRAWAL, BET_REFUNDED, FEE
 }

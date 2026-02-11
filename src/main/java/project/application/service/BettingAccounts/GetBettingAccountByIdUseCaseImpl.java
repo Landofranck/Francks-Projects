@@ -10,6 +10,7 @@ import project.domain.model.BettingAccount;
 public class GetBettingAccountByIdUseCaseImpl implements LoadBettingAccountByIdUsecase {
     @Inject
     ReadBettingAccountByIdPort readBettingAccount;
+
     @Override
     public BettingAccount loadAccount(Long id) {
         return readBettingAccount.getBettingAccount(id);

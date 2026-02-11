@@ -3,6 +3,7 @@ package project.domain.model;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.BetStrategy;
+import project.domain.model.Enums.BrokerType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -24,6 +25,7 @@ public class DraftBetSlip implements Event {
     private BetStrategy strategy;
     private Boolean bonusSlip;
     private double bonusOdds;
+    private BrokerType brokerType;
 
     public DraftBetSlip(BetCategory category) {
         this.category = category;
@@ -32,8 +34,8 @@ public class DraftBetSlip implements Event {
         this.stake = new Money(BigDecimal.ZERO);
         this.potentialWinning = new Money(BigDecimal.ZERO);
         this.totalOdds = 0;
-        this.numberOfEvents = picks.size();
-        this.bonusSlip=false;
+        this.bonusOdds=1;
+        this.bonusSlip = false;
     }
 
     public void makeTotalOdds() {
@@ -44,29 +46,35 @@ public class DraftBetSlip implements Event {
         this.totalOdds = output;
     }
 
-    public void calculatPotentialWinning() {
-        this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf(totalOdds)));
+    public void calculatePotentialWinning() {
+
+        if (this.brokerType == BrokerType.ONE_X_BET) {
+            this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf((totalOdds / bonusOdds))));
+        }
+
+        if (brokerType == BrokerType.BET_MOMO)
+            this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf(totalOdds - 1)));
+
     }
 
-    public void checkCategory(){
-        if(picks.size()>1)
-            this.category=BetCategory.COMBINATION;
-        else
-            this.category=BetCategory.SINGLE;
+    public void checkCategory() {
+        if (picks.size() > 1) this.category = BetCategory.COMBINATION;
+        else this.category = BetCategory.SINGLE;
     }
+
     public void addMatchEventPick(MatchOutComePick pick) {
         this.picks.add(pick);
         pick.setOwner(this);
         makeTotalOdds();
         this.numberOfEvents = picks.size();
-        calculatPotentialWinning();
+        calculatePotentialWinning();
     }
 
     public void removeMatchEventPicksByIndex(int i) {
         this.picks.remove(i);
         makeTotalOdds();
         this.numberOfEvents = picks.size();
-        calculatPotentialWinning();
+        calculatePotentialWinning();
     }
 
     public void removeAllMatchEventPicks() {
@@ -126,7 +134,8 @@ public class DraftBetSlip implements Event {
 
     public void setStake(Money stake) {
         this.stake = stake;
-        calculatPotentialWinning();
+        calculatePotentialWinning();
+
     }
 
 
@@ -176,5 +185,13 @@ public class DraftBetSlip implements Event {
 
     public void setBonusOdds(double bonusOdds) {
         this.bonusOdds = bonusOdds;
+    }
+
+    public void setBrokerType(BrokerType brokerType) {
+        this.brokerType = brokerType;
+    }
+
+    public BrokerType getBrokerType() {
+        return brokerType;
     }
 }

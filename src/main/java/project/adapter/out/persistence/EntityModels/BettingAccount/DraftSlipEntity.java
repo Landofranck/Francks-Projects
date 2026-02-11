@@ -63,6 +63,10 @@ public class DraftSlipEntity {
         this.picks.add(entity);
         entity.setParent(this);
     }
+    public void removeDraftEventpick(DraftEventPickEntity entity) {
+        this.picks.remove(entity);
+        entity.setParent(null);
+    }
 
     public Long getId() {
         return id;

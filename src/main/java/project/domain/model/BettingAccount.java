@@ -27,7 +27,7 @@ public class BettingAccount implements Account {
         this.transactionHistory = new ArrayList<>();
         this.betHistory = new ArrayList<>();
         this.balance = new Money(BigDecimal.ZERO);
-        this.bonuses=new ArrayList<>();
+        this.bonuses = new ArrayList<>();
     }
 
     public void addBetSlip(BetSlip newBetslip) {
@@ -79,9 +79,16 @@ public class BettingAccount implements Account {
         this.balance = balance.subtract(money);
         return new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.BET_PLACED, description);
     }
-    public Transaction betWonTransction(Money money, String description) {
+
+    public Transaction betWonTransaction(Money money, String description) {
         this.balance = balance.add(money);
         return new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.BET_WON, description);
+    }
+
+    public Transaction betRefundedTransaction(Money stake, String description) {
+        this.balance = balance.add(stake);
+        return new Transaction(stake, new Money(balance.getValue()), Instant.now(), TransactionType.BET_REFUNDED, description);
+
     }
 
     public void placeBet(Money stake, Instant now) {
@@ -93,17 +100,17 @@ public class BettingAccount implements Account {
 
     public void placeBonusBet(Integer bonusIndex, Instant now) {
         try {
-            var b=this.bonuses.get(bonusIndex);
+            var b = this.bonuses.get(bonusIndex);
 
-        if(b.getStatus().equals(BonusStatus.EXPIRED)||b.getStatus().equals(BonusStatus.REDEEMED))
-            throw new IllegalArgumentException("This bonus has expired or has been redeemed; bettingAccount 83");
-        b.setStatus(BonusStatus.REDEEMED);
-        this.draftBetSlip.setStatus(BetStatus.PENDING);
-        this.draftBetSlip.setStake(b.getAmount());
-        this.draftBetSlip.calculatPotentialWinning();
-        this.draftBetSlip.setCreatedAt(now);
-        this.draftBetSlip.setBonusSlip(true);
-        }catch (ArrayIndexOutOfBoundsException e){
+            if (b.getStatus().equals(BonusStatus.EXPIRED) || b.getStatus().equals(BonusStatus.REDEEMED))
+                throw new IllegalArgumentException("This bonus has expired or has been redeemed; bettingAccount 83");
+            b.setStatus(BonusStatus.REDEEMED);
+            this.draftBetSlip.setStatus(BetStatus.PENDING);
+            this.draftBetSlip.setStake(b.getAmount());
+            this.draftBetSlip.setBonusSlip(true);
+            this.draftBetSlip.calculatePotentialWinning();
+            this.draftBetSlip.setCreatedAt(now);
+        } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("that bonus does not exist in this account: betting account 100");
         }
     }
@@ -137,7 +144,6 @@ public class BettingAccount implements Account {
     }
 
 
-
     public List<Transaction> getTransactionHistory() {
         return transactionHistory;
     }
@@ -160,6 +166,5 @@ public class BettingAccount implements Account {
     public List<Bonus> getBonuses() {
         return bonuses;
     }
-
 
 }

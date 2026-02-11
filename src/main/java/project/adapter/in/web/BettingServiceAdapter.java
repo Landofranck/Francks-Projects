@@ -18,10 +18,7 @@ import project.application.port.in.*;
 import jakarta.inject.Inject;
 import project.application.port.in.BettingAccount.*;
 import project.application.port.in.MomoAccounts.*;
-import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;
-import project.application.port.in.betSlip.CreateMatchUseCase;
-import project.application.port.in.betSlip.MakeBetUseCase;
-import project.application.port.in.betSlip.UpdateMatchPickStatusUsecase;
+import project.application.port.in.betSlip.*;
 import project.domain.model.*;
 import project.domain.model.Enums.League;
 
@@ -72,6 +69,8 @@ public class BettingServiceAdapter {
     FindMatchOutComeByParametersUseCases findMatchOutComeByParameters;
     @Inject
     UpdateMatchPickStatusUsecase updateStatus;
+    @Inject
+    SetBetSlipToRefundUseCase refundUseCase;
 
     public Long createNewBettingAccount(CreateBettingAccountDto dto) {
         var domain = new BettingAccount(dto.getAccountName(), dto.getBrokerType());
@@ -158,12 +157,16 @@ public class BettingServiceAdapter {
     }
 
     public List<MatchEventPickDto> getMatchOutcomesByParam(String matchKey, String outComeName, League league) {
-        var matchOutComes=findMatchOutComeByParameters.findMatches(matchKey,outComeName,league);
+        var matchOutComes = findMatchOutComeByParameters.findMatches(matchKey, outComeName, league);
         return matchOutComes.stream().map(mapper::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new));
     }
-    public void updateMatchOutcomes(UpdateMatchOutcomeDto dto){
-        var in=new MatchOutComePick(null,dto.matchKey(),dto.outComeName(),1,dto.league());
+
+    public void updateMatchOutcomes(UpdateMatchOutcomeDto dto) {
+        var in = new MatchOutComePick(null, dto.matchKey(), dto.outComeName(), 1, dto.league());
         in.setOutcomePickStatus(dto.status());
         updateStatus.updateMatchPickStatus(in);
+    }
+    public void setSlipToRefund(Long betAccountId, Long slipId){
+        refundUseCase.setSlipToRefund(betAccountId, slipId);
     }
 }

@@ -1,9 +1,11 @@
-package project.application.service;
+package project.application.service.BettingAccounts;
 
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import project.adapter.in.web.Utils.Code;
+import project.application.error.ValidationException;
 import project.application.port.in.MakeWithdrawalUseCase;
 import project.application.port.out.bettingAccount.AppendBettingAccountTransactionPort;
 import project.application.port.out.bettingAccount.ReadBettingAccountByIdPort;
@@ -15,6 +17,7 @@ import project.domain.model.Money;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Map;
 
 @ApplicationScoped
 public class MakeWithdrawalUseCaseImpl implements MakeWithdrawalUseCase {
@@ -41,7 +44,7 @@ public class MakeWithdrawalUseCaseImpl implements MakeWithdrawalUseCase {
     @Override
     public void withdrawFromBettingToMobileMoney(Long bettingAccountId, Long momoAccountId, BigDecimal amount, String description) {
         if (amount == null || amount.signum() <= 0) {
-            throw new IllegalArgumentException("amount must be > 0");
+            throw new ValidationException(Code.INVALID_AMOUNT,"you have to enter a positve ammount withraw...imppl 46", Map.of("bettingId",bettingAccountId));
         }
 
         var betting = readBetting.getBettingAccount(bettingAccountId);

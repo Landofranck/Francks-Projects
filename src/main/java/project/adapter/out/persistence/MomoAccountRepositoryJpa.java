@@ -4,35 +4,31 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import org.hibernate.exception.ConstraintViolationException;
+import project.adapter.in.web.Utils.Code;
 import project.adapter.out.persistence.EntityModels.MomoEntites.MobileMoneyAccountsEntity;
+import project.adapter.out.persistence.EntityModels.MomoEntites.MomoAccountTransactionEntity;
 import project.adapter.out.persistence.Mappers.MomoAccountMapper;
+import project.application.error.ConflictException;
+import project.application.error.ResourceNotFoundException;
+import project.application.error.ValidationException;
 import project.application.port.out.mobilMoney.*;
-import project.domain.model.Enums.BrokerType;
+import project.domain.model.Enums.TransactionType;
 import project.domain.model.MobileMoneyAccount;
 import project.domain.model.Transaction;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
 @ApplicationScoped
-public class MomoAccountRepositoryJpa implements PersistMobileMoneyAccount, ReadAllMomoAccounts, ReadMomoAccountByIdPort, UpdateMobileMoneyBalancePort, AppendMobileMoneyTransactionPort {
+public class MomoAccountRepositoryJpa implements PersistMobileMoneyAccount, ReadAllMomoAccounts, ReadMomoAccountByIdPort, UpdateMobileMoneyBalancePort, AppendMobileMoneyTransactionPort, ReadMomoTransactionHistoryPort,ReadSummaryMomoAccountPort {
     @Inject
     EntityManager entityManager;
     @Inject
     MomoAccountMapper mapper;
 
-    private boolean existsByNameAndType(String name, BrokerType type) {
-        Long count = entityManager.createQuery(
-                        "SELECT COUNT(b) FROM BettingAccountEntity b WHERE b.accountName = :name AND b.brokerType = :type",
-                        Long.class
-                )
-                .setParameter("name", name)
-                .setParameter("type", type)
-                .getSingleResult();
-
-        return count > 0;
-    }
     @Transactional
     @Override
     public Long saveMomoAccountToDataBase(MobileMoneyAccount account) {
@@ -43,8 +39,8 @@ public class MomoAccountRepositoryJpa implements PersistMobileMoneyAccount, Read
             entityManager.flush();
             return entity.getId();
 
-        } catch (Exception e) {
-            throw new IllegalArgumentException("error while persisting MobileMoneyAccount:" + e.getMessage());
+        } catch (ConstraintViolationException e) {
+            throw new ConflictException(Code.MOMO_ACCOUNT_ALREADY_EXISTS,"error while persisting MobileMoneyAccount JPA 43:" + e.getMessage(),Map.of("momoId",entity.getId()));
         }
     }
 
@@ -57,11 +53,16 @@ public class MomoAccountRepositoryJpa implements PersistMobileMoneyAccount, Read
         return accounts;
 
     }
-
+    @Override
+    public MobileMoneyAccount getSummaryMomoAccount(Long id) {
+        var entity = entityManager.find(MobileMoneyAccountsEntity.class, id);
+        if (entity == null) throw new ResourceNotFoundException(Code.MOMO_ACCOUNT_NOT_FOUND,"MomoAccountRepositoryJpa 67", Map.of("momoId",id));
+        return mapper.toSummaryMobileMoneyDomain(entity);
+    }
     @Override
     public MobileMoneyAccount getMomoAccount(Long id) {
         var entity = entityManager.find(MobileMoneyAccountsEntity.class, id);
-        if (entity == null) throw new NotFoundException("Momo account not found: " + id);
+        if (entity == null) throw new ResourceNotFoundException(Code.MOMO_ACCOUNT_NOT_FOUND,"MomoAccountRepositoryJpa 74", Map.of("momoId",id));
         return mapper.toMobileMoneyDomain(entity);
     }
 
@@ -87,5 +88,33 @@ public class MomoAccountRepositoryJpa implements PersistMobileMoneyAccount, Read
         entityManager.persist(txEntity);
 
         owner.getTransactionHistory().add(txEntity); // optional if bidirectional
+    }
+
+    @Override
+    public List<Transaction> readMomoTransactions(Long momoId, TransactionType type) {
+
+        try{StringBuilder jpql = new StringBuilder(
+                "SELECT b FROM MomoAccountTransactionEntity b WHERE b.owner.id = :momoId"
+        );
+
+        if (type != null) {
+            jpql.append(" AND b.type = :type");
+        }
+
+        jpql.append(" ORDER BY b.createdAt DESC");
+
+        var query = entityManager.createQuery(jpql.toString(), MomoAccountTransactionEntity.class)
+                .setParameter("momoId", momoId);
+
+        if (type != null) {
+            query.setParameter("type",type );
+        }
+
+
+
+        var transactionHistory = query.getResultList();
+        return mapper.toMomoTransactionHistory(transactionHistory);} catch (IllegalArgumentException e) {
+            throw new ValidationException(Code.MOMO_ACCOUNT_ERROR,"Error while getting momo transactions momo..jpa 117"+e.getMessage(),Map.of());
+        }
     }
 }

@@ -1,17 +1,17 @@
 package project.adapter.in.web.bettinAccountDTO.betslip;
 
 import jakarta.validation.constraints.NotNull;
-import project.adapter.in.web.MatchEventPickDto;
+import project.adapter.in.web.Utils.Link;
+import project.adapter.in.web.bettinAccountDTO.MatchEventPickDto;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.BetStrategy;
-import project.domain.model.Enums.BrokerType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-public class BetSlipDto {
+public class ReadBetSlipDto {
     @NotNull
     private Long id;
     @NotNull
@@ -27,7 +27,9 @@ public class BetSlipDto {
     private Boolean bonusSlip;
     private double bonusOdds;
 
-    public BetSlipDto() {
+    private List<Link> links;
+
+    public ReadBetSlipDto() {
     }
 
     public Long getParentBettingAccountId() {
@@ -124,5 +126,13 @@ public class BetSlipDto {
 
     public double getBonusOdds() {
         return bonusOdds;
+    }
+
+    public List<Link> getLinks() {
+        return links;
+    }
+
+    public void setLinks(List<Link> selfLinks) {
+        this.links = selfLinks;
     }
 }

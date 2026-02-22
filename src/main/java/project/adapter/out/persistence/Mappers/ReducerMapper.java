@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import project.adapter.out.persistence.Embeddables.BlockEmb;
 import project.adapter.out.persistence.EntityModels.MomoEntites.MatchEventPickEmbd;
+import project.adapter.out.persistence.EntityModels.MomoEntites.MomoAccountTransactionEntity;
 import project.adapter.out.persistence.EntityModels.ReducerBetSlipEntity;
 import project.adapter.out.persistence.EntityModels.ReducerEntity;
 import project.domain.model.BetSlip;
@@ -15,6 +16,7 @@ import project.domain.model.Reducer.Reducer;
 import project.domain.model.Reducer.ReducerBetSlip;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -167,5 +169,9 @@ public class ReducerMapper {
 
     public Block toBlockDomain(BlockEmb emb) {
         return new Block(emb.getType(), emb.getStartMatchIdx(), emb.getEndMatchIdx());
+    }
+
+    public List<Reducer> toReducerDomains(List<ReducerEntity> reducers) {
+        return reducers.stream().map(this::toReducerDomain).toList();
     }
 }

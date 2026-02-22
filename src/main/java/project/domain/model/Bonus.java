@@ -1,6 +1,7 @@
 package project.domain.model;
 
 import project.domain.model.Enums.BonusStatus;
+import project.domain.model.Enums.BonusType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -9,10 +10,12 @@ public class Bonus {
     private Money amount;
     private Instant expiryDate;
     private BonusStatus status;
-    public Bonus(BigDecimal amount,Instant expiry,BonusStatus status) {
+    private BonusType type;
+    public Bonus(BigDecimal amount,Instant expiry,BonusStatus status,BonusType type) {
         this.amount = new Money(amount);
         this.expiryDate = expiry;
         this.status = status;
+        this.type=type;
     }
 
     public void updateStatus(){
@@ -38,5 +41,13 @@ public class Bonus {
 
     public void setStatus(BonusStatus status) {
         this.status = status;
+    }
+
+    public void setType(BonusType type) {
+        this.type = type;
+    }
+
+    public BonusType getType() {
+        return type;
     }
 }

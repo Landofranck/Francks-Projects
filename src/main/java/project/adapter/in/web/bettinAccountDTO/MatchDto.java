@@ -1,12 +1,13 @@
-package project.adapter.in.web;
+package project.adapter.in.web.bettinAccountDTO;
 
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import org.jboss.logging.annotations.Message;
+import project.adapter.in.web.Utils.Link;
 import project.domain.model.Enums.BrokerType;
 import project.domain.model.Enums.League;
 
+import java.time.Instant;
 import java.util.List;
 
 public class MatchDto {
@@ -22,7 +23,14 @@ public class MatchDto {
     @NotNull(message = "you cannot create match without outcomes: MatchDto 22")
     @NotEmpty(message = "you cannot create match without outcomes: MatchDto 23")
     private List<MatchEventPickDto> matchOutComes;
+    private List<Link> links;
+    private Instant begins;
+    private Instant ends;
+    private boolean bonusMatch;
 
+    public void addLink(Link link){
+        this.links.add(link);
+    }
 
 
     public String getHome() {
@@ -71,6 +79,37 @@ public class MatchDto {
 
     public BrokerType getBroker() {
         return broker;
+    }
+
+    public List<Link> getLinks() {
+        return links;
+    }
+
+    public void setLinks(List<Link> links) {
+        this.links = links;
+    }
+
+    public Instant getBegins() {
+        return this.begins;
+    }
+    public Instant getEnds(){
+        return this.ends;
+    }
+
+    public void setEnds(Instant ends) {
+        this.ends = ends;
+    }
+
+    public void setBegins(Instant begins) {
+        this.begins = begins;
+    }
+
+    public boolean isBonusMatch() {
+        return this.bonusMatch;
+    }
+
+    public void setBonusMatch(boolean bonusMatch) {
+        this.bonusMatch = bonusMatch;
     }
 }
 

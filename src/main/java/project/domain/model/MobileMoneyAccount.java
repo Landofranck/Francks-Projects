@@ -8,13 +8,18 @@ import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
+import project.adapter.in.web.Utils.Code;
+import project.application.error.InsufficientFundsException;
+import project.application.error.ValidationException;
 import project.domain.model.Enums.MomoAccountType;
 import project.domain.model.Enums.TransactionType;
 
 public class MobileMoneyAccount implements Account {
     private Long id;
+    private final String name;
     public final MomoAccountType accountType;
     private Money accountBalance;
     private Boolean dailyLimit;
@@ -22,8 +27,9 @@ public class MobileMoneyAccount implements Account {
     private Boolean monthlyLimit;
     private List<Transaction> transactionHistory;
 
-    public MobileMoneyAccount(Long id, MomoAccountType accountType) {
+    public MobileMoneyAccount(Long id, MomoAccountType accountType,String name) {
         this.accountType = accountType;
+        this.name=name;
         this.accountBalance = new Money(BigDecimal.ZERO);
         this.dailyLimit = false;
         this.weeklyLimit = false;
@@ -42,14 +48,14 @@ public class MobileMoneyAccount implements Account {
         Objects.requireNonNull(money);
         Objects.requireNonNull(createdAt);
         this.accountBalance = this.accountBalance.add(money);
-        Transaction done = new Transaction(money, this.accountBalance, createdAt, TransactionType.DEPOSIT, description);
+        Transaction done = new Transaction(money, this.accountBalance, createdAt, TransactionType.DEPOSIT, description,null);
         addTransaction(done);
         return done;
     }
 
     public Transaction withdraw(Money money, Instant createdAt,String description) {
         if (!this.accountBalance.isGreaterOrEqual(money)) {
-            throw new IllegalArgumentException("you cannot make withdrawal of " + money.getValue());
+            throw new InsufficientFundsException("you cannot make withdrawal of " + money.getValue()+ " because account balane is "+this.accountBalance.getValue(), Map.of("momoId",this.id));
         }
 
         this.accountBalance = this.accountBalance.subtract(money);
@@ -59,7 +65,8 @@ public class MobileMoneyAccount implements Account {
                 new Money(accountBalance.getValue()),
                 createdAt,
                 TransactionType.WITHDRAWAL,
-                description
+                description,
+                null
         );
 
         addTransaction(doneTransaction);
@@ -176,6 +183,10 @@ public class MobileMoneyAccount implements Account {
 
     public void setMonthlyLimit(Boolean monthlyLimit) {
         this.monthlyLimit = monthlyLimit;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override

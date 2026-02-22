@@ -1,7 +1,8 @@
 package project.application.port.in;
 
+import project.domain.model.Enums.BrokerType;
 import project.domain.model.Match;
 
 public interface GetMatchByIdUseCase {
-    Match getMatchById(Long id);
+    Match getMatchByIdOrName(Long id, BrokerType broker, String name);
 }

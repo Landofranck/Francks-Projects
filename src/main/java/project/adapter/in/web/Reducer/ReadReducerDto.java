@@ -2,12 +2,13 @@ package project.adapter.in.web.Reducer;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
-import project.adapter.in.web.MatchDto;
-import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
+import project.adapter.in.web.Utils.Link;
+import project.adapter.in.web.bettinAccountDTO.MatchDto;
 import project.domain.model.Enums.BetStrategy;
 import project.domain.model.Enums.BrokerType;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 public record ReadReducerDto(
@@ -23,8 +24,8 @@ public record ReadReducerDto(
         BrokerType broker,
         List<MatchDto> betMatchDtos,
         List<ReducerSlipDto> slips,
-        BigDecimal bonusAmount
+        BigDecimal bonusAmount,
+        List<Link> links
 ) {
-
 
 }

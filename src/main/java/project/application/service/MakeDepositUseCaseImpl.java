@@ -4,6 +4,8 @@ package project.application.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import project.adapter.in.web.Utils.Code;
+import project.application.error.ValidationException;
 import project.application.port.in.MomoAccounts.MakeDepositUseCase;
 import project.application.port.out.bettingAccount.AppendBettingAccountTransactionPort;
 import project.application.port.out.bettingAccount.ReadBettingAccountByIdPort;
@@ -18,6 +20,7 @@ import project.domain.model.Transaction;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Objects;
 
 @ApplicationScoped
@@ -46,7 +49,7 @@ public class MakeDepositUseCaseImpl implements MakeDepositUseCase {
         Objects.requireNonNull(momoAccountId, "momoAccountId");
         Objects.requireNonNull(bettingAccountId, "bettingAccountId");
         Objects.requireNonNull(amount, "amount");
-        if (amount.signum() <= 0) throw new IllegalArgumentException("amount must be > 0");
+        if (amount.signum() <= 0) throw new ValidationException(Code.INVALID_AMOUNT,"amount must be > 0 deposit..impl", Map.of("bettingId",bettingAccountId,"momoId",momoAccountId));
         var momo = momoReader.getMomoAccount(momoAccountId);
         var betting = bettingReader.getBettingAccount(bettingAccountId);
 

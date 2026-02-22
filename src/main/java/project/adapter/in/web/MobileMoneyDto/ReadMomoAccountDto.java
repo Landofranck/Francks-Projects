@@ -1,9 +1,10 @@
 package project.adapter.in.web.MobileMoneyDto;
 
-import project.adapter.in.web.TransactionDTO.TransactionDto;
+import project.adapter.in.web.Utils.Link;
 import project.domain.model.Enums.MomoAccountType;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ReadMomoAccountDto {
@@ -13,8 +14,11 @@ public class ReadMomoAccountDto {
     private Boolean dailyLimit;
     private Boolean weeklyLimit;
     private Boolean monthlyLimit;
-    private List<TransactionDto> transactionHistory;
+    private List<Link> links=new ArrayList<>();
 
+    public void addLink(Link link) {
+        this.links.add(link);
+    }
 
     public void setAccountBalance(BigDecimal accountBalance) {
         this.accountBalance = accountBalance;
@@ -64,11 +68,11 @@ public class ReadMomoAccountDto {
         return monthlyLimit;
     }
 
-    public void setTransactionHistory(List<TransactionDto> transactionHistory) {
-        this.transactionHistory = transactionHistory;
+    public void setLinks(List<Link> selfLinks) {
+        this.links = selfLinks;
     }
 
-    public List<TransactionDto> getTransactionHistory() {
-        return transactionHistory;
+    public List<Link> getLinks() {
+        return links;
     }
 }

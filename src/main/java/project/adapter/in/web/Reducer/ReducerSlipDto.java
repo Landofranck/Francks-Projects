@@ -2,7 +2,7 @@ package project.adapter.in.web.Reducer;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
-import project.adapter.in.web.MatchEventPickDto;
+import project.adapter.in.web.bettinAccountDTO.MatchEventPickDto;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStrategy;
 import project.domain.model.Enums.BrokerType;

@@ -63,7 +63,10 @@ public class BettingAccountEntity {
         this.draftBetSlip.setStake(incoming.getStake());
 
         // picks: attach properly (so parent pointers are correct)
-        this.draftBetSlip.getPicks().clear();
+        var managedDraft = this.draftBetSlip;
+        for (var p : new ArrayList<>(managedDraft.getPicks())) {
+            managedDraft.removeDraftEventpick(p); // removes + sets parent null
+        }
         if (incoming.getPicks() != null) {
             for (DraftEventPickEntity p : incoming.getPicks()) {
                 this.draftBetSlip.addDraftEventPick(p);
@@ -117,16 +120,9 @@ public class BettingAccountEntity {
         return betHistory;
     }
 
-    public void setBetHistory(List<BetSlipEntity> betHistory) {
-        this.betHistory = betHistory;
-    }
 
     public List<BettingAccountTransactionEntity> getTransactionHistory() {
         return transactionHistory;
-    }
-
-    public void setTransactionHistory(List<BettingAccountTransactionEntity> transactionHistory) {
-        this.transactionHistory = transactionHistory;
     }
 
 

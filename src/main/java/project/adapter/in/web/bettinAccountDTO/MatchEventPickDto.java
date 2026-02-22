@@ -1,8 +1,9 @@
-package project.adapter.in.web;
+package project.adapter.in.web.bettinAccountDTO;
 
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import project.adapter.in.web.Utils.Link;
 import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.League;
 
@@ -18,6 +19,7 @@ public class MatchEventPickDto {
     private League league;
     @NotNull
     private BetStatus status;
+    private Link update;
 
     public MatchEventPickDto() {}
 
@@ -52,5 +54,13 @@ public class MatchEventPickDto {
 
     public BetStatus getStatus() {
         return status;
+    }
+
+    public void setUpdate(Link update) {
+        this.update = update;
+    }
+
+    public Link getUpdate() {
+        return update;
     }
 }

@@ -11,15 +11,17 @@ public class Transaction {
     private final Instant createdAt;
     private final TransactionType type;
     private final String description;
+    private final Long betslipId;
 
     private Account owner;
 
-    public Transaction(Money transactionAmmount, Money accountBalanceAfterTransaction, Instant createdAt, TransactionType transactionType, String description) {
+    public Transaction(Money transactionAmmount, Money accountBalanceAfterTransaction, Instant createdAt, TransactionType transactionType, String description,Long betslipId) {
         this.transactionAmmount = transactionAmmount;
         this.accountBalanceAfterTransaction = accountBalanceAfterTransaction;
         this.createdAt = createdAt;
         this.type = transactionType;
         this.description = (description == null) ? "" : description;
+        this.betslipId=betslipId;
     }
 
     public long getId() {
@@ -56,5 +58,9 @@ public class Transaction {
 
     public String getDescription() {
         return description;
+    }
+
+    public Long getBetslipId() {
+        return betslipId;
     }
 }

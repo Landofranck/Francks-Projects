@@ -20,6 +20,7 @@ public class BettingAccountTransactionEntity {
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private BettingAccountEntity owner;
+    private Long betSlipId;
 
     public BettingAccountTransactionEntity() {
 
@@ -80,5 +81,13 @@ public class BettingAccountTransactionEntity {
 
     public String getDescription() {
         return description;
+    }
+
+    public Long getBetSlipId() {
+        return this.betSlipId;
+    }
+
+    public void setBetSlipId(Long betSlipId) {
+        this.betSlipId = betSlipId;
     }
 }

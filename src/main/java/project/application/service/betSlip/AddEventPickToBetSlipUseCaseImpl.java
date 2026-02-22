@@ -64,7 +64,7 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
         );
         pick.setOutcomePickStatus(BetStatus.PENDING);
         slip.addMatchEventPick(pick);
-        putBetSlip.persistEmptyslip(bettingAccountId, slip);
+        putBetSlip.persistEmptySlip(bettingAccountId, slip);
         // Recalculate slip odds if you store total odds
         // (depends on your ReducerBetSlip model)
         // slip.recalculateTotalOdds();

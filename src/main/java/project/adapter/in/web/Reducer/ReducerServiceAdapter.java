@@ -2,11 +2,14 @@ package project.adapter.in.web.Reducer;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import project.adapter.in.web.DTOMapper;
-import project.adapter.in.web.IdDto;
+import project.adapter.in.web.Utils.DTOMapper;
+import project.adapter.in.web.Utils.IdDto;
 import project.application.port.in.Reducer.*;
 import project.application.port.out.Reducer.DeleteReducerByIdPort;
+import project.domain.model.Enums.BrokerType;
 import project.domain.model.Money;
+
+import java.util.ArrayList;
 
 @ApplicationScoped
 public class ReducerServiceAdapter {
@@ -25,6 +28,8 @@ public class ReducerServiceAdapter {
     PlaceBetFromReducerUseCase placeBetFromReducer;
     @Inject
     RefreshReducerUseCase refreshReducerUseCase;
+    @Inject
+    LoadAllReducdersUseCase loadAllReducers;
 
     @Inject
     DeleteReducerByIdPort deleteReducerById;
@@ -68,5 +73,9 @@ public class ReducerServiceAdapter {
 
     public void deleteReducer(Long id) {
         deleteReducerById.deleteReducerById(id);
+    }
+
+    public GetAllReducerDto getAllReducers(BrokerType broker) {
+        return new GetAllReducerDto(mapper.toReducerDomains(loadAllReducers.loadReducers(broker)),new ArrayList<>());
     }
 }

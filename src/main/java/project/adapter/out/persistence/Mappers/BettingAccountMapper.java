@@ -64,9 +64,25 @@ public class BettingAccountMapper {
         }
         return domainModel;
     }
+    public BettingAccount toSummaryBettingAccountDomain(BettingAccountEntity entityModel) {
+        var domainModel = new BettingAccount(entityModel.getAccountName(), entityModel.getBrokerType());
+        domainModel.setBalance(new Money(entityModel.getBalance()));
+        domainModel.setId(entityModel.getId());
+
+        if (entityModel.getDraftBetSlip() != null) {
+            domainModel.putEmptySlip(toDraftSlipDomain(entityModel.getDraftBetSlip()));
+        }
+
+        if (entityModel.getBounuses() != null) {
+            for (BonusEmb b : entityModel.getBounuses()) {
+                domainModel.addBonus(toBonusDomain(b));
+            }
+        }
+        return domainModel;
+    }
 
     private Bonus toBonusDomain(BonusEmb b) {
-        return new Bonus(b.getAmount(), b.getExpiryDate(), b.getStatus());
+        return new Bonus(b.getAmount(), b.getExpiryDate(), b.getStatus(),b.getType());
     }
 
     private BonusEmb toBonusEmb(Bonus b) {
@@ -74,6 +90,7 @@ public class BettingAccountMapper {
         emb.setAmount(b.getAmount().getValue());
         emb.setExpiryDate(b.getExpiryDate());
         emb.setStatus(b.getStatus());
+        emb.setType(b.getType());
         return emb;
     }
 
@@ -84,6 +101,7 @@ public class BettingAccountMapper {
         transactionEntity.setCreatedAt(domainTransaction.getCreatedAt());
         transactionEntity.setType(domainTransaction.getType());
         transactionEntity.setDescription(domainTransaction.getDescription());
+        transactionEntity.setBetSlipId(domainTransaction.getBetslipId());
         //set owner not created because this is done in parent class already with setParent(this)
         return transactionEntity;
     }
@@ -94,6 +112,9 @@ public class BettingAccountMapper {
         matchEntity.setHome(domain.getHome());
         matchEntity.setLeague(domain.getMatchLeague());
         matchEntity.setBroker(domain.getBroker());
+        matchEntity.setBonusMatch(domain.isBonusMatch());
+        matchEntity.setEnds(domain.getEnds());
+        matchEntity.setBegins(domain.getBegins());
         if (domain.getMatchOutComes() == null || domain.getMatchOutComes().isEmpty())
             throw new RuntimeException("match must have outcomes line 78 mapper");
         for (MatchOutComePick m : domain.getMatchOutComes()) {
@@ -127,7 +148,7 @@ public class BettingAccountMapper {
 
 
     public Transaction toBettingTransactionDomain(BettingAccountTransactionEntity e) {
-        var transactionDomain = new Transaction(new Money(e.getTransactionAmmount()), new Money(e.getAccountBalanceAfterTransaction()), e.getCreatedAt(), e.getType(), e.getDescription());
+        var transactionDomain = new Transaction(new Money(e.getTransactionAmmount()), new Money(e.getAccountBalanceAfterTransaction()), e.getCreatedAt(), e.getType(), e.getDescription(),e.getBetSlipId());
         //set owner not created because this is done in parent class already with setParent(this)
         transactionDomain.setId(e.getId());
         return transactionDomain;
@@ -266,12 +287,11 @@ public class BettingAccountMapper {
 
 
     public Match toMatchDomain(MatchEntity eM) {
-        var dom = new Match(eM.getHome(), eM.getAway(), eM.getBroker());
+        var dom = new Match(eM.getHome(), eM.getAway(), eM.getBroker(), eM.getBegins(),eM.getEnds());
         dom.setMatchId(eM.getId());
-        dom.setAway(eM.getAway());
         dom.setMatchLeague(eM.getMatchLeague());
-        dom.setHome(eM.getHome());
         dom.setVersion(eM.getVersion());
+        dom.setBonusMatch(eM.isBonusMatch());
         if (eM.getOutcomes().isEmpty()) dom.setMatchOutComes(new ArrayList<>());
         {
         }
@@ -298,7 +318,7 @@ public class BettingAccountMapper {
     }
 
     public List<BettingAccount> toListOfAccountDomains(List<BettingAccountEntity> list) {
-        return list.stream().map(this::toBettingAccountDomain).collect(Collectors.toCollection(ArrayList::new));
+        return list.stream().map(this::toSummaryBettingAccountDomain).collect(Collectors.toCollection(ArrayList::new));
     }
     public List<MatchOutComePick> toListOfMatchOutComePick(List<MatchEventPickEntity> list) {
         return list.stream().map(this::toMatchEventDomain).collect(Collectors.toCollection(ArrayList::new));
@@ -338,5 +358,40 @@ public class BettingAccountMapper {
                 continue;
             old.get(i).setStatus(newVersion.get(i).getStatus());
         }
+    }
+    public void applyToManagedDraftSlip(DraftSlipEntity managed, DraftBetSlip domain) {
+        if (domain == null) return;
+
+        // 1) Update scalar fields
+        managed.setStatus(domain.getStatus());
+        managed.setCategory(domain.getCategory());
+        managed.setTotalOdd(domain.getTotalOdds());
+        managed.setStake(domain.getStake() == null ? null : domain.getStake().getValue());
+
+        // 2) Replace picks safely (owning side must be cleared!)
+        // Remove old picks using helper that sets parent = null
+        for (var p : new ArrayList<>(managed.getPicks())) {
+            managed.removeDraftEventpick(p);   // IMPORTANT: must null out owning side
+        }
+
+        // Add new picks
+        if (domain.getPicks() != null) {
+            for (var pickDomain : domain.getPicks()) {
+                DraftEventPickEntity pickEntity = toDraftEventEntity(pickDomain);
+                managed.addDraftEventPick(pickEntity); // IMPORTANT: sets parent
+            }
+        }
+    }
+
+
+    public List<BetSlip> toListOfBetSlips(List<BetSlipEntity> betHistory) {
+        return betHistory.stream().map(this::toBetSlipDomain).collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public List<Transaction> toListOfBettingAccountTransactions(List<BettingAccountTransactionEntity> transactionHistory) {
+        return transactionHistory.stream().map(this::toBettingTransactionDomain).collect(Collectors.toCollection(ArrayList::new));
+    }
+    public List<Transaction> toListOfMomoTransactions(List<BettingAccountTransactionEntity> transactionHistory) {
+        return transactionHistory.stream().map(this::toBettingTransactionDomain).collect(Collectors.toCollection(ArrayList::new));
     }
 }

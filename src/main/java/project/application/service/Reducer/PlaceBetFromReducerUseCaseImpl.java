@@ -2,7 +2,9 @@ package project.application.service.Reducer;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import project.adapter.out.persistence.NotFoundException;
+import project.adapter.in.web.Utils.Code;
+import project.application.error.ConflictException;
+import project.application.error.ResourceNotFoundException;
 import project.application.port.in.Reducer.PlaceBetFromReducerUseCase;
 import project.application.port.out.Reducer.GetReducerByIdPort;
 import project.application.port.out.Reducer.UpdateReducerPort;
@@ -12,10 +14,10 @@ import project.domain.model.MatchOutComePick;
 import project.domain.model.Money;
 import project.domain.model.Reducer.Reducer;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class PlaceBetFromReducerUseCaseImpl implements PlaceBetFromReducerUseCase {
@@ -34,14 +36,14 @@ public class PlaceBetFromReducerUseCaseImpl implements PlaceBetFromReducerUseCas
         var red = getReducerById.getReducer(reducerId);
         var test = (bonusSlip == null || bonusSlip < 0);
         if (stake.equals(new Money(0)) && (test)) {
-            throw new IllegalArgumentException("you have to put a stake or pick a bonus slip");
+            throw new ConflictException(Code.INVALID_AMOUNT,"you have to put a stake or pick a bonus slip  placebetfrom..impl 39", Map.of("reducerId",reducerId));
         } else if (stake.isGreaterOrEqual(new Money(1)) && (bonusSlip != null)) {
-            throw new IllegalArgumentException("you have to put a stake or pick a bonus slip but not both");
+            throw new ConflictException(Code.INVALID_AMOUNT,"you have to put a stake or pick a bonus slip  placebetfrom..impl 41", Map.of("reducerId",reducerId));
         }
         if (slipNumber > red.getSlips().size())
-            throw new NotFoundException("Slip number is out of range placebetfrom..impl 34");
+            throw new ResourceNotFoundException(Code.BET_SLIP_NOT_FOUND,"Slip number is out of range placebetfrom..impl 44",Map.of("bettingId",bettingAccountId));
         if (red.getSlips().isEmpty() || red.getSlips() == null)
-            throw new NotFoundException("there are no slips in the reducer you are using place bet from..impl 34");
+            throw new ResourceNotFoundException(Code.BET_SLIP_NOT_FOUND,"there are no slips in the reducer you are using place bet from..impl 46",Map.of("reducerId",reducerId));
 
 
         List<Long> matchIds = new ArrayList<>();

@@ -4,74 +4,140 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import project.adapter.out.persistence.EntityModels.BettingAccount.BetSlipEntity;
-import project.adapter.out.persistence.EntityModels.BettingAccount.BettingAccountEntity;
-import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEventPickEntity;
+import org.hibernate.exception.ConstraintViolationException;
+import project.adapter.in.web.Utils.Code;
+import project.adapter.out.persistence.EntityModels.BettingAccount.*;
 import project.adapter.out.persistence.Mappers.BettingAccountMapper;
-import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
+import project.application.error.ConflictException;
+import project.application.error.ResourceNotFoundException;
+import project.application.error.ValidationException;
 import project.application.port.out.DeleteMatchByIdPort;
 import project.application.port.out.Match.*;
 import project.application.port.out.UpdateMatchPort;
 import project.application.port.out.bettingAccount.*;
 import project.domain.model.*;
-import project.domain.model.Enums.BetStatus;
-import project.domain.model.Enums.BetStrategy;
-import project.domain.model.Enums.BrokerType;
-import project.domain.model.Enums.League;
+import project.domain.model.Enums.*;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
+import static java.io.FileDescriptor.out;
+
 @ApplicationScoped
-public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadBettingAccountByIdPort, ReadAllBettingAccountsPort, UpdateBettingAccountBalancePort, AppendBettingAccountTransactionPort, PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort, PersistEmptyBetSlipPort, ReadEmptSlipByParenPort, DeleteMatchByIdPort, UpdateMatchPort, GetMatchByIdPort, UpdateBettingAccountPort, UpdateMatchPickStatusPort, FindMatchOutComeByParametersPort, GetBetSlipByIdPort, SetSlipStatustoRefundPort {
+public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadBettingAccountByIdPort, ReadSummaryOfBettingAccountsPort, ReadTransactionHistoryPort, ReadBettingHistoryPort, ReadAllBettingAccountsPort, UpdateBettingAccountBalancePort, AppendBettingAccountTransactionPort, PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort, PersistEmptyBetSlipPort, ReadEmptSlipByParenPort, DeleteMatchByIdPort, UpdateMatchPort, GetMatchByIdPort, UpdateBettingAccountPort, UpdateMatchPickStatusPort, FindMatchOutComeByParametersPort, GetBetSlipByIdPort, SetSlipStatustoRefundPort {
     @Inject
     EntityManager entityManager;
     @Inject
     BettingAccountMapper mapper;
 
-    private boolean existsByNameAndType(String name, BrokerType type) {
-        Long count = entityManager.createQuery("SELECT COUNT(b) FROM BettingAccountEntity b WHERE b.accountName = :name AND b.brokerType = :type", Long.class).setParameter("name", name).setParameter("type", type).getSingleResult();
-
-        return count > 0;
-    }
 
     @Transactional
     @Override
     public Long saveBettingAccount(BettingAccount account) {
-
-
-        Objects.requireNonNull(account);
-
-        var entity = mapper.toBettingAccountEntity(account);
-        if (existsByNameAndType(entity.getAccountName(), entity.getBrokerType())) {
-            throw new IllegalArgumentException("Betting account with name '" + entity.getAccountName() + "' already exists for broker " + entity.getBrokerType());
+        try {
+            Objects.requireNonNull(account);
+            var entity = mapper.toBettingAccountEntity(account);
+            entityManager.persist(entity);
+            entityManager.flush();
+            return entity.getId();
+        } catch (ConstraintViolationException e) {
+            entityManager.clear();
+            Long id = entityManager.createQuery("""
+                    SELECT r.id FROM BettingAccountEntity r WHERE LOWER(r.accountName)=LOWER(:name)
+                    """, Long.class).setParameter("name", account.getAccountName()).getSingleResult();
+            throw new ConflictException(Code.BETTING_ACCOUNT_ALREADY_EXISTS, "betting account repository jpa 48: " + e.getMessage(), Map.of("bettingId", id, "bettingName", account.getAccountName()));
         }
-
-        entityManager.persist(entity);
-
-        entityManager.flush();
-        return entity.getId();
     }
 
     @Override
     public BettingAccount getBettingAccount(Long id) {
         var entity = entityManager.find(BettingAccountEntity.class, id);
-        if (entity == null) throw new NotFoundException("Account not found: jpa 68. With Id:" + id);
+        if (entity == null)
+            throw new ResourceNotFoundException(Code.BETTING_ACCOUNT_NOT_FOUND, "BAR jpa 56", Map.of("bettingId", id));
         return mapper.toBettingAccountDomain(entity);
+    }
+
+    @Override
+    public BettingAccount getSummaryAccount(Long id) {
+        var entity = entityManager.find(BettingAccountEntity.class, id);
+        if (entity == null)
+            throw new ResourceNotFoundException(Code.BETTING_ACCOUNT_NOT_FOUND, "BAR jpa 56", Map.of("bettingId", id));
+        return mapper.toSummaryBettingAccountDomain(entity);
+    }
+
+    @Override
+    public List<BetSlip> readBetHistory(Long bettingId, BetStatus status, String matchKey, BetStrategy strategy) {
+
+        StringBuilder jpql = new StringBuilder("SELECT b FROM BetSlipEntity b WHERE b.parentAccountEntity.id = :bettingId");
+
+        if (status != null) {
+            jpql.append(" AND b.status = :status");
+        }
+
+        if (strategy != null) {
+            jpql.append(" AND b.strategy = :strategy");
+        }
+
+        jpql.append(" ORDER BY b.createdAt DESC");
+
+        var query = entityManager.createQuery(jpql.toString(), BetSlipEntity.class).setParameter("bettingId", bettingId);
+
+        if (status != null) {
+            query.setParameter("status", status);
+        }
+
+        if (strategy != null) {
+            query.setParameter("strategy", strategy);
+        }
+
+        var betHistory = query.getResultList();
+        return mapper.toListOfBetSlips(betHistory);
+    }
+
+    @Override
+    public List<Transaction> readTransactionHistory(Long bettingId, TransactionType type) {
+        try {
+            StringBuilder jpql = new StringBuilder("SELECT r FROM BettingAccountTransactionEntity r WHERE r.owner.id = :bettingId");
+            if (type != null) {
+                jpql.append(" AND r.type = :type");
+            }
+            jpql.append(" ORDER BY r.createdAt DESC");
+            var query = entityManager.createQuery(jpql.toString(), BettingAccountTransactionEntity.class).setParameter("bettingId", bettingId);
+
+            if (type != null) {
+                query.setParameter("type", type);
+            }
+
+            return mapper.toListOfBettingAccountTransactions(query.getResultList());
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException(Code.BETTING_ACCOUNT_ERROR, "Error whils getting transaction history jpa 120 " + e.getMessage(), Map.of());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
     @Transactional
     @Override
-    public List<BettingAccount> getAllBettingAcounts() {
+    public List<BettingAccount> getAllBettingAcounts(BrokerType brokerType) {
 
         try {
-            List<BettingAccountEntity> entities = entityManager.createQuery("SELECT d FROM BettingAccountEntity d", BettingAccountEntity.class).getResultList();
+            StringBuilder sb=new StringBuilder();
+            if(brokerType!=null){
+                sb.append("WHERE d.brokerType= :brokerType");
+            }
+            var query = entityManager.createQuery("SELECT d FROM BettingAccountEntity d "+sb.toString(), BettingAccountEntity.class);
+            if(brokerType!=null){
+                query.setParameter("brokerType",brokerType);
+            }
+            List<BettingAccountEntity> entities=query.getResultList();
+            return mapper.toListOfAccountDomains(entities);
 
-            List<BettingAccount> accounts = mapper.toListOfAccountDomains(entities);
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException(Code.BETTING_ACCOUNT_ERROR, "error while returning list of all betting accounts jpa 132: " + e.getMessage(), Map.of());
 
-
-            return accounts;
         } catch (Exception e) {
             throw new RuntimeException("error while returning list of all betting accounts jpa 101");
         }
@@ -126,10 +192,43 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
 
     @Transactional
     @Override
-    public List<Match> getAllMatches() {
-        var entities = entityManager.createQuery("SELECT DISTINCT m FROM MatchEntity m LEFT JOIN FETCH m.matchOutComes", MatchEntity.class).getResultList();
-        List<Match> matches = mapper.toMatchDomains(entities);
-        return matches;
+    public List<Match> getAllMatches(BrokerType broker, Long id, String name, Instant start, Instant stop) {
+        try {
+            StringBuilder jpql = new StringBuilder("SELECT m FROM MatchEntity m WHERE m.broker= :broker");
+            if (id != null) {
+                jpql.append(" AND m.id = :id");
+            }
+            if (start != null) {
+                jpql.append(" AND m.begins >= :start");
+            }
+            if (stop != null) {
+                jpql.append(" AND m.ends <= :stop");
+            }
+            if (name != null) {
+                jpql.append(" OR m.home <= :name OR m.home <= :name");
+            }
+
+
+            jpql.append(" ORDER by b.begins DESC");
+
+
+            var query = entityManager.createQuery(jpql.toString(), MatchEntity.class).setParameter("broker", broker);
+            if (id != null) {
+                query.setParameter("id", id);
+            }
+            if (start != null) {
+                query.setParameter("start", start);
+            }
+            if (stop != null) {
+                query.setParameter("stop", stop);
+            }
+            if (name != null) {
+                query.setParameter("name",name);
+            }
+            return mapper.toMatchDomains(query.getResultList());
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException(Code.MATCH_ERROR, "error while getting all matches bettingAccount repo 215 " + e.getMessage(), Map.of());
+        }
     }
 
     @Transactional
@@ -150,15 +249,20 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
 
     @Transactional
     @Override
-    public DraftBetSlip persistEmptyslip(Long bettingAccountId, DraftBetSlip betSlip) {
+    public void persistEmptySlip(Long bettingAccountId, DraftBetSlip betSlip) {
         try {
             var emptySlipOwner = entityManager.find(BettingAccountEntity.class, bettingAccountId);
             if (emptySlipOwner == null)
                 throw new IllegalArgumentException("Betting account not found jpa line 222: " + bettingAccountId);
-            var slipEntity = mapper.toDraftSlipEntity(betSlip);
-            emptySlipOwner.putNewBetSlip(slipEntity);
-            entityManager.persist(emptySlipOwner);
-            return mapper.toDraftSlipDomain(emptySlipOwner.getDraftBetSlip());
+            var managedDraft = emptySlipOwner.getDraftBetSlip();
+            if (managedDraft == null) {
+                managedDraft = new DraftSlipEntity();
+                managedDraft.setDraftBetSlipOwner(emptySlipOwner); // owning side of @OneToOne
+                emptySlipOwner.setDraftBetSlip(managedDraft);
+            }
+            mapper.applyToManagedDraftSlip(managedDraft, betSlip);
+            entityManager.flush();
+            entityManager.clear();
         } catch (Exception e) {
             throw new IllegalArgumentException("erron persisting new empty sip jpa line 227 " + e.getMessage());
         }
@@ -168,10 +272,10 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     public DraftBetSlip getAvailableBettingSlip(Long parentAccountId) {
         var parentAccount = entityManager.find(BettingAccountEntity.class, parentAccountId);
         if (parentAccount == null)
-            throw new IllegalArgumentException("Betting account not found jpa line 231: " + parentAccountId);
+            throw new ResourceNotFoundException(Code.BETTING_ACCOUNT_NOT_FOUND, "Betting account with id " + parentAccountId + "not found jpa line 231: ", Map.of());
         var slip = mapper.toDraftSlipDomain(parentAccount.getDraftBetSlip());
         if (slip == null)
-            throw new IllegalArgumentException("Betting account " + parentAccount.getAccountName() + " does not have this and empty slip : " + parentAccountId);
+            throw new ResourceNotFoundException(Code.BET_SLIP_NOT_FOUND, "Betting account " + parentAccount.getAccountName() + " does not have this and empty slip : " + parentAccountId, Map.of());
         return slip;
     }
 
@@ -180,7 +284,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     public void deleteMatchById(Long id) {
         MatchEntity match = entityManager.find(MatchEntity.class, id);
         if (match == null) {
-            throw new NotFoundException("Match with id: " + id + " does not exist");
+            throw new ResourceNotFoundException(Code.MATCH_NOT_FOUND, "BettingAccountRepositoryJpa 231", Map.of("matchId", id));
         }
 
         // IMPORTANT: remove from the OWNING side (ReducerEntity.betMatchEntities)
@@ -196,7 +300,8 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     @Override
     public void updateMatch(Long id, List<MatchOutComePick> in) {
         var out = entityManager.find(MatchEntity.class, id);
-        if (out == null) throw new NotFoundException("Match with id " + id + " does'nt exist");
+        if (out == null)
+            throw new ResourceNotFoundException(Code.MATCH_NOT_FOUND, "BettingAccountRepositoryJpa 247", Map.of("matchId", id));
         mapper.applyToMatchEntity(out, in);
         entityManager.flush();
         entityManager.clear();
@@ -204,9 +309,36 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     }
 
     @Override
-    public Match getMatchById(Long id) {
-        var out = entityManager.find(MatchEntity.class, id);
-        return mapper.toMatchDomain(out);
+    public Match getMatchByIdOrName(Long id, BrokerType broker, String name) {
+        try {
+            StringBuilder jpql = new StringBuilder("SELECT r FROM MatchEntity  r WHERE");
+            if (broker != null) {
+                jpql.append(" r.broker=:broker");
+            }
+            if (id != null) {
+                jpql.append(" AND r.id= :id");
+            }
+            if (name != null) {
+                jpql.append(" OR r.home= :id OR r.away= :name");
+            }
+            jpql.append(" ORDER BY b.begins DESC");
+
+
+            var query = entityManager.createQuery(jpql.toString(), MatchEntity.class);
+            if (id != null) {
+                query.setParameter("id", id);
+            }
+            if (broker != null) {
+                query.setParameter("broker", broker);
+            }
+            if (name != null) {
+                query.setParameter("name", name);
+            }
+            var out = query.getSingleResult();
+            return mapper.toMatchDomain(out);
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException(Code.MATCH_ERROR, "error while retrieving matches jpa 288", Map.of());
+        }
     }
 
     @Transactional
@@ -218,9 +350,9 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
         entityManager.flush();
         entityManager.clear();
 
-        var acc=entityManager.find(BettingAccountEntity.class,bettingId);
+        var acc = entityManager.find(BettingAccountEntity.class, bettingId);
         if (true) {
-            throw new RuntimeException("this is the error"+acc.getDraftBetSlip().getPicks().size());
+            throw new RuntimeException("this is the error" + acc.getDraftBetSlip().getPicks().size());
         }
     }
 
@@ -236,7 +368,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     public Long updateMatchPick(Long matchPickId, BetStatus newPickStatus) {
         var out = entityManager.find(MatchEventPickEntity.class, matchPickId);
         if (out == null)
-            throw new NotFoundException("MatcheventPickentity with Id " + matchPickId + " not found: betting accoutn JPA 260");
+            throw new ResourceNotFoundException(Code.BET_SLIP_NOT_FOUND, "BettingAccountRepositoryJpa 291", Map.of("matchId", matchPickId));
         out.setOutComePickStatus(newPickStatus);
         entityManager.flush();
         entityManager.clear();

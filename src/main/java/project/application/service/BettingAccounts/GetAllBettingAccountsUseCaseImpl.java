@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import project.application.port.in.BettingAccount.LoadAllBettingAccountsUseCase;
 import project.application.port.out.bettingAccount.ReadAllBettingAccountsPort;
 import project.domain.model.BettingAccount;
+import project.domain.model.Enums.BrokerType;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class GetAllBettingAccountsUseCaseImpl implements LoadAllBettingAccountsU
     ReadAllBettingAccountsPort readAll;
 
     @Override
-    public List<BettingAccount> loadAllBettingAccounts() {
-        return readAll.getAllBettingAcounts();
+    public List<BettingAccount> loadAllBettingAccounts(BrokerType broker) {
+        return readAll.getAllBettingAcounts(broker);
     }
 }

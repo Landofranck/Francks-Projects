@@ -17,22 +17,15 @@ public class RemovePickByNumberImpl implements RemovePickByNumberUseCase {
     @Override
     public DraftBetSlip removeSpecifiedPick(Long bettingAccountId, int pickIndex) {
         var slip = readEmptSlip.getAvailableBettingSlip(bettingAccountId);
-        if (slip == null) {
-            throw new IllegalArgumentException("no betslip found 27");
-        }
-
         if (slip.getDraftSlipOwner() == null || slip.getDraftSlipOwner().getAccountId() == null) {
             throw new IllegalArgumentException("ReducerBetSlip must have a parent betting account before adding picks addpickimpl 27");
         }
         if (!slip.getDraftSlipOwner().getAccountId().equals(bettingAccountId)) {
             throw new IllegalArgumentException("ReducerBetSlip does not belong to betting account " + bettingAccountId);
         }
-        if (slip == null) {
-            throw new IllegalArgumentException("bet slip must not be null");
-        }
 
         slip.removeMatchEventPicksByIndex(pickIndex);
-        putBetSlip.persistEmptyslip(bettingAccountId, slip);
+        putBetSlip.persistEmptySlip(bettingAccountId, slip);
         // Recalculate slip odds if you store total odds
         // (depends on your ReducerBetSlip model)
         // slip.recalculateTotalOdds();

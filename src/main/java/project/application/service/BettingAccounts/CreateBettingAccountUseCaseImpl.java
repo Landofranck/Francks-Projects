@@ -19,11 +19,10 @@ public class CreateBettingAccountUseCaseImpl implements CreateBettingAccountUseC
     CreateEmptyBetSlipUseCaseImpl createEmptyBetSlip;
 
     @Override
-    public Long createNewBettingAccount(BettingAccount account) {
+    public void createNewBettingAccount(BettingAccount account) {
         Objects.requireNonNull(account, "account");
         var newAccount=new BettingAccount(account.getAccountName(),account.getBrokerType());
         Long id= persistBettingAccountPort.saveBettingAccount(newAccount);
         createEmptyBetSlip.createEmpty(id, BetCategory.SINGLE);
-        return id;
     }
 }

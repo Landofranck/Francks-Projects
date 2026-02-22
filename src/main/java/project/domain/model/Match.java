@@ -3,6 +3,9 @@ package project.domain.model;
 import project.domain.model.Enums.BrokerType;
 import project.domain.model.Enums.League;
 
+import javax.print.attribute.standard.DateTimeAtCompleted;
+import java.sql.Time;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,11 +18,41 @@ public class Match implements Event {
     private BrokerType broker;
     private List<MatchOutComePick> matchOutComes=new ArrayList<>();
     private Long version;
+    private Instant begins;
 
-    public Match(String home, String away, BrokerType broker) {
+    private Instant ends;
+    private boolean isBonusMatch;
+
+    public Match(String home, String away, BrokerType broker,Instant begins, Instant ends) {
         this.home = home;
         this.away = away;
-        this.broker=broker;
+        this.broker = broker;
+        this.begins=begins;
+        this.ends=ends;
+    }
+
+    public Instant getEnds() {
+        return ends;
+    }
+
+    public void setEnds(Instant ends) {
+        this.ends = ends;
+    }
+
+    public Instant getBegins() {
+        return begins;
+    }
+
+    public void setBegins(Instant begins) {
+        this.begins = begins;
+    }
+
+    public boolean isBonusMatch() {
+        return isBonusMatch;
+    }
+
+    public void setBonusMatch(boolean bonusMatch) {
+        isBonusMatch = bonusMatch;
     }
 
 

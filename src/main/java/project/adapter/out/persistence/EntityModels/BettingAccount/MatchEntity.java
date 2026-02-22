@@ -6,12 +6,19 @@ import project.adapter.out.persistence.EntityModels.ReducerEntity;
 import project.domain.model.Enums.BrokerType;
 import project.domain.model.Enums.League;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Entity
+@Table(
+        name = "match",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"home","away", "broker_type"}
+        )
+)
 public class MatchEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,9 +26,12 @@ public class MatchEntity {
 
     @Version
     private Long version;
+    @Column(name = "broker_type",nullable = false)
     @Enumerated
     private BrokerType broker;
+    @Column(name = "home",nullable = false)
     private String home;
+    @Column(name = "away")
     private String away;
 
     @OneToMany(mappedBy = "parentMatch", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -32,6 +42,9 @@ public class MatchEntity {
     private Set<ReducerEntity> reducers = new HashSet<>();
     @Enumerated
     private League league;
+    private Instant begins;
+    private Instant ends;
+    private boolean bonusMatch;
 
     public MatchEntity() {
     }
@@ -112,5 +125,29 @@ public class MatchEntity {
 
     public Long getVersion() {
         return version;
+    }
+
+    public Instant getBegins() {
+        return this.begins;
+    }
+
+    public void setBegins(Instant begins) {
+        this.begins = begins;
+    }
+
+    public Instant getEnds() {
+        return this.ends;
+    }
+
+    public void setEnds(Instant ends) {
+        this.ends = ends;
+    }
+
+    public boolean isBonusMatch() {
+        return bonusMatch;
+    }
+
+    public void setBonusMatch(boolean bonusMatch) {
+        this.bonusMatch = bonusMatch;
     }
 }

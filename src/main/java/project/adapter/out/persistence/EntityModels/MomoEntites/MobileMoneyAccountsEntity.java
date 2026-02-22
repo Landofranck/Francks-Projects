@@ -8,10 +8,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(
+        name = "mobile_money_account",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"id","account_name", "account_type"}
+        )
+)
 public class MobileMoneyAccountsEntity {
     @Id
+    @Column(name = "id",nullable = false)
     private Long id;
+    @Column(name = "account_name",nullable = false)
+    private String name;
     @Enumerated(EnumType.STRING)
+    @Column(name="account_type",nullable = false)
     public MomoAccountType accountType;
     private BigDecimal accountBalance;
     private Boolean dailyLimit;
@@ -83,5 +93,13 @@ public class MobileMoneyAccountsEntity {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

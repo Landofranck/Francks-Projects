@@ -2,11 +2,9 @@ package project.application.service.BettingAccounts;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import project.application.port.in.BettingAccount.LoadBettingAccountByIdUsecase;
 import project.application.port.in.betSlip.UpdateMatchPickStatusUsecase;
 import project.application.port.out.Match.FindMatchOutComeByParametersPort;
 import project.application.port.out.Match.UpdateMatchPickStatusPort;
-import project.application.port.out.bettingAccount.ReadBettingAccountByIdPort;
 import project.domain.model.MatchOutComePick;
 
 import java.util.HashSet;

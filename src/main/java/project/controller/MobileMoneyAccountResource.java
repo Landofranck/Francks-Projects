@@ -4,11 +4,12 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import project.adapter.in.web.BettingServiceAdapter;
 import project.adapter.in.web.MobileMoneyDto.CreateMobileMoneyAccountDto;
 
 
-import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.validation.Valid;
@@ -16,8 +17,9 @@ import project.adapter.in.web.MobileMoneyDto.MomoTopUpRequestDto;
 import project.adapter.in.web.MobileMoneyDto.MomoTransferRequestDto;
 import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
 import project.adapter.in.web.TransactionDTO.DepositDto;
-import project.adapter.in.web.bettinAccountDTO.BonusDto;
+import project.adapter.in.web.Utils.Link;
 import project.application.port.in.MomoAccounts.MakeDepositUseCase;
+import project.domain.model.Enums.TransactionType;
 
 @Path("/mobile-money-accounts")
 @Produces(MediaType.APPLICATION_JSON)
@@ -27,6 +29,8 @@ public class MobileMoneyAccountResource {
     BettingServiceAdapter serviceAdapter;
     @Inject
     MakeDepositUseCase makeDepositUseCase;
+    @Inject
+    UriInfo uriInfo;
 
     /**
      * creates new mobile money account
@@ -34,42 +38,69 @@ public class MobileMoneyAccountResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(@Valid CreateMobileMoneyAccountDto dto) {
-        Long id = serviceAdapter.createNewMobileMoneyAccount(dto.getId(), dto);
-        return Response.created(URI.create("/mobile-money-accounts/" + id)).build();
+        serviceAdapter.createNewMobileMoneyAccount(dto);
+        var out=new ArrayList<>(baseLinks(dto.getId()));
+        out.add(getAllMomoLink());
+        return Response.ok(out).entity(getAllMomoLink()).build();
     }
 
     @POST
-    @Path("/transfers")
+    @Path("/{momoId}/transfers")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response transfer(@Valid MomoTransferRequestDto dto) {
+    public Response transfer(@PathParam("momoId") Long momoId, @QueryParam("destinator") Long to, @Valid MomoTransferRequestDto dto) {
+        dto.fromAccountId = momoId;
+        dto.toAccountId = to;
         serviceAdapter.transferMomo(dto);
-        return Response.noContent().build();
+        List<Link> out = new ArrayList<>();
+        out.add(getAllMomoLink());
+        out.add(getAccount(momoId));
+        out.add(getAccount(to));
+        return Response.ok(out).build();
     }
 
     /**
      * tops up the money in  mobilemoney account whithout taking from any externnal source, just increases the value
      */
-    @POST
+    @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{id}/topups")
 
-    public Response topUp(@PathParam("id") Long id, @Valid MomoTopUpRequestDto dto) {
+    public Response topUpAccount(@PathParam("id") Long id, @Valid MomoTopUpRequestDto dto) {
         serviceAdapter.topUpMomo(id, dto);
-        return Response.noContent().build();
+        List<Link> out = new ArrayList<>();
+        out.add(getAllMomoLink());
+        out.add(getAccount(id));
+        out.add(getTransactions(id));
+        return Response.ok(out).build();
     }
 
     /**
      * returns all mobili money accounts to the user
      */
     @GET
-    public List<ReadMomoAccountDto> getAll() {
-        return serviceAdapter.getAllMomoAccounts();
+    public Response getAll() {
+        return getAllMomoAccountsResponse();
+    }
+
+    /**
+     * returns list of all transactions in a momo account
+     */
+    @GET
+    @Path("/{id}/get-history")
+    public Response getMomoHistoryAll(@PathParam("id") Long momoId, @QueryParam("transactionType") TransactionType type) {
+        var out = serviceAdapter.getMomoTransactions(momoId,type);
+        out.links().add(getAccount(momoId));
+        out.links().add(topUp(momoId));
+        return Response.ok(out).build();
     }
 
     @GET
     @Path("/{momoId}")
-    public ReadMomoAccountDto getMomoAccount(@PathParam("momoId") Long momoId) {
-        return serviceAdapter.getMomoAccountById(momoId);
+    public Response getMomoAccount(@PathParam("momoId") Long momoId) {
+        var out = serviceAdapter.getMomoAccountById(momoId);
+        out.addLink(getAllMomoLink());
+        out.getLinks().addAll(baseLinks(momoId));
+        return Response.ok(out).build();
     }
 
     /**
@@ -80,10 +111,66 @@ public class MobileMoneyAccountResource {
     @Path("/{momoId}/deposit-to-betting")
     public Response deposit(@PathParam("momoId") Long momoId,
                             @Valid DepositDto dto) {
-
+        ArrayList<Link> out;
+        out = new ArrayList<>(baseLinks(momoId));
+        out.add(getAllMomoLink());
+        out.add(new Link(uriInfo.getBaseUri() + "/betting-accounts/" + dto.getBettingAccountId(), "get BettingAccount", "GET"));
         makeDepositUseCase.depositFromMobileMoneyToBettingAccount(momoId, dto.getBettingAccountId(), dto.getAmount(), dto.getDescription());
-        return Response.ok().build();
+        return Response.ok(out).build();
     }
 
+    private Link linkFactory(String baseEnding, String rel, String type) {
+        return new Link(uriInfo.getBaseUri() + "mobile-money-accounts" + baseEnding, rel, type);
+    }
 
+    protected Link getAllMomoLink() {
+        return linkFactory("", "get all momo accounts", "GET");
+    }
+
+    private Response getAllMomoAccountsResponse() {
+        final var getAllResponse = this.serviceAdapter.getAllMomoAccounts();
+        setSelfLinks(getAllResponse.allMomos());
+        getAllResponse.links().add(createMomoAccount());
+        getAllResponse.links().add(new Link(uriInfo.getBaseUri()+"personal-betting-system","dipatcher","GET"));
+        return Response.ok(getAllResponse)
+                .build();
+    }
+
+    private String createSelfLink(Long id) {
+        return uriInfo.getRequestUriBuilder().path(Long.toString(id)).build().toString();
+    }
+
+    private void setSelfLinks(List<ReadMomoAccountDto> momoAccountDtos) {
+        for (ReadMomoAccountDto dto : momoAccountDtos) {
+            dto.getLinks().add(new Link(createSelfLink(dto.getId()), "self", "GET"));
+        }
+    }
+
+    private Link createMomoAccount() {
+        return linkFactory("", "create new momo account", "POST");
+    }
+
+    private Link topUp(Long id) {
+        return linkFactory("/" + id + "/topups", "put money in momo account", "PUT");
+    }
+
+    private Link doTransfer(Long from) {
+        return linkFactory("/" + from + "/transfers?destinator=", "transfer money in momo account", "PUT");
+    }
+
+    public Link getAccount(Long momoId) {
+        return linkFactory("/" + momoId, "get momo account " + momoId, "GET");
+    }
+
+    private Link getTransactions(Long id) {
+        return linkFactory("/" + id + "/get-history?trasactionType=", "get momo transaction history of " + id, "GET");
+    }
+
+    private List<Link> baseLinks(Long id) {
+        List<Link> out = new ArrayList<>();
+        out.add(topUp(id));
+        out.add(doTransfer(id));
+        out.add(getTransactions(id));
+        return out;
+    }
 }

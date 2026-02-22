@@ -1,24 +1,24 @@
 package project.domain.model;
 
-import project.domain.model.Enums.BetStatus;
-import project.domain.model.Enums.BonusStatus;
-import project.domain.model.Enums.BrokerType;
-import project.domain.model.Enums.TransactionType;
+import project.adapter.in.web.Utils.Code;
+import project.application.error.InsufficientFundsException;
+import project.domain.model.Enums.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class BettingAccount implements Account {
     private Long id; // generated
     private final String accountName;
     private final BrokerType brokerType;
     private Money balance;
-    private List<Transaction> transactionHistory;
-    private List<BetSlip> betHistory;
+    private final List<Transaction> transactionHistory;
+    private final List<BetSlip> betHistory;
     private DraftBetSlip draftBetSlip;
-    private List<Bonus> bonuses;
+    private final List<Bonus> bonuses;
 
     public BettingAccount(String accountName, BrokerType brokerType) {
         this.accountName = accountName;
@@ -28,6 +28,7 @@ public class BettingAccount implements Account {
         this.betHistory = new ArrayList<>();
         this.balance = new Money(BigDecimal.ZERO);
         this.bonuses = new ArrayList<>();
+        this.draftBetSlip=new DraftBetSlip(BetCategory.SINGLE);
     }
 
     public void addBetSlip(BetSlip newBetslip) {
@@ -47,7 +48,7 @@ public class BettingAccount implements Account {
                 money,
                 new Money(balance.getValue()),
                 createdAt,
-                TransactionType.DEPOSIT, description
+                TransactionType.DEPOSIT, description, null
         );
 
         addTransaction(doneTransaction);
@@ -60,11 +61,10 @@ public class BettingAccount implements Account {
         this.transactionHistory.add(transaction);
     }
 
-    public DraftBetSlip putEmptySlip(DraftBetSlip betSlip) {
+    public void putEmptySlip(DraftBetSlip betSlip) {
         if (betSlip == null) throw new RuntimeException("there must be a bet slip line 56 betting account");
         betSlip.setDraftSlipOwner(this);
         this.draftBetSlip = betSlip;
-        return betSlip;
     }
 
     public DraftBetSlip getDraftBetSlip() {
@@ -72,22 +72,22 @@ public class BettingAccount implements Account {
 
     }
 
-    public Transaction placeBetTransaction(Money money, String description) {
+    public Transaction placeBetTransaction(Money money, String description, Long betSlipId) {
         if (!this.balance.isGreaterThan(money)) {
             throw new IllegalArgumentException("Your account balance is not sufficient to place that bet " + money.getValue());
         }
         this.balance = balance.subtract(money);
-        return new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.BET_PLACED, description);
+        return new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.BET_PLACED, description, betSlipId);
     }
 
-    public Transaction betWonTransaction(Money money, String description) {
+    public Transaction betWonTransaction(Money money, String description, Long betSlipId) {
         this.balance = balance.add(money);
-        return new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.BET_WON, description);
+        return new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.BET_WON, description, betSlipId);
     }
 
-    public Transaction betRefundedTransaction(Money stake, String description) {
+    public Transaction betRefundedTransaction(Money stake, String description, Long betSlipId) {
         this.balance = balance.add(stake);
-        return new Transaction(stake, new Money(balance.getValue()), Instant.now(), TransactionType.BET_REFUNDED, description);
+        return new Transaction(stake, new Money(balance.getValue()), Instant.now(), TransactionType.BET_REFUNDED, description, betSlipId);
 
     }
 
@@ -117,10 +117,10 @@ public class BettingAccount implements Account {
 
     public Transaction withdraw(Money money, String description) {
         if (!this.balance.isGreaterThan(money)) {
-            throw new IllegalArgumentException("you cannot make withdrawal of " + money.getValue());
+            throw new InsufficientFundsException("you cannot make withdrawal of " + money.getValue(), Map.of("bettingId",this.id));
         }
         this.balance = balance.subtract(money);
-        return new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.WITHDRAWAL, description);
+        return new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.WITHDRAWAL, description, null);
     }
 
     public String getAccountName() {

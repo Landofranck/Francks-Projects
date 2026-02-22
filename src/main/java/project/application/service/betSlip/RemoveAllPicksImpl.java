@@ -33,7 +33,7 @@ public class RemoveAllPicksImpl implements RemoveAllPicksFromDraftSlipUseCase {
         }
 
         slip.removeAllMatchEventPicks();
-        putBetSlip.persistEmptyslip(bettingId, slip);
+        putBetSlip.persistEmptySlip(bettingId, slip);
         // Recalculate slip odds if you store total odds
         // (depends on your ReducerBetSlip model)
         // slip.recalculateTotalOdds();

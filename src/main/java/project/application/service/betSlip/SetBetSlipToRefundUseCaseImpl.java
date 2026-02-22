@@ -36,7 +36,7 @@ public class SetBetSlipToRefundUseCaseImpl implements SetBetSlipToRefundUseCase 
         }
         var account = readBettingAccount.getBettingAccount(bettingAccountId);
 
-            var tx = account.betRefundedTransaction(b.getStake(), b.getStrategy().toString());
+            var tx = account.betRefundedTransaction(b.getStake(), b.getStrategy().toString(),b.getId());
 
             updateBalance.updateBalance(account);
             appendTx.appendToBettingAccount(bettingAccountId, tx);

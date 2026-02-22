@@ -1,11 +1,13 @@
-package project.adapter.in.web;
+package project.adapter.in.web.Utils;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import project.adapter.in.web.bettinAccountDTO.MatchDto;
+import project.adapter.in.web.MobileMoneyDto.MomoTransactionHistoryDto;
+import project.adapter.in.web.bettinAccountDTO.*;
 import project.adapter.in.web.Reducer.*;
-import project.adapter.in.web.bettinAccountDTO.BonusDto;
-import project.adapter.in.web.bettinAccountDTO.betslip.BetSlipDto;
-import project.adapter.in.web.bettinAccountDTO.BettingAccountDto;
-import project.adapter.in.web.bettinAccountDTO.CreateBettingAccountDto;
+import project.adapter.in.web.bettinAccountDTO.betslip.BetHistoryDto;
+import project.adapter.in.web.bettinAccountDTO.betslip.DraftDto;
+import project.adapter.in.web.bettinAccountDTO.betslip.ReadBetSlipDto;
 import project.adapter.in.web.MobileMoneyDto.CreateMobileMoneyAccountDto;
 import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
 import project.adapter.in.web.TransactionDTO.TransactionDto;
@@ -23,28 +25,16 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class DTOMapper {
-    public BettingAccount toBettingAccountDomain(CreateBettingAccountDto dto) {
-        Objects.requireNonNull(dto, "dto");
-        Objects.requireNonNull(dto.getAccountName(), "accountName");
-        Objects.requireNonNull(dto.getBrokerType(), "brokerType");
 
-        return new BettingAccount(dto.getAccountName(), dto.getBrokerType());
-    }
 
-    public BettingAccountDto toBettingAccountDto(BettingAccount acc) {
-        var dto = new BettingAccountDto();
+    public GetBettingAccountDto toGetBettingAccountDto(BettingAccount acc) {
+        var dto = new GetBettingAccountDto();
         dto.setId(acc.getAccountId());
         dto.setAccountName(acc.getAccountName());
         dto.setBrokerType(acc.getAccountType());
         dto.setBalance(acc.getBalance().getValue());
         if (acc.getDraftBetSlip() != null) {
             dto.setDraftAccount(toDraftSlipDto(acc.getDraftBetSlip()));
-        }
-        if (acc.getTransactionHistory() != null) {
-            dto.setTransactionHistory(acc.getTransactionHistory().stream().map(this::toTransactionDto).collect(Collectors.toCollection(ArrayList::new)));
-        }
-        if (acc.getBetHistory() != null) {
-            dto.setBetHistory(acc.getBetHistory().stream().map(this::toBetSlipDto).collect(Collectors.toCollection(ArrayList::new)));
         }
         if (acc.getBonuses() != null) {
             dto.setBonuses(acc.getBonuses().stream().map(this::toBonusDto).collect(Collectors.toCollection(ArrayList::new)));
@@ -53,11 +43,11 @@ public class DTOMapper {
     }
 
     public BonusDto toBonusDto(Bonus b) {
-        return new BonusDto(b.getAmount().getValue(), b.getExpiryDate(), b.getStatus());
+        return new BonusDto(b.getAmount().getValue(), b.getExpiryDate(), b.getStatus(),b.getType());
     }
 
-    public BetSlipDto toDraftSlipDto(DraftBetSlip domain) {
-        var dto = new BetSlipDto();
+    public DraftDto toDraftSlipDto(DraftBetSlip domain) {
+        var dto = new DraftDto();
         dto.setParentBettingAccountId(domain.getDraftSlipOwner() != null ? domain.getDraftSlipOwner().getAccountId() : null);
         dto.setId(domain.getId());
         dto.setPotentialWinning(domain.getPotentialWinning().getValue());
@@ -72,8 +62,8 @@ public class DTOMapper {
     }
 
 
-    public BetSlipDto toBetSlipDto(BetSlip domain) {
-        var dto = new BetSlipDto();
+    public ReadBetSlipDto toBetSlipDto(BetSlip domain) {
+        var dto = new ReadBetSlipDto();
         dto.setParentBettingAccountId(domain.getParentAccount() != null ? domain.getParentAccount().getAccountId() : null);
         dto.setId(domain.getId());
         dto.setStatus(domain.getStatus());
@@ -94,10 +84,10 @@ public class DTOMapper {
         return new ReducerSlipDto(domain.getCategory(), domain.getBrokerType(), domain.getPlanedStake().getValue(), domain.getRemainingStake().getValue(), domain.getTotalOdds(), domain.getBetStrategy(), domain.getNumberOfEvents(), domain.getPotentialWinning().getValue(), domain.getBonusOdds(), picks);
     }
 
-    public MobileMoneyAccount toMobileMoneyDomain(Long id, CreateMobileMoneyAccountDto dto) {
+    public MobileMoneyAccount toMobileMoneyDomain(CreateMobileMoneyAccountDto dto) {
         Objects.requireNonNull(dto, "dto");
-        Objects.requireNonNull(dto.accountType, "accountType");
-        return new MobileMoneyAccount(id, dto.accountType);
+        Objects.requireNonNull(dto.getAccountType(), "accountType");
+        return new MobileMoneyAccount(dto.getId(), dto.getAccountType(),dto.getName());
     }
 
     public TransactionDto toTransactionDto(Transaction domainModel) {
@@ -119,14 +109,11 @@ public class DTOMapper {
         dto.setDailyLimit(acc.getDailyLimit());
         dto.setWeeklyLimit(acc.getWeeklyLimit());
         dto.setMonthlyLimit(acc.getMonthlyLimit());
-        if (acc.getTransactionHistory() != null) {
-            dto.setTransactionHistory(acc.getTransactionHistory().stream().map(this::toTransactionDto).collect(Collectors.toCollection(ArrayList::new)));
-        }
         return dto;
     }
 
-    public List<BettingAccountDto> toBettingAccountDtos(List<BettingAccount> accounts) {
-        return accounts.stream().map(this::toBettingAccountDto).toList();
+    public List<GetBettingAccountDto> toBettingAccountDtos(List<BettingAccount> accounts) {
+        return accounts.stream().map(this::toGetBettingAccountDto).toList();
     }
 
     public List<ReadMomoAccountDto> toMobileMoneyDtos(List<MobileMoneyAccount> accounts) {
@@ -134,8 +121,9 @@ public class DTOMapper {
     }
 
     public Match toMatchDomain(MatchDto dto) {
-        var domain = new Match(dto.getHome(), dto.getAway(), dto.getBroker());
+        var domain = new Match(dto.getHome(), dto.getAway(), dto.getBroker(),dto.getBegins(),dto.getEnds());
         domain.setMatchId(dto.getId());
+        domain.setBonusMatch(dto.isBonusMatch());
         domain.setMatchLeague(dto.getMatchLeague());
         for (MatchEventPickDto o : dto.getMatchOutComes()) {
             domain.addPick(toMatchEventpick(o));
@@ -167,6 +155,9 @@ public class DTOMapper {
         dto.setId(match.getMatchId());
         dto.setAway(match.getAway());
         dto.setHome(match.getHome());
+        dto.setBonusMatch(match.isBonusMatch());
+        dto.setBegins(match.getBegins());
+        dto.setEnds(match.getEnds());
         dto.setMatchLeague(match.getMatchLeague());
         dto.setBroker(match.getBroker());
         dto.setMatchOutComes(match.getMatchOutComes().stream().map(this::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new)));
@@ -222,7 +213,8 @@ public class DTOMapper {
                 domain.getBroker(),
                 matches,
                 betSlips,
-                bonusAmount
+                bonusAmount,
+                new ArrayList<>()
         );
     }
 
@@ -232,7 +224,7 @@ public class DTOMapper {
     }
 
 
-    public BetSlip toBetSlipDomain(BetSlipDto slip) {
+    public BetSlip toBetSlipDomain(ReadBetSlipDto slip) {
         var domain = new BetSlip(slip.getBonusSlip(), slip.getStrategy());
         domain.setStake(new Money(slip.getStake()));
         domain.setTotalOdds(slip.getTotalOdds());
@@ -256,6 +248,26 @@ public class DTOMapper {
     }
 
     public Bonus toBonusDomain(BonusDto bonus) {
-        return new Bonus(bonus.amount(), bonus.expiryDate(), bonus.status());
+        return new Bonus(bonus.amount(), bonus.expiryDate(), bonus.status(), bonus.type());
+    }
+
+    public BetHistoryDto toBetHistoryDto(List<BetSlip> history) {
+        return new BetHistoryDto(history.stream().map(this::toBetSlipDto).collect(Collectors.toCollection(ArrayList::new))) ;
+    }
+
+    public TransactionHistoryDto toTransactionHistoryDto(List<Transaction> history) {
+        return new TransactionHistoryDto(history.stream().map(this::toTransactionDto).collect(Collectors.toCollection(ArrayList::new)));
+    }
+
+    public MomoTransactionHistoryDto toMomotransactionHistory(List<Transaction> out) {
+        return new MomoTransactionHistoryDto(new ArrayList<>(),out.stream().map(this::toTransactionDto).collect(Collectors.toCollection(ArrayList::new)));
+    }
+
+    public BettingAccount toBettingAccountDomain(CreateBettingAccountDto dto) {
+        return new BettingAccount(dto.getAccountName(),dto.getBrokerType());
+    }
+
+    public List<ReadReducerDto> toReducerDomains(List<Reducer> reducers) {
+        return reducers.stream().map(this::toReducerDto).toList();
     }
 }

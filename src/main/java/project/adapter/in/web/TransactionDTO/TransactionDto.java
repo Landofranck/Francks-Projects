@@ -1,10 +1,12 @@
 package project.adapter.in.web.TransactionDTO;
 
 import jakarta.validation.constraints.NotNull;
+import project.adapter.in.web.Utils.Link;
 import project.domain.model.Enums.TransactionType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 public class TransactionDto {
     @NotNull
@@ -22,6 +24,7 @@ public class TransactionDto {
     private Instant createdAt;
 
     private String description;
+    private List<Link> links;
 
     public Long getId() {
         return id;
@@ -69,5 +72,9 @@ public class TransactionDto {
 
     public String getDescription() {
         return description;
+    }
+
+    public List<Link> getLinks() {
+        return links;
     }
 }

@@ -2,6 +2,7 @@ package project.adapter.out.persistence.EntityModels.BettingAccount;
 
 import jakarta.persistence.Embeddable;
 import project.domain.model.Enums.BonusStatus;
+import project.domain.model.Enums.BonusType;
 import project.domain.model.Money;
 
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ public class BonusEmb {
     private BigDecimal amount;
     private Instant expiryDate;
     private BonusStatus status;
+    private BonusType type;
 
     public BonusEmb() {
     }
@@ -38,5 +40,13 @@ public class BonusEmb {
 
     public void setStatus(BonusStatus status) {
         this.status = status;
+    }
+
+    public BonusType getType() {
+        return this.type;
+    }
+
+    public void setType(BonusType type) {
+        this.type = type;
     }
 }

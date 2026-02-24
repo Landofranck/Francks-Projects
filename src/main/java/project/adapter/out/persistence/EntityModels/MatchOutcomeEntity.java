@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.League;
+import project.domain.model.Enums.MatchKey;
 
 @Entity
 public class MatchOutcomeEntity {
@@ -11,7 +12,7 @@ public class MatchOutcomeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long identity;
-    private String matchKey;
+    private MatchKey matchKey;
     private String outcomeName;
     private Double odd;
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -25,11 +26,11 @@ public class MatchOutcomeEntity {
 
     }
 
-    public void setMatchKey(String matchKey) {
+    public void setMatchKey(MatchKey matchKey) {
         this.matchKey = matchKey;
     }
 
-    public String getMatchKey() {
+    public MatchKey getMatchKey() {
         return matchKey;
     }
 

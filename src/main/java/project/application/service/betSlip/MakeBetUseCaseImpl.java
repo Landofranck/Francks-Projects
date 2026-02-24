@@ -55,7 +55,8 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
         Instant now = Instant.now(timeProvider.clock());
 
         var draftSlip = account.getDraftBetSlip();
-        var out=persistSlip.persistSlipToAccount(bettingAccountId, draftSlip, strategy);
+        draftSlip.placeBet(stake,strategy, now, isBonus);
+        var out=persistSlip.persistSlipToAccount(bettingAccountId, draftSlip);
         var tx = account.placeBetTransaction(stake, strategy.toString(),out);
         if (isBonus) {
             account.placeBonusBet(bonusSlip, now);

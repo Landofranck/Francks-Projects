@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import project.application.port.in.BettingAccount.FindMatchOutComeByParametersUseCases;
 import project.application.port.out.Match.FindMatchOutComeByParametersPort;
 import project.domain.model.Enums.League;
+import project.domain.model.Enums.MatchKey;
 import project.domain.model.MatchOutComePick;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public class FindMatcheByParameterUsecaseImpl implements FindMatchOutComeByParam
     @Inject
     FindMatchOutComeByParametersPort findMatchOutComeByParametersPort;
     @Override
-    public List<MatchOutComePick> findMatches(String matchKey, String outComeName, League league) {
-        return findMatchOutComeByParametersPort.findMatchOutComes(matchKey,outComeName,league);
+    public List<MatchOutComePick> findMatches(String ownerName,MatchKey matchKey, String outComeName, League league) {
+        return findMatchOutComeByParametersPort.findMatchOutComes(ownerName,matchKey,outComeName,league);
     }
 }

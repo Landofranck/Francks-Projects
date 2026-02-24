@@ -1,6 +1,5 @@
 package project.domain.model;
 
-import net.bytebuddy.dynamic.loading.InjectionClassLoader;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.BetStrategy;
@@ -20,7 +19,7 @@ public class BetSlip implements Event {
     private Instant createdAt;
     private BrokerType brokerType;
     //int the reducer method betslips will be created without parent accounts
-    private BettingAccount parentAccount;
+    private Long parentAccountId;
     private Money stake;
     private double totalOdds;
     private double bonusOdds;
@@ -56,7 +55,7 @@ public class BetSlip implements Event {
             }
 
             this.totalOdds = output * bonusOutput;
-        } else if (this.brokerType == BrokerType.BETPAWA) {
+        } else if (this.brokerType == BrokerType.BET_PAWA) {
             for (MatchOutComePick m : picks) {
                 output *= m.getOdd();
                 if (m.getOdd() > 1.2)
@@ -129,8 +128,8 @@ public class BetSlip implements Event {
         return totalOdds;
     }
 
-    public void setParentAccount(BettingAccount parentAccount) {
-        this.parentAccount = parentAccount;
+    public void setParentAccountId(Long parentAccount) {
+        this.parentAccountId = parentAccount;
     }
 
     public Long getId() {
@@ -171,8 +170,8 @@ public class BetSlip implements Event {
         this.id = id;
     }
 
-    public BettingAccount getParentAccount() {
-        return parentAccount;
+    public Long getParentAccountId() {
+        return this.parentAccountId;
     }
 
     public void setCreatedAt(Instant createdAt) {

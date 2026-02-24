@@ -1,8 +1,8 @@
 package project.adapter.out.persistence.EntityModels.BettingAccount;
 
 import jakarta.persistence.*;
-import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.League;
+import project.domain.model.Enums.MatchKey;
 
 
 @Entity
@@ -12,7 +12,8 @@ public class DraftEventPickEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private Long identity;
-    private String matchKey;
+    private MatchKey matchKey;
+    private String OwnerMatchName;
     private String outcomeName;
     private double odd;
     @ManyToOne(optional = true, fetch = FetchType.LAZY)
@@ -33,11 +34,7 @@ public class DraftEventPickEntity {
         this.parentBetSlipEntity = parent;
     }
 
-    public String matchKey() {
-        return matchKey;
-    }
-
-    public String getMatchKey() {
+    public MatchKey getMatchKey() {
         return matchKey;
     }
 
@@ -61,7 +58,7 @@ public class DraftEventPickEntity {
         return id;
     }
 
-    public void setMatchKey(String matchKey) {
+    public void setMatchKey(MatchKey matchKey) {
         this.matchKey = matchKey;
     }
 
@@ -89,6 +86,13 @@ public class DraftEventPickEntity {
         this.league = league;
     }
 
+    public void setOwnerMatchName(String ownerMatchName) {
+        this.OwnerMatchName = ownerMatchName;
+    }
+
+    public String getOwnerMatchName() {
+        return OwnerMatchName;
+    }
 }
 
 

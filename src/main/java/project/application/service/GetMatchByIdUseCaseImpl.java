@@ -14,7 +14,7 @@ public class GetMatchByIdUseCaseImpl implements GetMatchByIdUseCase {
     @Inject
     GetMatchByIdPort getMatchByIdPort;
     @Override
-    public Match getMatchByIdOrName(Long id, BrokerType broker, String name) {
-        return getMatchByIdPort.getMatchByIdOrName(id, broker ,name);
+    public Match getMatchById(Long id) {
+        return getMatchByIdPort.getMatchById(id);
     }
 }

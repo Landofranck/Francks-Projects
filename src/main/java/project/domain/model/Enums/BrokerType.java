@@ -1,4 +1,4 @@
 package project.domain.model.Enums;
 
-public enum BrokerType {ONE_X_BET, BETPAWA, BET_MOMO, BET365
+public enum BrokerType {ONE_X_BET, BET_PAWA, BET_MOMO, BET365
 }

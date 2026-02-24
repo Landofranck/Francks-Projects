@@ -2,17 +2,19 @@ package project.adapter.out.persistence.EntityModels.MomoEntites;
 
 import jakarta.persistence.*;
 import project.domain.model.Enums.League;
+import project.domain.model.Enums.MatchKey;
 
 
 @Embeddable
 public class MatchEventPickEmbd {
     private Long identity;
-    private String matchKey;
+    private String ownerMatchName;
+    private MatchKey matchKey;
     private String outcomeName;
     private double odd;
     private League league;
 
-    public MatchEventPickEmbd(Long identity,String matchKey,String outcomeName,double odd,League league){
+    public MatchEventPickEmbd(Long identity, MatchKey matchKey, String outcomeName, double odd, League league){
         this.matchKey=matchKey;
         this.outcomeName=outcomeName;
         this.odd=odd;
@@ -23,11 +25,11 @@ public class MatchEventPickEmbd {
     public MatchEventPickEmbd() {
     }
 
-    public String getMatchKey() {
+    public MatchKey getMatchKey() {
         return matchKey;
     }
 
-    public void setMatchKey(String matchKey) {
+    public void setMatchKey(MatchKey matchKey) {
         this.matchKey = matchKey;
     }
 
@@ -61,5 +63,13 @@ public class MatchEventPickEmbd {
 
     public void setLeague(League league) {
         this.league = league;
+    }
+
+    public void setOwnerMatchName(String ownerMatchName) {
+        this.ownerMatchName = ownerMatchName;
+    }
+
+    public String getOwnerMatchName() {
+        return ownerMatchName;
     }
 }

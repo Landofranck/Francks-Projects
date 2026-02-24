@@ -60,7 +60,7 @@ public class PlaceBetFromReducerUseCaseImpl implements PlaceBetFromReducerUseCas
         if (acc.getBrokerType() != red.getBroker())
             throw new InputMismatchException("The Reducer account must have the same brokerType as the betting account placeBetFromRedimpl 59");
 
-            var betStake = (!test) ? acc.getBonuses().get(bonusSlip).getAmount() : stake;
+        var betStake = (!test) ? acc.getBonuses().get(bonusSlip).getAmount() : stake;
         red.getSlips().get(slipNumber).placeParBet(betStake, !test);
         makeBetUseCase.makeBet(bettingAccountId, matchIds, outCome, stake, red.getStrategy(), bonusSlip);
 

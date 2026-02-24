@@ -64,6 +64,7 @@ public class BettingAccountMapper {
         }
         return domainModel;
     }
+
     public BettingAccount toSummaryBettingAccountDomain(BettingAccountEntity entityModel) {
         var domainModel = new BettingAccount(entityModel.getAccountName(), entityModel.getBrokerType());
         domainModel.setBalance(new Money(entityModel.getBalance()));
@@ -82,7 +83,7 @@ public class BettingAccountMapper {
     }
 
     private Bonus toBonusDomain(BonusEmb b) {
-        return new Bonus(b.getAmount(), b.getExpiryDate(), b.getStatus(),b.getType());
+        return new Bonus(b.getAmount(), b.getExpiryDate(), b.getStatus(), b.getType());
     }
 
     private BonusEmb toBonusEmb(Bonus b) {
@@ -115,8 +116,6 @@ public class BettingAccountMapper {
         matchEntity.setBonusMatch(domain.isBonusMatch());
         matchEntity.setEnds(domain.getEnds());
         matchEntity.setBegins(domain.getBegins());
-        if (domain.getMatchOutComes() == null || domain.getMatchOutComes().isEmpty())
-            throw new RuntimeException("match must have outcomes line 78 mapper");
         for (MatchOutComePick m : domain.getMatchOutComes()) {
             matchEntity.addOutcome(toMatchOutcomeEntity(m));
         }
@@ -148,7 +147,7 @@ public class BettingAccountMapper {
 
 
     public Transaction toBettingTransactionDomain(BettingAccountTransactionEntity e) {
-        var transactionDomain = new Transaction(new Money(e.getTransactionAmmount()), new Money(e.getAccountBalanceAfterTransaction()), e.getCreatedAt(), e.getType(), e.getDescription(),e.getBetSlipId());
+        var transactionDomain = new Transaction(new Money(e.getTransactionAmmount()), new Money(e.getAccountBalanceAfterTransaction()), e.getCreatedAt(), e.getType(), e.getDescription(), e.getBetSlipId());
         //set owner not created because this is done in parent class already with setParent(this)
         transactionDomain.setId(e.getId());
         return transactionDomain;
@@ -168,15 +167,13 @@ public class BettingAccountMapper {
         if (betSlipEntity.getParentAccountEntity() == null) {
             throw new RuntimeException("paren class null mapper 144");
         }
-
+        betSlipDomain.setParentAccountId(betSlipEntity.getParentAccountEntity().getId());
         if (betSlipEntity.getStake() != null) {
             betSlipDomain.setStake(new Money(betSlipEntity.getStake()));
         }
         if (betSlipEntity.getPicks() != null) {
             for (MatchEventPickEntity p : betSlipEntity.getPicks()) {
-
                 betSlipDomain.addMatchEventPick(toMatchEventDomain(p));
-
             }
         }
         return betSlipDomain;
@@ -227,31 +224,33 @@ public class BettingAccountMapper {
     }
 
     public DraftBetSlip toDraftSlipDomain(DraftSlipEntity draftSlipEntity) {
-       try{ var draftDomain = new DraftBetSlip(draftSlipEntity.getCategory());
-        draftDomain.setId(draftSlipEntity.getId());
-        draftDomain.setCreatedAt(draftSlipEntity.getCreatedAt());
-        draftDomain.setStatus(draftSlipEntity.getStatus());
-        draftDomain.setTotalOdds(draftSlipEntity.getTotalOdd());
-        draftDomain.setStrategy(draftSlipEntity.getStrategy());
-        draftDomain.setBonusSlip(draftSlipEntity.getBounsSlip());
+        try {
+            var draftDomain = new DraftBetSlip(draftSlipEntity.getCategory());
+            draftDomain.setId(draftSlipEntity.getId());
+            draftDomain.setCreatedAt(draftSlipEntity.getCreatedAt());
+            draftDomain.setStatus(draftSlipEntity.getStatus());
+            draftDomain.setTotalOdds(draftSlipEntity.getTotalOdd());
+            draftDomain.setStrategy(draftSlipEntity.getStrategy());
+            draftDomain.setBonusSlip(draftSlipEntity.getBounsSlip());
 
 
-        draftDomain.setBrokerType(draftSlipEntity.getDraftBetSlipOwner().getBrokerType());
-        if (draftSlipEntity.getStake() != null) {
-            draftDomain.setStake(new Money(draftSlipEntity.getStake()));
-        }
-        if (draftSlipEntity.getPicks() != null) {
-            for (DraftEventPickEntity p : draftSlipEntity.getPicks()) {
-                draftDomain.addMatchEventPick(toDraftEventDomain(p));
+            draftDomain.setBrokerType(draftSlipEntity.getDraftBetSlipOwner().getBrokerType());
+            if (draftSlipEntity.getStake() != null) {
+                draftDomain.setStake(new Money(draftSlipEntity.getStake()));
             }
+            if (draftSlipEntity.getPicks() != null) {
+                for (DraftEventPickEntity p : draftSlipEntity.getPicks()) {
+                    draftDomain.addMatchEventPick(toDraftEventDomain(p));
+                }
+            }
+            var draftSlipOwner = new BettingAccount(draftSlipEntity.getDraftBetSlipOwner().getAccountName(),
+                    draftSlipEntity.getDraftBetSlipOwner().getBrokerType());
+            draftSlipOwner.setId(draftSlipEntity.getDraftBetSlipOwner().getId());
+            draftDomain.setDraftSlipOwner(draftSlipOwner);
+            return draftDomain;
+        } catch (Exception e) {
+            throw new RuntimeException("error while converting to draft slip domain" + e.getMessage());
         }
-        var draftSlipOwner = new BettingAccount(draftSlipEntity.getDraftBetSlipOwner().getAccountName(),
-                draftSlipEntity.getDraftBetSlipOwner().getBrokerType());
-        draftSlipOwner.setId(draftSlipEntity.getDraftBetSlipOwner().getId());
-        draftDomain.setDraftSlipOwner(draftSlipOwner);
-        return draftDomain;} catch (Exception e) {
-           throw new RuntimeException("error while converting to draft slip domain"+e.getMessage());
-       }
     }
 
     public DraftEventPickEntity toDraftEventEntity(MatchOutComePick domainPick) {
@@ -260,6 +259,7 @@ public class BettingAccountMapper {
         draftEventPickEntity.setMatchKey(domainPick.getMatchKey());
         draftEventPickEntity.setOdd(domainPick.getOdd());
         draftEventPickEntity.setOutcomeName(domainPick.getOutcomeName());
+        draftEventPickEntity.setOwnerMatchName(domainPick.getOwnerMatchName());
         draftEventPickEntity.setLeague(domainPick.getLeague());
         return draftEventPickEntity;
     }
@@ -267,6 +267,7 @@ public class BettingAccountMapper {
     public MatchOutComePick toDraftEventDomain(DraftEventPickEntity p) {
         var draftEvent = new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.outcomeName(), p.getOdd(), p.getLeague());
         draftEvent.setMatchKey(p.getMatchKey());
+        draftEvent.setOwnerMatchName(p.getOwnerMatchName());
         return draftEvent;
     }
 
@@ -275,11 +276,12 @@ public class BettingAccountMapper {
         matchEventPickDomain.setMatchKey(p.getMatchKey());
         matchEventPickDomain.setId(p.getId());
         matchEventPickDomain.setOutcomePickStatus(p.getOutComePickStatus());
+        matchEventPickDomain.setOwnerMatchName(p.getOwnerMatchName());
         return matchEventPickDomain;
     }
 
     public MatchOutComePick toMatchOutcomeDomain(MatchOutcomeEntity p) {
-        var out= new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague());
+        var out = new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague());
         out.setOutcomePickStatus(p.getOutComePickStatus());
         out.setId(p.getId());
         return out;
@@ -287,7 +289,7 @@ public class BettingAccountMapper {
 
 
     public Match toMatchDomain(MatchEntity eM) {
-        var dom = new Match(eM.getHome(), eM.getAway(), eM.getBroker(), eM.getBegins(),eM.getEnds());
+        var dom = new Match(eM.getHome(), eM.getAway(), eM.getBroker(), eM.getBegins(), eM.getEnds());
         dom.setMatchId(eM.getId());
         dom.setMatchLeague(eM.getMatchLeague());
         dom.setVersion(eM.getVersion());
@@ -307,9 +309,9 @@ public class BettingAccountMapper {
 
         if (domain != null) {
             entity.getOutcomes().clear();
-            for (int i=0;i<entity.getMatchOutComes().size();i++) {
-                var a=entity.getOutcomes().get(i);
-                var b=domain.get(i);
+            for (int i = 0; i < entity.getMatchOutComes().size(); i++) {
+                var a = entity.getOutcomes().get(i);
+                var b = domain.get(i);
                 a.setOutcomeName(b.getOutcomeName());
                 a.setOdd(b.getOdd());
             }
@@ -320,6 +322,7 @@ public class BettingAccountMapper {
     public List<BettingAccount> toListOfAccountDomains(List<BettingAccountEntity> list) {
         return list.stream().map(this::toSummaryBettingAccountDomain).collect(Collectors.toCollection(ArrayList::new));
     }
+
     public List<MatchOutComePick> toListOfMatchOutComePick(List<MatchEventPickEntity> list) {
         return list.stream().map(this::toMatchEventDomain).collect(Collectors.toCollection(ArrayList::new));
     }
@@ -350,15 +353,16 @@ public class BettingAccountMapper {
 
     public void applyTobettingAccount(BettingAccountEntity oldVersion, BettingAccount updated) {
         oldVersion.getBounuses().clear();
-        var old=oldVersion.getBetHistory();
-        var newVersion=this.toBettingAccountEntity(updated).getBetHistory();
+        var old = oldVersion.getBetHistory();
+        var newVersion = this.toBettingAccountEntity(updated).getBetHistory();
         oldVersion.setBounuses(updated.getBonuses().stream().map(this::toBonusEmb).collect(Collectors.toCollection(ArrayList::new)));
-        for (int i = 0; i <old.size(); i++) {
-            if(old.get(i).getStatus()!=BetStatus.PENDING)
+        for (int i = 0; i < old.size(); i++) {
+            if (old.get(i).getStatus() != BetStatus.PENDING)
                 continue;
             old.get(i).setStatus(newVersion.get(i).getStatus());
         }
     }
+
     public void applyToManagedDraftSlip(DraftSlipEntity managed, DraftBetSlip domain) {
         if (domain == null) return;
 
@@ -391,6 +395,7 @@ public class BettingAccountMapper {
     public List<Transaction> toListOfBettingAccountTransactions(List<BettingAccountTransactionEntity> transactionHistory) {
         return transactionHistory.stream().map(this::toBettingTransactionDomain).collect(Collectors.toCollection(ArrayList::new));
     }
+
     public List<Transaction> toListOfMomoTransactions(List<BettingAccountTransactionEntity> transactionHistory) {
         return transactionHistory.stream().map(this::toBettingTransactionDomain).collect(Collectors.toCollection(ArrayList::new));
     }

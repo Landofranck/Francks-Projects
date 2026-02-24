@@ -5,5 +5,5 @@ import project.domain.model.DraftBetSlip;
 import project.domain.model.Enums.BetStrategy;
 
 public interface PersistBetSlipToAccountPort {
-    Long persistSlipToAccount(Long bettingAccountId, DraftBetSlip slip, BetStrategy bettingStrategy);
+    Long persistSlipToAccount(Long bettingAccountId, DraftBetSlip slip);
 }

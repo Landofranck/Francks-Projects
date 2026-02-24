@@ -54,7 +54,7 @@ public class ReducerBetSlip implements Event {
 
             }
             this.totalOdds = output * bonusOutput;
-        } else if (this.brokerType == BrokerType.BETPAWA) {
+        } else if (this.brokerType == BrokerType.BET_PAWA) {
             for (MatchOutComePick m : picks) {
                 if (m.getOdd() > 1.2) {
                     count++;

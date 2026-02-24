@@ -21,7 +21,7 @@ public class UpdateMatchPickStatusUsecaseImpl implements UpdateMatchPickStatusUs
 
     @Override
     public void updateMatchPickStatus(MatchOutComePick pick) {
-        var matchOutcomes = findMatchOutComeByParameters.findMatchOutComes(pick.getMatchKey(),pick.getOutcomeName(),pick.getLeague());
+        var matchOutcomes = findMatchOutComeByParameters.findMatchOutComes(pick.getOwnerMatchName(), pick.getMatchKey(),pick.getOutcomeName(),pick.getLeague());
         Set<Long> accountIds = new HashSet<>();
         for (MatchOutComePick p : matchOutcomes) {
             accountIds.add(updateMatchPickStatus.updateMatchPick(p.getId(), pick.getOutcomePickStatus()));

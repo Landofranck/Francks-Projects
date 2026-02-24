@@ -7,5 +7,5 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 
-public record ReducerPlaceBetDto(@NotNull Long bettingId, @Min(0) int slipIndex, @PositiveOrZero BigDecimal stake, Integer bonusSlip) {
+public record ReducerPlaceBetDto(@NotNull Long bettingId, @Min(0) int slipIndex, @NotNull @PositiveOrZero BigDecimal stake, Integer bonusSlip) {
 }

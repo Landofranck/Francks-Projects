@@ -5,17 +5,18 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-import project.adapter.in.web.BettingServiceAdapter;
-import project.adapter.in.web.MobileMoneyDto.CreateMobileMoneyAccountDto;
+import project.adapter.in.web.BettingAccount.BettingServiceAdapter;
+import project.adapter.in.web.MobilMoneyAccount.MobileMoneyDto.CreateMobileMoneyAccountDto;
 
 
 import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.validation.Valid;
-import project.adapter.in.web.MobileMoneyDto.MomoTopUpRequestDto;
-import project.adapter.in.web.MobileMoneyDto.MomoTransferRequestDto;
-import project.adapter.in.web.MobileMoneyDto.ReadMomoAccountDto;
+import project.adapter.in.web.MobilMoneyAccount.MobileMoneyDto.MomoTopUpRequestDto;
+import project.adapter.in.web.MobilMoneyAccount.MobileMoneyDto.MomoTransferRequestDto;
+import project.adapter.in.web.MobilMoneyAccount.MobileMoneyDto.ReadMomoAccountDto;
+import project.adapter.in.web.MobilMoneyAccount.MomoServiceAdapter;
 import project.adapter.in.web.TransactionDTO.DepositDto;
 import project.adapter.in.web.Utils.Link;
 import project.application.port.in.MomoAccounts.MakeDepositUseCase;
@@ -26,7 +27,7 @@ import project.domain.model.Enums.TransactionType;
 public class MobileMoneyAccountResource {
 
     @Inject
-    BettingServiceAdapter serviceAdapter;
+    MomoServiceAdapter serviceAdapter;
     @Inject
     MakeDepositUseCase makeDepositUseCase;
     @Inject

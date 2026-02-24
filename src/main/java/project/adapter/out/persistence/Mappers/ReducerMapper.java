@@ -140,7 +140,9 @@ public class ReducerMapper {
             var out = new ReducerBetSlip(betSlip.getCategory(), betSlip.getBetStrategy(),betSlip.getBrokerType());
             if (betSlip.getPicks() != null) {
                 for (MatchEventPickEmbd p : betSlip.getPicks()) {
-                    out.addMatchEventPick(new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague()));
+                    var in=new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague());
+                    in.setOwnerMatchName(p.getOwnerMatchName());
+                    out.addMatchEventPick(in);
                 }
             }
 

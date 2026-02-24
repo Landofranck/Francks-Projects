@@ -32,7 +32,7 @@ public class BettingAccount implements Account {
     }
 
     public void addBetSlip(BetSlip newBetslip) {
-        newBetslip.setParentAccount(this);
+        newBetslip.setParentAccountId(this.id);
         this.betHistory.add(newBetslip);
     }
 

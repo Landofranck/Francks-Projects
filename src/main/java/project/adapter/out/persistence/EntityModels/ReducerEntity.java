@@ -1,10 +1,12 @@
 package project.adapter.out.persistence.EntityModels;
 
 import jakarta.persistence.*;
+import project.adapter.in.web.Utils.Code;
 import project.adapter.out.persistence.Embeddables.BlockEmb;
 import project.adapter.out.persistence.EntityModels.BettingAccount.BetSlipEntity;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEventPickEntity;
+import project.application.error.ValidationException;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStrategy;
 import project.domain.model.Enums.BrokerType;
@@ -38,7 +40,9 @@ public class ReducerEntity {
 
     public void addMatches(MatchEntity match) {
         if(match.getBroker()!=this.broker)
-            throw new InputMismatchException("You can only add match of the broker: "+ this.broker+", to the reducer");
+            throw new ValidationException(Code.MATCH_ERROR,"You can only add matches of the broker: "+ this.broker+", to the reducer",Map.of("reducerId",id));
+        if(match.getReducers().contains(this)||this.betMatchEntities.contains(match))
+            throw new ValidationException(Code.MATCH_ALREADY_EXISTS,"This match is already found in the reducer with id "+id+" recducer entity 45",Map.of("reducerId",id));
         Objects.requireNonNull(match, "match");
         betMatchEntities.add(match);
         match.addParent(this);

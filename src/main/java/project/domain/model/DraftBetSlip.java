@@ -34,26 +34,38 @@ public class DraftBetSlip implements Event {
         this.stake = new Money(BigDecimal.ZERO);
         this.potentialWinning = new Money(BigDecimal.ZERO);
         this.totalOdds = 0;
-        this.bonusOdds=1;
+        this.bonusOdds = 1;
         this.bonusSlip = false;
     }
 
-    public void makeTotalOdds() {
-        double output = 1;
-        for (MatchOutComePick m : picks) {
-            output *= m.getOdd();
-        }
-        this.totalOdds = output;
+    public void placeBet(Money stake, BetStrategy strategy, Instant now, Boolean isBonus) {
+
+        setStake(stake);
+        makeTotalOdds();
+        setBonusSlip(isBonus);
+        calculatePotentialWinning();
+        setCreatedAt(now);
     }
 
     public void calculatePotentialWinning() {
 
         if (this.brokerType == BrokerType.ONE_X_BET) {
-            this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf((totalOdds / bonusOdds))));
+            if (bonusSlip) {
+                this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf((totalOdds / bonusOdds))));
+            } else {
+                this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf((totalOdds))));
+            }
+        }else if (brokerType == BrokerType.BET_MOMO) {
+            if (bonusSlip) {
+                this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf(totalOdds - 1)));
+            } else {
+                this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf((totalOdds))));
+            }
+        }
+        else {
+            this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf((totalOdds))));
         }
 
-        if (brokerType == BrokerType.BET_MOMO)
-            this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf(totalOdds - 1)));
 
     }
 
@@ -81,6 +93,58 @@ public class DraftBetSlip implements Event {
         this.picks.clear();
         this.totalOdds = 0;
         setPotentialWinning(new Money(BigDecimal.ZERO));
+    }
+
+    public void makeTotalOdds() {
+        double output = 1;
+        int count = 0;
+        double bonusOutput = 1;
+        if (this.brokerType == BrokerType.ONE_X_BET) {
+
+            for (MatchOutComePick m : picks) {
+                count++;
+                output *= m.getOdd();
+                if (count == 3)
+                    bonusOutput = 1.03;
+                if (count > 3)
+                    bonusOutput += 0.01;
+
+            }
+            this.totalOdds = output * bonusOutput;
+        } else if (this.brokerType == BrokerType.BET_PAWA) {
+            for (MatchOutComePick m : picks) {
+                if (m.getOdd() > 1.2) {
+                    count++;
+                }
+                output *= m.getOdd();
+                if (count == 3) {
+                    bonusOutput = 1.03;
+                }
+                if (count == 4) {
+                    bonusOutput = 1.05;
+                }
+                if (count > 4) {
+                    bonusOutput += 0.05;
+                }
+                if (count > 20) {
+                    bonusOutput += 1.1;
+                }
+                if (count > 29) {
+                    bonusOutput += 1.15;
+                }
+                if (count == 28) {
+                    bonusOutput = 2.85;
+                }
+
+            }
+
+            this.totalOdds = (((100 + (output * 100) - 100) + ((output * 100) - 100) * (bonusOutput - 1)) / 100);
+        } else {
+            for (MatchOutComePick m : picks) {
+                output *= m.getOdd();
+            }
+        }
+        this.bonusOdds = bonusOutput;
     }
 
     public void setPotentialWinning(Money potentialWinning) {

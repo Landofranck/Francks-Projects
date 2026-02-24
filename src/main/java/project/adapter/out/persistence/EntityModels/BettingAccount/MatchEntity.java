@@ -14,7 +14,7 @@ import java.util.Set;
 
 @Entity
 @Table(
-        name = "match",
+        name = "match_entity",
         uniqueConstraints = @UniqueConstraint(
                 columnNames = {"home","away", "broker_type"}
         )

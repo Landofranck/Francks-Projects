@@ -14,13 +14,15 @@ import project.application.error.ConflictException;
 import project.application.error.ResourceNotFoundException;
 import project.application.port.out.Reducer.*;
 import project.domain.model.Enums.BrokerType;
+import project.domain.model.Money;
 import project.domain.model.Reducer.Reducer;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
-public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdPort, UpdateReducerPort, AddMatchToReducerPort, DeleteMatchFromReducerPort, RefreshReducerByIdPort, DeleteReducerByIdPort, GetAllReducersPort {
+public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdPort, UpdateReducerPort, AddMatchToReducerPort, DeleteMatchFromReducerPort, RefreshReducerByIdPort, DeleteReducerByIdPort, GetAllReducersPort, UpdateReducerStakePort {
     @Inject
     EntityManager entityManager;
     @Inject
@@ -34,8 +36,8 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
             entityManager.persist(entity);
             entityManager.flush();
             return entity.getId();
-        } catch (ConstraintViolationException e){
-            throw new ConflictException(Code.REDUCER_ALREADY_EXIST,e.getMessage()+" reducer repository jpa 35",Map.of("reducerId",null));
+        } catch (ConstraintViolationException e) {
+            throw new ConflictException(Code.REDUCER_ALREADY_EXIST, e.getMessage() + " reducer repository jpa 35", Map.of("reducerId", null));
         }
     }
 
@@ -121,7 +123,7 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
     @Override
     public List<Reducer> getReducers(BrokerType broker) {
         StringBuilder jpql = new StringBuilder(
-                "SELECT b FROM ReducerEntity b WHERE b.owner.id = :momoId"
+                "SELECT b FROM ReducerEntity b"
         );
 
         if (broker != null) {
@@ -131,13 +133,24 @@ public class ReducerRepositoryJpa implements PersistReducerPort, GetReducerByIdP
         var query = entityManager.createQuery(jpql.toString(), ReducerEntity.class);
 
         if (broker != null) {
-            query.setParameter("broker",broker );
+            query.setParameter("broker", broker);
         }
-
 
 
         var reducers = query.getResultList();
         return mapper.toReducerDomains(reducers);
 
+    }
+
+    @Transactional
+    @Override
+    public void updateStake(Long id, Money stake, Money bonusStake) {
+        var out = entityManager.find(ReducerEntity.class, id);
+        if (out == null) {
+            throw new ResourceNotFoundException(Code.REDUCER_NOT_FOUND, "Reducer with id " + id + " not fond Reducer jpa...149", Map.of());
+        }
+        out.setTotalStake(stake.getValue());
+        if (!bonusStake.getValue().equals(BigDecimal.ZERO))
+            out.setBonusAmount(bonusStake.getValue());
     }
 }

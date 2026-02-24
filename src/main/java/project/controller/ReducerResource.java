@@ -6,11 +6,10 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-import project.adapter.in.web.Reducer.CreateReducerDto;
+import project.adapter.in.web.BettingAccount.bettinAccountDTO.ReadMatchDto;
+import project.adapter.in.web.Reducer.*;
+import project.adapter.in.web.Reducer.ReducerDto.UpdateReducerStakeDto;
 import project.adapter.in.web.Utils.IdDto;
-import project.adapter.in.web.Reducer.ComputeDto;
-import project.adapter.in.web.Reducer.ReducerPlaceBetDto;
-import project.adapter.in.web.Reducer.ReducerServiceAdapter;
 import project.adapter.in.web.Utils.Link;
 import project.domain.model.Enums.BrokerType;
 
@@ -24,9 +23,11 @@ public class ReducerResource {
     ReducerServiceAdapter adapter;
     @Inject
     UriInfo uriInfo;
+    @Inject
+    MatchResource resource;
 
     @GET
-    public Response getAll(@QueryParam("brokerType")BrokerType broker) {
+    public Response getAll(@QueryParam("brokerType") BrokerType broker) {
         var out = adapter.getAllReducers(broker); // if exists
         out.links().add(createReducerLink());
         out.links().add(dispatcherLink());
@@ -50,6 +51,8 @@ public class ReducerResource {
     @Path("/{ReducerId}")
     public Response getReducer(@PathParam("ReducerId") Long id) {
         var reducer = adapter.loadReducer(id);
+        reducer.links().add(getAllMatchesLink(id, reducer.broker()));
+        addLinksToMatches(reducer);
         reducer.links().addAll(baseLinks(id));
         return Response.ok(reducer).build();
     }
@@ -69,6 +72,7 @@ public class ReducerResource {
     @Path("/{ReducerId}/matches")
     public Response addMatchToReducer(@PathParam("ReducerId") Long id, @Valid IdDto MatchId) {
         var out = adapter.addMatchToReducer(id, MatchId);
+        addLinksToMatches(out);
         out.links().addAll(baseLinks(id));
         return Response.ok().entity(out).build();
     }
@@ -78,6 +82,7 @@ public class ReducerResource {
     @Path("/{ReducerId}/compute")
     public Response compute(@PathParam("ReducerId") Long id, @Valid ComputeDto specifications) {
         var out = adapter.getComputeCombinations(id, specifications);
+        out.links().add(getAllMatchesLink(id, out.broker()));
         out.links().addAll(baseLinks(id));
         return Response.ok().entity(out).build();
     }
@@ -105,7 +110,16 @@ public class ReducerResource {
     @Path("/{ReducerId}/refresh")
     public Response refresh(@PathParam("ReducerId") Long id) {
         var out = adapter.refreshReducer(id);
+        out.links().add(getAllMatchesLink(id, out.broker()));
         out.links().addAll(baseLinks(id));
+        return Response.ok().entity(out).build();
+    }
+
+    @PUT
+    @Path("/{ReducerId}/update_stake")
+    public Response updateReducerStakeAndBonus(@PathParam("ReducerId") Long id, @Valid UpdateReducerStakeDto dto) {
+        adapter.updateStake(id, dto);
+        var out = new ArrayList<>(baseLinks(id));
         return Response.ok().entity(out).build();
     }
 
@@ -156,6 +170,15 @@ public class ReducerResource {
         return linkFactory("/" + reducerId + "/refresh", "refresh reducer", "PUT");
     }
 
+    private Link upDateStakeLink(Long reducerId) {
+        return linkFactory("/" + reducerId + "/update_stake", "update reducer stake ", "PUT");
+    }
+
+    private Link getAllMatchesLink(Long reducerId, BrokerType brokerType) {
+        return resource.getAllMatchesForBrokerTypeLink(brokerType, null, null);
+    }
+
+
     private List<Link> baseLinks(Long reducerId) {
         List<Link> out = new ArrayList<>();
         out.add(getReducerLink(reducerId));
@@ -165,6 +188,13 @@ public class ReducerResource {
         out.add(placeBetLink(reducerId));
         out.add(refreshLink(reducerId));
         out.add(getAllReducersLink());
+        out.add(upDateStakeLink(reducerId));
         return out;
+    }
+
+    private void addLinksToMatches(ReadReducerDto reducer) {
+        for (ReadMatchDto m : reducer.betMatchDtos()) {
+            m.getLinks().add(resource.toMatchLink(m.getId()));
+        }
     }
 }

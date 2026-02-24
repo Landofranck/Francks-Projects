@@ -2,8 +2,9 @@ package project.adapter.in.web.Reducer;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import project.adapter.in.web.Utils.DTOMapper;
+import project.adapter.in.web.Reducer.ReducerDto.UpdateReducerStakeDto;
 import project.adapter.in.web.Utils.IdDto;
+import project.adapter.in.web.Utils.Mapper.ReducerDtoMapper;
 import project.application.port.in.Reducer.*;
 import project.application.port.out.Reducer.DeleteReducerByIdPort;
 import project.domain.model.Enums.BrokerType;
@@ -30,11 +31,12 @@ public class ReducerServiceAdapter {
     RefreshReducerUseCase refreshReducerUseCase;
     @Inject
     LoadAllReducdersUseCase loadAllReducers;
-
+    @Inject
+    UpdateReducerStakeUseCase updateReducerStakeUseCase;
     @Inject
     DeleteReducerByIdPort deleteReducerById;
     @Inject
-    DTOMapper mapper;
+    ReducerDtoMapper mapper;
 
     public Long createReducer(CreateReducerDto dto) {
         var dom = mapper.toReducerDomain(dto);
@@ -76,6 +78,10 @@ public class ReducerServiceAdapter {
     }
 
     public GetAllReducerDto getAllReducers(BrokerType broker) {
-        return new GetAllReducerDto(mapper.toReducerDomains(loadAllReducers.loadReducers(broker)),new ArrayList<>());
+        return new GetAllReducerDto(mapper.toReducerDomains(loadAllReducers.loadReducers(broker)), new ArrayList<>());
+    }
+
+    public void updateStake(Long id, UpdateReducerStakeDto update) {
+        updateReducerStakeUseCase.updateReducerStake(id, update.stake(), update.bonusStake());
     }
 }

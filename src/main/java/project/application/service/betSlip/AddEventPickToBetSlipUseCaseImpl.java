@@ -2,6 +2,8 @@ package project.application.service.betSlip;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import project.adapter.in.web.Utils.Code;
+import project.application.error.ValidationException;
 import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;
 import project.application.port.out.Match.ReadMatchByIdPort;
 import project.application.port.out.bettingAccount.PersistEmptyBetSlipPort;
@@ -10,6 +12,8 @@ import project.domain.model.DraftBetSlip;
 import project.domain.model.Enums.BetStatus;
 import project.domain.model.Match;
 import project.domain.model.MatchOutComePick;
+
+import java.util.Map;
 
 @ApplicationScoped
 public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUseCase {
@@ -21,7 +25,7 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
     PersistEmptyBetSlipPort putBetSlip;
 
     @Override
-    public DraftBetSlip addPick(Long bettingAccountId, Long matchId, String outcomeName) {
+    public void addPick(Long bettingAccountId, Long matchId, String outcomeName) {
         var slip = readEmptSlip.getAvailableBettingSlip(bettingAccountId);
         if (slip == null) {
             throw new IllegalArgumentException("no betslip found 27");
@@ -50,8 +54,8 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
                         "Outcome '" + outcomeName + "' not found for match " + matchId));
         //check if outcome is already in betslip
         boolean duplicate=slip.getPicks().stream()
-                .anyMatch(o -> outcome.getOutcomeName().equalsIgnoreCase(o.getOutcomeName())&outcome.getMatchKey().equalsIgnoreCase(o.getMatchKey()));
-        if(duplicate) throw new IllegalArgumentException("you have to choose another pick for this match addpickimpl 56");
+                .anyMatch(o -> outcome.getOwnerMatchName().equalsIgnoreCase(o.getOwnerMatchName()));
+        if(duplicate) throw new ValidationException(Code.SLIP_ERROR,"you have to choose another pick for this match addpickimpl 56", Map.of("bettingId",bettingAccountId));
 
 
         // Create pick from the outcome
@@ -63,12 +67,11 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
                 outcome.getLeague()
         );
         pick.setOutcomePickStatus(BetStatus.PENDING);
+        pick.setOwnerMatchName(outcome.getOwnerMatchName());
         slip.addMatchEventPick(pick);
         putBetSlip.persistEmptySlip(bettingAccountId, slip);
         // Recalculate slip odds if you store total odds
         // (depends on your ReducerBetSlip model)
         // slip.recalculateTotalOdds();
-
-        return slip;
     }
 }

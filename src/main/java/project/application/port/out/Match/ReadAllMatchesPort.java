@@ -1,10 +1,12 @@
 package project.application.port.out.Match;
 
 import project.domain.model.Enums.BrokerType;
+import project.domain.model.Match;
 
 import java.time.Instant;
+import java.util.List;
 
 // ReadAllMatchesPort
 public interface ReadAllMatchesPort {
-    java.util.List<project.domain.model.Match> getAllMatches(BrokerType broker, Long id,String name, Instant start, Instant stop);
+    List<Match> getAllMatches(BrokerType broker, Long id, String name, Instant start, Instant stop);
 }

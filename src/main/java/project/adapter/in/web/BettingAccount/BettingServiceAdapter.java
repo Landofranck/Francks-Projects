@@ -4,7 +4,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.AllMatchEventPickDto;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.*;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.betslip.*;
-import project.adapter.in.web.MobilMoneyAccount.MobileMoneyDto.*;
 import project.adapter.in.web.Reducer.UpdateMatchDto;
 import project.adapter.in.web.TransactionDTO.WithdrawDto;
 import project.adapter.in.web.Utils.Mapper.BettingDTOMapper;
@@ -12,7 +11,6 @@ import project.adapter.in.web.Utils.IdDto;
 import project.application.port.in.*;
 import jakarta.inject.Inject;
 import project.application.port.in.BettingAccount.*;
-import project.application.port.in.MomoAccounts.*;
 import project.application.port.in.betSlip.*;
 import project.domain.model.*;
 import project.domain.model.Enums.*;
@@ -58,7 +56,7 @@ public class BettingServiceAdapter {
     @Inject
     FindMatchOutComeByParametersUseCases findMatchOutComeByParameters;
     @Inject
-    UpdateMatchPickStatusUsecase updateStatus;
+    UpdateSlipPickStatusUsecase updateStatus;
     @Inject
     SetBetSlipToRefundUseCase refundUseCase;
     @Inject
@@ -164,10 +162,11 @@ public class BettingServiceAdapter {
         return new AllMatchEventPickDto(matchOutComes.stream().map(mapper::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new)),new ArrayList<>());
     }
 
-    public void updateMatchOutcomes(UpdateMatchOutcomeDto dto) {
-        var in = new MatchOutComePick(null,dto.matchKey(), dto.outComeName(), 1, dto.league());
+    public void updateMatchOutcomes(Long matchId,String ownerMatchName,MatchKey key,String ouctomeName,League league,UpdateMatchOutcomeDto dto) {
+        var in = new MatchOutComePick(matchId,key, ouctomeName, 1,league);
         in.setOutcomePickStatus(dto.status());
-        updateStatus.updateMatchPickStatus(in);
+        in.setOwnerMatchName(ownerMatchName);
+        updateStatus.updateSlipPickStatus(in);
     }
 
     public void setSlipToRefund(Long betAccountId, Long slipId) {

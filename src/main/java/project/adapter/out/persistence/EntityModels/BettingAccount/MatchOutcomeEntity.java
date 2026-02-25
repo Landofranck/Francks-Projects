@@ -1,7 +1,6 @@
-package project.adapter.out.persistence.EntityModels;
+package project.adapter.out.persistence.EntityModels.BettingAccount;
 
 import jakarta.persistence.*;
-import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.League;
 import project.domain.model.Enums.MatchKey;
@@ -13,6 +12,7 @@ public class MatchOutcomeEntity {
     private Long id;
     private Long identity;
     private MatchKey matchKey;
+    private String ownerMatchName;
     private String outcomeName;
     private Double odd;
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -84,5 +84,13 @@ public class MatchOutcomeEntity {
 
     public BetStatus getOutComePickStatus() {
         return outComePickStatus;
+    }
+
+    public void setOwnerMatchName(String ownerMatchName) {
+        this.ownerMatchName = ownerMatchName;
+    }
+
+    public String getOwnerMatchName() {
+        return ownerMatchName;
     }
 }

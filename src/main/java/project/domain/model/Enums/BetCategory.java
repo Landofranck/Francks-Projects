@@ -1,4 +1,4 @@
 package project.domain.model.Enums;
 
-public enum BetCategory {SINGLE,COMBINATION
+public enum BetCategory {DRAFT,SINGLE,COMBINATION
 }

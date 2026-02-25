@@ -5,7 +5,7 @@ import project.adapter.in.web.Utils.Code;
 import project.adapter.out.persistence.Embeddables.BlockEmb;
 import project.adapter.out.persistence.EntityModels.BettingAccount.BetSlipEntity;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
-import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEventPickEntity;
+import project.adapter.out.persistence.EntityModels.BettingAccount.SlipEventPickEntity;
 import project.application.error.ValidationException;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStrategy;
@@ -62,9 +62,9 @@ public class ReducerEntity {
 
     // ---- helpers ----
 
-    private MatchEventPickEntity copyPick(MatchEventPickEntity original) {
+    private SlipEventPickEntity copyPick(SlipEventPickEntity original) {
         Objects.requireNonNull(original, "original pick");
-        MatchEventPickEntity copy = new MatchEventPickEntity();
+        SlipEventPickEntity copy = new SlipEventPickEntity();
         copy.setMatchKey(original.getMatchKey());
         copy.setOutcomeName(original.getOutcomeName());
         copy.setOdd(original.getOdd());
@@ -77,7 +77,7 @@ public class ReducerEntity {
     private BetSlipEntity copySlip(BetSlipEntity original, BetCategory category) {
         BetSlipEntity copy = new BetSlipEntity();
         copy.setCategory(category);
-        for (MatchEventPickEntity p : original.getPicks()) {
+        for (SlipEventPickEntity p : original.getPicks()) {
             copy.addMatchEventPickEntity(copyPick(p));
         }
 

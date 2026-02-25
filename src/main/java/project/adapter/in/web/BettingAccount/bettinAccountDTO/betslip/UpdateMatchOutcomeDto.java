@@ -5,5 +5,5 @@ import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.League;
 import project.domain.model.Enums.MatchKey;
 
-public record UpdateMatchOutcomeDto (@NotNull MatchKey matchKey, @NotNull String outComeName, @NotNull League league, @NotNull BetStatus status){
+public record UpdateMatchOutcomeDto ( MatchKey matchKey, String outComeName, League league, @NotNull BetStatus status){
 }

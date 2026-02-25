@@ -12,8 +12,7 @@ public class Transaction {
     private final TransactionType type;
     private final String description;
     private final Long betslipId;
-
-    private Account owner;
+    private Long owner;
 
     public Transaction(Money transactionAmmount, Money accountBalanceAfterTransaction, Instant createdAt, TransactionType transactionType, String description,Long betslipId) {
         this.transactionAmmount = transactionAmmount;
@@ -44,11 +43,11 @@ public class Transaction {
         return transactionAmmount;
     }
 
-    public void setOwner(Account owner) {
+    public void setOwnerId(Long owner) {
         this.owner = owner;
     }
 
-    public Account getOwner() {
+    public Long getOwnerId() {
         return owner;
     }
 

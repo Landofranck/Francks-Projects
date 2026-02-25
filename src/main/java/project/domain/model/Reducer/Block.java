@@ -16,10 +16,10 @@ import java.util.Objects;
  */
 public final class Block {
     private final BlockType type;
-    private final int startMatchIdx; // inclusive, 0-based
-    private final int endMatchIdx;   // inclusive, 0-based
+    private final Integer startMatchIdx; // inclusive, 0-based
+    private final Integer endMatchIdx;   // inclusive, 0-based
 
-    public Block(BlockType type, int startMatchIdx, int endMatchIdx) {
+    public Block(BlockType type, Integer startMatchIdx, Integer endMatchIdx) {
         this.type = Objects.requireNonNull(type, "type");
         if (startMatchIdx < 0 || endMatchIdx < startMatchIdx) {
             throw new IllegalArgumentException("Bad block range: " + startMatchIdx + ".." + endMatchIdx);
@@ -28,17 +28,17 @@ public final class Block {
         this.endMatchIdx = endMatchIdx;
     }
 
-    int length() { return endMatchIdx - startMatchIdx + 1; }
+    Integer length() { return endMatchIdx - startMatchIdx + 1; }
 
     public BlockType getType() {
         return type;
     }
 
-    public int getEndMatchIdx() {
+    public Integer getEndMatchIdx() {
         return endMatchIdx;
     }
 
-    public int getStartMatchIdx() {
+    public Integer getStartMatchIdx() {
         return startMatchIdx;
     }
 }

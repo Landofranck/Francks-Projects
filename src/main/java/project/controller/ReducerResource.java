@@ -52,6 +52,7 @@ public class ReducerResource {
     public Response getReducer(@PathParam("ReducerId") Long id) {
         var reducer = adapter.loadReducer(id);
         reducer.links().add(getAllMatchesLink(id, reducer.broker()));
+        addLinkToSlip(reducer);
         addLinksToMatches(reducer);
         reducer.links().addAll(baseLinks(id));
         return Response.ok(reducer).build();
@@ -82,6 +83,8 @@ public class ReducerResource {
     @Path("/{ReducerId}/compute")
     public Response compute(@PathParam("ReducerId") Long id, @Valid ComputeDto specifications) {
         var out = adapter.getComputeCombinations(id, specifications);
+        addLinksToMatches(out);
+        addLinkToSlip(out);
         out.links().add(getAllMatchesLink(id, out.broker()));
         out.links().addAll(baseLinks(id));
         return Response.ok().entity(out).build();
@@ -100,8 +103,10 @@ public class ReducerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{ReducerId}/place_bet")
-    public Response placeBet(@PathParam("ReducerId") Long id, @Valid ReducerPlaceBetDto Dto) {
-        var out = adapter.placeReducerBet(id, Dto);
+    public Response placeBet(@PathParam("ReducerId") Long id,@QueryParam("slip_index")Integer index, @Valid ReducerPlaceBetDto Dto) {
+        var out = adapter.placeReducerBet(id, index,Dto);
+        addLinkToSlip(out);
+        addLinksToMatches(out);
         out.links().addAll(baseLinks(id));
         return Response.status(Response.Status.CREATED).entity(out).build();
     }
@@ -162,8 +167,8 @@ public class ReducerResource {
         return linkFactory("/" + reducerId + "/compute", "compute combinations", "PUT");
     }
 
-    private Link placeBetLink(Long reducerId) {
-        return linkFactory("/" + reducerId + "/place_bet", "place bet", "POST");
+    private Link placeBetLink(Long reducerId,Integer index) {
+        return linkFactory("/" + reducerId + "/place_bet?slip_index="+ index, "place bet", "POST");
     }
 
     private Link refreshLink(Long reducerId) {
@@ -185,7 +190,6 @@ public class ReducerResource {
         out.add(addMatchLink(reducerId));
         out.add(deleteMatchLink(reducerId));
         out.add(computeLink(reducerId));
-        out.add(placeBetLink(reducerId));
         out.add(refreshLink(reducerId));
         out.add(getAllReducersLink());
         out.add(upDateStakeLink(reducerId));
@@ -195,6 +199,14 @@ public class ReducerResource {
     private void addLinksToMatches(ReadReducerDto reducer) {
         for (ReadMatchDto m : reducer.betMatchDtos()) {
             m.getLinks().add(resource.toMatchLink(m.getId()));
+        }
+    }
+
+    private void addLinkToSlip(ReadReducerDto reducer) {
+        int i=0;
+        for (ReducerSlipDto slip : reducer.slips()) {
+            slip.getLinks().add(placeBetLink(reducer.id(),i));
+            i++;
         }
     }
 }

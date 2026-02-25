@@ -11,9 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import project.adapter.in.web.Utils.Code;
 import project.application.error.InsufficientFundsException;
-import project.application.error.ValidationException;
 import project.domain.model.Enums.MomoAccountType;
 import project.domain.model.Enums.TransactionType;
 
@@ -40,7 +38,7 @@ public class MobileMoneyAccount implements Account {
 
     public void addTransaction(Transaction transaction) {
         Objects.requireNonNull(transaction, "transaction");
-        transaction.setOwner(this);
+        transaction.setOwnerId(this.id);
         this.transactionHistory.add(transaction);
     }
 
@@ -55,7 +53,7 @@ public class MobileMoneyAccount implements Account {
 
     public Transaction withdraw(Money money, Instant createdAt,String description) {
         if (!this.accountBalance.isGreaterOrEqual(money)) {
-            throw new InsufficientFundsException("you cannot make withdrawal of " + money.getValue()+ " because account balane is "+this.accountBalance.getValue(), Map.of("momoId",this.id));
+            throw new InsufficientFundsException("you cannot make withdrawal from this Momo account of " + money.getValue()+ " because account balane is "+this.accountBalance.getValue(), Map.of("momoId",this.id));
         }
 
         this.accountBalance = this.accountBalance.subtract(money);

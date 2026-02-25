@@ -15,14 +15,9 @@ public class CreateBettingAccountUseCaseImpl implements CreateBettingAccountUseC
 
     @Inject
     PersistBettingAccountPort persistBettingAccountPort;
-    @Inject
-    CreateEmptyBetSlipUseCaseImpl createEmptyBetSlip;
 
     @Override
     public void createNewBettingAccount(BettingAccount account) {
-        Objects.requireNonNull(account, "account");
-        var newAccount=new BettingAccount(account.getAccountName(),account.getBrokerType());
-        Long id= persistBettingAccountPort.saveBettingAccount(newAccount);
-        createEmptyBetSlip.createEmpty(id, BetCategory.SINGLE);
+        Long id= persistBettingAccountPort.saveBettingAccount(account);
     }
 }

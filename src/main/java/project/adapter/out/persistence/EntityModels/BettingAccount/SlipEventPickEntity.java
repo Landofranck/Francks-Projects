@@ -6,7 +6,7 @@ import project.domain.model.Enums.League;
 import project.domain.model.Enums.MatchKey;
 
 @Entity
-public class MatchEventPickEntity {
+public class SlipEventPickEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -22,7 +22,7 @@ public class MatchEventPickEntity {
     private League league;
     private BetStatus outComePickStatus;
 
-    public MatchEventPickEntity(){}
+    public SlipEventPickEntity(){}
 
 
 

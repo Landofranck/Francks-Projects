@@ -1,7 +1,6 @@
 package project.adapter.out.persistence.Mappers;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import project.adapter.out.persistence.EntityModels.*;
 import project.adapter.out.persistence.EntityModels.BettingAccount.*;
 import project.domain.model.*;
 import project.domain.model.Enums.BetStatus;
@@ -73,7 +72,6 @@ public class BettingAccountMapper {
         if (entityModel.getDraftBetSlip() != null) {
             domainModel.putEmptySlip(toDraftSlipDomain(entityModel.getDraftBetSlip()));
         }
-
         if (entityModel.getBounuses() != null) {
             for (BonusEmb b : entityModel.getBounuses()) {
                 domainModel.addBonus(toBonusDomain(b));
@@ -122,10 +120,11 @@ public class BettingAccountMapper {
         return matchEntity;
     }
 
-    public MatchEventPickEntity toMatchEventEntity(MatchOutComePick domainPick) {
-        var matchEventPickEntity = new MatchEventPickEntity();
+    public SlipEventPickEntity toMatchEventEntity(MatchOutComePick domainPick) {
+        var matchEventPickEntity = new SlipEventPickEntity();
         matchEventPickEntity.setIdentity(domainPick.getIdentity());
         matchEventPickEntity.setMatchKey(domainPick.getMatchKey());
+        matchEventPickEntity.setOwnerMatchName(domainPick.getOwnerMatchName());
         matchEventPickEntity.setOdd(domainPick.getOdd());
         matchEventPickEntity.setOutcomeName(domainPick.getOutcomeName());
         matchEventPickEntity.setLeague(domainPick.getLeague());
@@ -141,6 +140,7 @@ public class BettingAccountMapper {
         outcomeEntity.setMatchKey(m.getMatchKey());
         outcomeEntity.setLeague(m.getLeague());
         outcomeEntity.setIdentity(m.getIdentity());
+        outcomeEntity.setOwnerMatchName(m.getOwnerMatchName());
         outcomeEntity.setOutcomePickStatus(m.getOutcomePickStatus());
         return outcomeEntity;
     }
@@ -149,6 +149,7 @@ public class BettingAccountMapper {
     public Transaction toBettingTransactionDomain(BettingAccountTransactionEntity e) {
         var transactionDomain = new Transaction(new Money(e.getTransactionAmmount()), new Money(e.getAccountBalanceAfterTransaction()), e.getCreatedAt(), e.getType(), e.getDescription(), e.getBetSlipId());
         //set owner not created because this is done in parent class already with setParent(this)
+        transactionDomain.setOwnerId(e.getOwner().getId());
         transactionDomain.setId(e.getId());
         return transactionDomain;
     }
@@ -172,8 +173,8 @@ public class BettingAccountMapper {
             betSlipDomain.setStake(new Money(betSlipEntity.getStake()));
         }
         if (betSlipEntity.getPicks() != null) {
-            for (MatchEventPickEntity p : betSlipEntity.getPicks()) {
-                betSlipDomain.addMatchEventPick(toMatchEventDomain(p));
+            for (SlipEventPickEntity p : betSlipEntity.getPicks()) {
+                betSlipDomain.addMatchEventPick(toSlipEventDomain(p));
             }
         }
         return betSlipDomain;
@@ -271,7 +272,7 @@ public class BettingAccountMapper {
         return draftEvent;
     }
 
-    public MatchOutComePick toMatchEventDomain(MatchEventPickEntity p) {
+    public MatchOutComePick toSlipEventDomain(SlipEventPickEntity p) {
         var matchEventPickDomain = new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague());
         matchEventPickDomain.setMatchKey(p.getMatchKey());
         matchEventPickDomain.setId(p.getId());
@@ -283,6 +284,7 @@ public class BettingAccountMapper {
     public MatchOutComePick toMatchOutcomeDomain(MatchOutcomeEntity p) {
         var out = new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague());
         out.setOutcomePickStatus(p.getOutComePickStatus());
+        out.setOwnerMatchName(p.getOwnerMatchName());
         out.setId(p.getId());
         return out;
     }
@@ -323,8 +325,11 @@ public class BettingAccountMapper {
         return list.stream().map(this::toSummaryBettingAccountDomain).collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public List<MatchOutComePick> toListOfMatchOutComePick(List<MatchEventPickEntity> list) {
-        return list.stream().map(this::toMatchEventDomain).collect(Collectors.toCollection(ArrayList::new));
+    public List<MatchOutComePick> toListOfMatchOutComePick(List<MatchOutcomeEntity> list) {
+        return list.stream().map(this::toMatchOutcomeDomain).collect(Collectors.toCollection(ArrayList::new));
+    }
+    public List<MatchOutComePick> toListOfSlipOutComePick(List<SlipEventPickEntity> list) {
+        return list.stream().map(this::toSlipEventDomain).collect(Collectors.toCollection(ArrayList::new));
     }
 
 
@@ -334,7 +339,7 @@ public class BettingAccountMapper {
 
     public BetSlipEntity fromDraftToBetslipEntity(DraftBetSlip draftSlip) {
         var betSlipentity = new BetSlipEntity();
-        betSlipentity.setStatus(draftSlip.getStatus());
+        betSlipentity.setStatus(BetStatus.PENDING);
         betSlipentity.setCreatedAt(draftSlip.getCreatedAt());
         betSlipentity.setStake(draftSlip.getStake().getValue());
         betSlipentity.setPotentialWinning(draftSlip.getPotentialWinning().getValue());
@@ -354,11 +359,13 @@ public class BettingAccountMapper {
     public void applyTobettingAccount(BettingAccountEntity oldVersion, BettingAccount updated) {
         oldVersion.getBounuses().clear();
         var old = oldVersion.getBetHistory();
+
         var newVersion = this.toBettingAccountEntity(updated).getBetHistory();
         oldVersion.setBounuses(updated.getBonuses().stream().map(this::toBonusEmb).collect(Collectors.toCollection(ArrayList::new)));
         for (int i = 0; i < old.size(); i++) {
-            if (old.get(i).getStatus() != BetStatus.PENDING)
+           if (old.get(i).getStatus() != BetStatus.PENDING) {
                 continue;
+            }
             old.get(i).setStatus(newVersion.get(i).getStatus());
         }
     }

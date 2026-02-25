@@ -64,8 +64,8 @@ public class ReducerServiceAdapter {
         deleteMatchFromReducer.deletMatchFromReducer(id, matchId.Id());
     }
 
-    public ReadReducerDto placeReducerBet(Long reducerId, ReducerPlaceBetDto dto) {
-        return mapper.toReducerDto(placeBetFromReducer.placeBetFromReducer(reducerId, dto.bettingId(), dto.slipIndex(), new Money(dto.stake()), dto.bonusSlip()));
+    public ReadReducerDto placeReducerBet(Long reducerId, Integer index,ReducerPlaceBetDto dto) {
+        return mapper.toReducerDto(placeBetFromReducer.placeBetFromReducer(reducerId, dto.bettingId(), index, new Money(dto.stake()), dto.bonusSlip()));
     }
 
     public ReadReducerDto refreshReducer(Long id) {

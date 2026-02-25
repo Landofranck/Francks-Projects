@@ -81,7 +81,7 @@ public class ReducerDtoMapper {
 
     public ReducerSlipDto toReducerSlipDto(ReducerBetSlip domain) {
         var picks = domain.getPicks().stream().map(betMapper::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new));
-        return new ReducerSlipDto(domain.getCategory(), domain.getBrokerType(), domain.getPlanedStake().getValue(), domain.getRemainingStake().getValue(), domain.getTotalOdds(), domain.getBetStrategy(), domain.getNumberOfEvents(), domain.getPotentialWinning().getValue(), domain.getBonusOdds(), picks);
+        return new ReducerSlipDto(domain.getCategory(), domain.getBrokerType(), domain.getPlanedStake().getValue(), domain.getRemainingStake().getValue(), domain.getTotalOdds(), domain.getBetStrategy(), domain.getNumberOfEvents(), domain.getPotentialWinning().getValue(), domain.getBonusOdds(),picks);
     }
 
     public Block toBlockDomain(BlockDto dto) {

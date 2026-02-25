@@ -2,6 +2,7 @@ package project.domain.model;
 
 import project.adapter.in.web.Utils.Code;
 import project.application.error.InsufficientFundsException;
+import project.application.error.ValidationException;
 import project.domain.model.Enums.*;
 
 import java.math.BigDecimal;
@@ -28,7 +29,7 @@ public class BettingAccount implements Account {
         this.betHistory = new ArrayList<>();
         this.balance = new Money(BigDecimal.ZERO);
         this.bonuses = new ArrayList<>();
-        this.draftBetSlip=new DraftBetSlip(BetCategory.SINGLE);
+        this.draftBetSlip=new DraftBetSlip(BetCategory.DRAFT);
     }
 
     public void addBetSlip(BetSlip newBetslip) {
@@ -57,12 +58,12 @@ public class BettingAccount implements Account {
 
 
     public void addTransaction(Transaction transaction) {
-        transaction.setOwner(this);
+        transaction.setOwnerId(this.id);
         this.transactionHistory.add(transaction);
     }
 
     public void putEmptySlip(DraftBetSlip betSlip) {
-        if (betSlip == null) throw new RuntimeException("there must be a bet slip line 56 betting account");
+        if (betSlip == null) throw new ValidationException(Code.BET_SLIP_NOT_FOUND,"there must be a bet slip line 56 betting account",Map.of("bettingId",id));
         betSlip.setDraftSlipOwner(this);
         this.draftBetSlip = betSlip;
     }
@@ -74,7 +75,7 @@ public class BettingAccount implements Account {
 
     public Transaction placeBetTransaction(Money money, String description, Long betSlipId) {
         if (!this.balance.isGreaterThan(money)) {
-            throw new IllegalArgumentException("Your account balance is not sufficient to place that bet " + money.getValue());
+            throw new InsufficientFundsException("Your account balance is not sufficient to place that bet " + money.getValue(),Map.of("bettingId",id));
         }
         this.balance = balance.subtract(money);
         return new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.BET_PLACED, description, betSlipId);

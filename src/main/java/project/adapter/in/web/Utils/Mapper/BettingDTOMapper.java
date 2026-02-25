@@ -45,6 +45,7 @@ public class BettingDTOMapper {
         dto.setTotalOdds(domain.getTotalOdds());
         dto.setCategory(domain.getCategory());
         dto.setStatus(domain.getStatus());
+        dto.setBonusSlip(domain.getBonusSlip());
         dto.setStrategy(domain.getStrategy());
         dto.setPicks(domain.getPicks().stream().map(this::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new)));
         return dto;
@@ -79,7 +80,9 @@ public class BettingDTOMapper {
         dtoModel.setBalanceAfter(domainModel.getAccountBalanceAfterTransaction().getValue());
         dtoModel.setType(domainModel.getType());
         dtoModel.setDescription(domainModel.getDescription());
+        dtoModel.setBetSlipId(domainModel.getBetslipId());
         dtoModel.setCreatedAt(domainModel.getCreatedAt());
+        dtoModel.setOwnerId(domainModel.getOwnerId());
         return dtoModel;
     }
 

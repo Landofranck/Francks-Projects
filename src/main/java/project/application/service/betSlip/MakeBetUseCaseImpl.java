@@ -36,7 +36,9 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
     @Transactional
     @Override
     public Long makeBet(Long bettingAccountId, List<Long> matchIds, List<String> matchOutcomes, Money stake, BetStrategy strategy, Integer bonusSlip) {
+
         var isBonus = bonusSlip != null && bonusSlip >= 0;
+
         var test = (bonusSlip == null || bonusSlip < 0);
         if (bettingAccountId == null) throw new IllegalArgumentException("bettingAccountId required");
         if (stake == null || stake.getValue().signum() <= 0 && test)
@@ -45,8 +47,8 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
 
             removeAllPicks.removeAllPicks(bettingAccountId);
             int i = 0;
-            for (Long id : matchIds) {
-                addPicks.addPick(bettingAccountId, id, matchOutcomes.get(i));
+            for (Long matchId : matchIds) {
+                addPicks.addPick(bettingAccountId, matchId, matchOutcomes.get(i));
                 i++;
             }
         }
@@ -55,9 +57,9 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
         Instant now = Instant.now(timeProvider.clock());
 
         var draftSlip = account.getDraftBetSlip();
-        draftSlip.placeBet(stake,strategy, now, isBonus);
-        var out=persistSlip.persistSlipToAccount(bettingAccountId, draftSlip);
-        var tx = account.placeBetTransaction(stake, strategy.toString(),out);
+        draftSlip.placeBet(stake, strategy, now, isBonus);
+        var out = persistSlip.persistSlipToAccount(bettingAccountId, draftSlip);
+        var tx = account.placeBetTransaction(stake, strategy.toString(), out);
         if (isBonus) {
             account.placeBonusBet(bonusSlip, now);
 
@@ -72,9 +74,7 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
 
         // Persist betslip into betHistory
         updateBettingAccount.updateBettingAccount(bettingAccountId, account);
-
         return out;
-
     }
 }
 

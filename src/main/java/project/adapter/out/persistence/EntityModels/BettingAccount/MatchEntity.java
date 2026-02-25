@@ -1,7 +1,6 @@
 package project.adapter.out.persistence.EntityModels.BettingAccount;
 
 import jakarta.persistence.*;
-import project.adapter.out.persistence.EntityModels.MatchOutcomeEntity;
 import project.adapter.out.persistence.EntityModels.ReducerEntity;
 import project.domain.model.Enums.BrokerType;
 import project.domain.model.Enums.League;

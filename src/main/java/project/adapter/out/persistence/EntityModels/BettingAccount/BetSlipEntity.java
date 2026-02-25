@@ -1,11 +1,9 @@
 package project.adapter.out.persistence.EntityModels.BettingAccount;
 
 import jakarta.persistence.*;
-import project.adapter.out.persistence.EntityModels.ReducerEntity;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.BetStrategy;
-import project.domain.model.Enums.BrokerType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -19,7 +17,7 @@ public class BetSlipEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @OneToMany(mappedBy = "parentBetSlipEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MatchEventPickEntity> picks = new ArrayList<>();
+    private List<SlipEventPickEntity> picks = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     private BetStatus status;
     @Enumerated
@@ -41,7 +39,7 @@ public class BetSlipEntity {
     }
 
 
-    public void addMatchEventPickEntity(MatchEventPickEntity entity) {
+    public void addMatchEventPickEntity(SlipEventPickEntity entity) {
         this.picks.add(entity);
         entity.setParent(this);
     }
@@ -54,11 +52,11 @@ public class BetSlipEntity {
         this.id = id;
     }
 
-    public List<MatchEventPickEntity> getPicks() {
+    public List<SlipEventPickEntity> getPicks() {
         return picks;
     }
 
-    public void setPicks(List<MatchEventPickEntity> picks) {
+    public void setPicks(List<SlipEventPickEntity> picks) {
         this.picks = picks;
     }
 

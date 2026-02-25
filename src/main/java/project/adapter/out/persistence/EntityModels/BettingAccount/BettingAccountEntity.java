@@ -61,6 +61,10 @@ public class BettingAccountEntity {
         this.draftBetSlip.setCategory(incoming.getCategory());
         this.draftBetSlip.setTotalOdd(incoming.getTotalOdd());
         this.draftBetSlip.setStake(incoming.getStake());
+        this.draftBetSlip.setBonusSlip(incoming.getBounsSlip());
+        this.draftBetSlip.setPotentialWinning(incoming.getPotentialWinning());
+        this.draftBetSlip.setBonusOdds(incoming.getBonusOdds());
+        this.draftBetSlip.setStrategy(incoming.getStrategy());
 
         // picks: attach properly (so parent pointers are correct)
         var managedDraft = this.draftBetSlip;

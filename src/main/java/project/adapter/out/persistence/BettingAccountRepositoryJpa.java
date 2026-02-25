@@ -8,6 +8,7 @@ import org.hibernate.QueryParameterException;
 import org.hibernate.exception.ConstraintViolationException;
 import project.adapter.in.web.Utils.Code;
 import project.adapter.out.persistence.EntityModels.BettingAccount.*;
+import project.adapter.out.persistence.EntityModels.BettingAccount.MatchOutcomeEntity;
 import project.adapter.out.persistence.Mappers.BettingAccountMapper;
 import project.application.error.ConflictException;
 import project.application.error.ResourceNotFoundException;
@@ -26,7 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @ApplicationScoped
-public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadBettingAccountByIdPort, ReadSummaryOfBettingAccountsPort, ReadTransactionHistoryPort, ReadBettingHistoryPort, ReadAllBettingAccountsPort, UpdateBettingAccountBalancePort, AppendBettingAccountTransactionPort, PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort, PersistEmptyBetSlipPort, ReadEmptSlipByParenPort, DeleteMatchByIdPort, UpdateMatchPort, GetMatchByIdPort, UpdateBettingAccountPort, UpdateMatchPickStatusPort, FindMatchOutComeByParametersPort, GetBetSlipByIdPort, SetSlipStatustoRefundPort, UpdateMatchBonusPort {
+public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, ReadBettingAccountByIdPort, ReadSummaryOfBettingAccountsPort, ReadTransactionHistoryPort, ReadBettingHistoryPort, ReadAllBettingAccountsPort, UpdateBettingAccountBalancePort, AppendBettingAccountTransactionPort, PersistMatchPort, ReadMatchByIdPort, ReadAllMatchesPort, PersistBetSlipToAccountPort, PersistEmptyBetSlipPort, ReadEmptSlipByParenPort, DeleteMatchByIdPort, UpdateMatchPort, GetMatchByIdPort, UpdateBettingAccountPort, UpdateSlipPickStatusPort, FindMatchOutComeByParametersPort, GetBetSlipByIdPort, SetSlipStatustoRefundPort, UpdateMatchBonusPort, FindSlipEventOutComeByParamPort, UpdateMatchPickStatusPort {
     @Inject
     EntityManager entityManager;
     @Inject
@@ -39,6 +40,7 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
         try {
             Objects.requireNonNull(account);
             var entity = mapper.toBettingAccountEntity(account);
+
             entityManager.persist(entity);
             entityManager.flush();
             return entity.getId();
@@ -342,21 +344,52 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     @Override
     public void updateBettingAccount(Long bettingId, BettingAccount updated) {
         var oldVersion = entityManager.find(BettingAccountEntity.class, bettingId);
+        if (oldVersion == null) {
+            throw new ResourceNotFoundException(Code.BETTING_ACCOUNT_NOT_FOUND, "betting account not found with id " + bettingId + ", jpa 346", Map.of("bettingId", bettingId));
+        }
+
         mapper.applyTobettingAccount(oldVersion, updated);
+
     }
 
     @Transactional
     @Override
-    public List<MatchOutComePick> findMatchOutComes(String ownerName, MatchKey matchKey, String outcomeName, League outComePickLeague) {
+    public List<MatchOutComePick> findSlipEventEntity(String ownerName, MatchKey matchKey, String outcomeName, League outComePickLeague) {
         try {
-            StringBuilder jpql = new StringBuilder("SELECT r FROM MatchEventPickEntity r WHERE LOWER(r.ownerMatchName)=LOWER(:ownerName) AND r.matchKey=:matchKey");
+            StringBuilder jpql = new StringBuilder("SELECT r FROM SlipEventPickEntity r WHERE LOWER(r.ownerMatchName)=LOWER(:ownerName) AND r.matchKey=:matchKey");
             if (outcomeName != null && !outcomeName.isBlank()) {
                 jpql.append(" AND LOWER(r.outcomeName)=LOWER(:outcomeName)");
             }
             if (outComePickLeague != null) {
                 jpql.append(" AND r.league=(:league)");
             }
-            var query = entityManager.createQuery(jpql.toString(), MatchEventPickEntity.class).setParameter("matchKey", matchKey).setParameter("ownerName", ownerName);
+            var query = entityManager.createQuery(jpql.toString(), SlipEventPickEntity.class).setParameter("matchKey", matchKey).setParameter("ownerName", ownerName);
+
+            if (outcomeName != null && !outcomeName.isBlank()) {
+                query.setParameter("outcomeName", outcomeName);
+            }
+            if (outComePickLeague != null) {
+                query.setParameter("league", outComePickLeague);
+
+            }
+            return mapper.toListOfSlipOutComePick(query.getResultList());
+        } catch (Exception e) {
+            throw new ValidationException(Code.MATCH_ERROR, "error while retrieving all match outcome picks from data base jpa...365: " + e.getMessage(), Map.of());
+        }
+    }
+
+    @Transactional
+    @Override
+    public List<MatchOutComePick> findMatchOutComes(String ownerName, MatchKey matchKey, String outcomeName, League outComePickLeague) {
+        try {
+            StringBuilder jpql = new StringBuilder("SELECT r FROM MatchOutcomeEntity r WHERE LOWER(r.ownerMatchName)=LOWER(:ownerName) AND r.matchKey=:matchKey");
+            if (outcomeName != null && !outcomeName.isBlank()) {
+                jpql.append(" AND LOWER(r.outcomeName)=LOWER(:outcomeName)");
+            }
+            if (outComePickLeague != null) {
+                jpql.append(" AND r.league=(:league)");
+            }
+            var query = entityManager.createQuery(jpql.toString(), MatchOutcomeEntity.class).setParameter("matchKey", matchKey).setParameter("ownerName", ownerName);
 
             if (outcomeName != null && !outcomeName.isBlank()) {
                 query.setParameter("outcomeName", outcomeName);
@@ -374,13 +407,13 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     @Transactional
     @Override
     public Long updateMatchPick(Long matchPickId, BetStatus newPickStatus) {
-        var out = entityManager.find(MatchEventPickEntity.class, matchPickId);
+        var out = entityManager.find(MatchOutcomeEntity.class, matchPickId);
         if (out == null)
             throw new ResourceNotFoundException(Code.BET_SLIP_NOT_FOUND, "BettingAccountRepositoryJpa 291", Map.of("matchId", matchPickId));
-        out.setOutComePickStatus(newPickStatus);
+        out.setOutcomePickStatus(newPickStatus);
         entityManager.flush();
         entityManager.clear();
-        return out.getParentBetSlipEntity().getParentAccountEntity().getId();
+        return out.getParentMatch().getId();
     }
 
     @Override
@@ -403,5 +436,19 @@ public class BettingAccountRepositoryJpa implements PersistBettingAccountPort, R
     public void updateMatchBonus(Long matchId) {
         var managedMatch = entityManager.find(MatchEntity.class, matchId);
         managedMatch.setBonusMatch(!managedMatch.isBonusMatch());
+    }
+
+    @Transactional
+    @Override
+    public Long updateSlipPick(Long matchPickId, BetStatus newPickStatus) {
+        var out = entityManager.find(SlipEventPickEntity.class, matchPickId);
+        if (out == null)
+            throw new ResourceNotFoundException(Code.BET_SLIP_NOT_FOUND, "BettingAccountRepositoryJpa 291", Map.of("matchId", matchPickId));
+        out.setOutComePickStatus(newPickStatus);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        return out.getParentBetSlipEntity().getParentAccountEntity().getId();
     }
 }

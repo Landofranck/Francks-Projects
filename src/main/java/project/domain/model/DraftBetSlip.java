@@ -44,6 +44,7 @@ public class DraftBetSlip implements Event {
         makeTotalOdds();
         setBonusSlip(isBonus);
         calculatePotentialWinning();
+        setStrategy(strategy);
         setCreatedAt(now);
     }
 

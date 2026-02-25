@@ -6,6 +6,7 @@ import project.domain.model.Enums.TransactionType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TransactionDto {
@@ -22,9 +23,11 @@ public class TransactionDto {
 
     @NotNull(message = "accountType")
     private Instant createdAt;
-
+    private Long betSlipId;
     private String description;
-    private List<Link> links;
+    private List<Link> links=new ArrayList<>();
+
+    private Long ownerId;
 
     public Long getId() {
         return id;
@@ -76,5 +79,21 @@ public class TransactionDto {
 
     public List<Link> getLinks() {
         return links;
+    }
+
+    public void setBetSlipId(Long betSlipId) {
+        this.betSlipId = betSlipId;
+    }
+
+    public Long getBetSlipId() {
+        return betSlipId;
+    }
+
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public Long getOwnerId() {
+        return ownerId;
     }
 }

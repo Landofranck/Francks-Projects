@@ -2,10 +2,12 @@ package project.controller;
 
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
+import org.hibernate.annotations.MapKeyCompositeType;
 import project.adapter.in.web.BettingAccount.BettingServiceAdapter;
 import project.adapter.in.web.Utils.IdDto;
 import project.adapter.in.web.Utils.Link;
@@ -31,6 +33,9 @@ public class MatchResource {
     @Inject
     UriInfo uriInfo;
 
+    private Long bettingId;
+    private Long slipId;
+
     @GET
     public Response getAll(@QueryParam("brokerType") BrokerType broker, @QueryParam("MatchId") Long id, @QueryParam("MatchName") String name, @QueryParam("matchStart") Instant startTime, @QueryParam("matchEnd") Instant endTime) {
         return getAllMatchesResponse(broker, id, name, startTime, endTime);
@@ -38,10 +43,11 @@ public class MatchResource {
 
     @GET
     @Path("/getAllMatchOutComesByParams")
-    public Response getMatchOutComesAll(@QueryParam("ownerName") String ownerName, @QueryParam("matchKey") MatchKey matchKey, @QueryParam("outcomeName") String outComeName, @QueryParam("league") League league) {
+    public Response getMatchOutComesAll(Long id, @QueryParam("ownerName") String ownerName, @QueryParam("matchKey") MatchKey matchKey, @QueryParam("outcomeName") String outComeName, @QueryParam("league") League league) {
         var out = serviceAdapter.getMatchOutcomesByParam(ownerName, matchKey, outComeName, league);
         out.links().add(getAllMatchesLink());
-        setOutComeUpDateLinks(out.outComes(), 0L);
+        out.links().add(toMatchLink(id));
+        setOutComeUpDateLinks(out.outComes());
         return Response.ok().entity(out).build();
     }
 
@@ -50,7 +56,7 @@ public class MatchResource {
     public Response getByIdORName(@PathParam("matchId") Long id) {
         var out = serviceAdapter.getMatchByid(id);
         out.addLink(updateMatchLink(id));
-        setOutComeUpDateLinks(out.getMatchOutComes(), out.getId());
+        setOutComeUpDateLinks(out.getMatchOutComes());
         out.addLink(getAllMatchesLink());
         out.addLink(setMatchToBonusLink(id));
         return Response.ok(out).build();
@@ -91,21 +97,27 @@ public class MatchResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{matchId}/updateMatchOutcome")
-    public Response updateMatchOutcomeEntity(@PathParam("matchId") Long id, @Valid UpdateMatchOutcomeDto dto) {
-        serviceAdapter.updateMatchOutcomes(dto);
+    public Response updateMatchOutcomeEntity(@PathParam("matchId") Long id,@NotNull @QueryParam("ownerMatchName") String ownerMatchName, @NotNull @QueryParam("MatchKey") MatchKey matchKey, @NotNull @QueryParam("outcomeName") String outComeName, @NotNull @QueryParam("league") League league, @Valid UpdateMatchOutcomeDto dto) {
+        serviceAdapter.updateMatchOutcomes(id,ownerMatchName,matchKey,outComeName,league,dto);
         List<Link> out = new ArrayList<>();
+      if(bettingId!=null&&slipId!=null){
+          out.add(new Link(uriInfo.getBaseUri() + "betting_accounts/"+bettingId +"/bet_slips?bet_slip_id="+slipId,"get bet slip", "GET"));
+          bettingId=null;
+          slipId=null;
+      }
         out.add(getAllMatchesLink());
         out.add(getAllMatchOutComesByParams(dto.matchKey(), ""));
         out.add(toMatchLink(id));
         return Response.ok(out).build();
 
     }
+
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{matchId}/to-bonus")
+    @Path("/{matchId}/to_bonus")
     public Response setMatchToBonus(@PathParam("matchId") Long id) {
         serviceAdapter.setMatchToBonus(id);
-        var match=serviceAdapter.getMatchByid(id);
+        var match = serviceAdapter.getMatchByid(id);
         List<Link> out = new ArrayList<>();
         out.add(getAllMatchesLink());
         out.add(getAllMatchOutComesByParams(match.getMatchOutComes().getFirst().getMatchKey(), ""));
@@ -124,10 +136,6 @@ public class MatchResource {
 
     private Link getAllMatchOutComesByParams(MatchKey matchKey, String ownerNamer) {
         return linkFactory("/getAllMatchOutComesByParams?MatchKey=" + matchKey + "&ownerName=" + ownerNamer, "get all match outcomes by parameters", "GET");
-    }
-
-    public Link getMatchOutcomeEntity(Long id) {
-        return linkFactory("?MatchId=" + id, "Get match oucome pick", "GET");
     }
 
     private Response getAllMatchesResponse(BrokerType broker, Long id, String name, Instant start, Instant ende) {
@@ -170,18 +178,20 @@ public class MatchResource {
         }
     }
 
-    private Link updateOutComeLink(Long id) {
-        return linkFactory("/" + id + "/updateMatchOutCome", "Update matchOutCome", "PUT");
+    protected Link updateOutComeLink(Long bettingId,Long slipId, ReadMatchEventPickDto pick) {
+        this.bettingId=bettingId;
+        this.slipId=slipId;
+        return linkFactory("/" + pick.getMatchId() + "/updateMatchOutcome?ownerMatchName="+pick.getOwnerMatchName()+"&MatchKey="+pick.getMatchKey()+"&outcomeName="+pick.getOutcomeName()+"&league="+pick.getLeague(), "Update matchOutCome", "PUT");
     }
 
     private Link setMatchToBonusLink(Long id) {
-        return linkFactory("/"+id+"/to-bonus","set match to bonus", "PUT");
+        return linkFactory("/" + id + "/to-bonus", "set match to bonus", "PUT");
     }
 
-    private void setOutComeUpDateLinks(List<ReadMatchEventPickDto> matchesEventDtos, Long id) {
+    private void setOutComeUpDateLinks(List<ReadMatchEventPickDto> matchesEventDtos) {
 
         for (ReadMatchEventPickDto dto : matchesEventDtos) {
-            dto.setUpdate(updateOutComeLink(id));
+            dto.getLinks().add(updateOutComeLink(null,null,dto));
         }
     }
 

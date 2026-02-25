@@ -9,11 +9,9 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import project.adapter.in.web.BettingAccount.bettinAccountDTO.AddPickRequestBetSlipDto;
-import project.adapter.in.web.BettingAccount.bettinAccountDTO.BonusDto;
-import project.adapter.in.web.BettingAccount.bettinAccountDTO.CreateBettingAccountDto;
-import project.adapter.in.web.BettingAccount.bettinAccountDTO.GetBettingAccountDto;
+import project.adapter.in.web.BettingAccount.bettinAccountDTO.*;
 import project.adapter.in.web.TransactionDTO.DepositInBettingAccountDto;
+import project.adapter.in.web.TransactionDTO.TransactionDto;
 import project.adapter.in.web.Utils.Link;
 import project.adapter.in.web.BettingAccount.BettingServiceAdapter;
 import project.adapter.in.web.TransactionDTO.WithdrawDto;
@@ -30,7 +28,7 @@ import java.util.List;
 
 import static jakarta.ws.rs.client.Entity.entity;
 
-@Path("/betting-accounts")
+@Path("/betting_accounts")
 @Produces(MediaType.APPLICATION_JSON)
 public class BettingAccountResource {
 
@@ -49,7 +47,7 @@ public class BettingAccountResource {
 
     //gets all betting accounts from database
     @GET
-    public Response getAll(@QueryParam("brokerType")BrokerType broker) {
+    public Response getAll(@QueryParam("broker_type") BrokerType broker) {
         return getAllBettingAccountsResponse(broker);
     }
 
@@ -61,7 +59,7 @@ public class BettingAccountResource {
         var id = out.getId();
         list.add(linkFactory("/" + id + "/withdraw-to-momo/momoId", "withdraw", "PUT"));
         list.add(resource.createMatchLink());
-        list.add(resource.getAllMatchesForBrokerTypeLink(out.getBrokerType(),null,null));
+        list.add(resource.getAllMatchesForBrokerTypeLink(out.getBrokerType(), null, null));
         list.add(linkFactory("/" + id + "/betslips/add-pick", "addPickToDraft", "PUT"));
         list.add(linkFactory("/" + id + "/deposit-to-betting", "makeDeposit", "PUT"));
         list.add(linkFactory("/" + id + "/betslips/make-bet", "placeBetFromDraft", "PUT"));
@@ -82,7 +80,7 @@ public class BettingAccountResource {
      */
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{bettingId}/deposit-to-betting")
+    @Path("/{bettingId}/deposit_to_betting")
     public Response deposit(@PathParam("bettingId") Long bettingId,
                             @Valid DepositInBettingAccountDto dto) {
 
@@ -91,12 +89,12 @@ public class BettingAccountResource {
     }
 
     @GET
-    @Path("/{bettingId}/bet-history")
+    @Path("/{bettingId}/bet_history")
     public Response getBetHistory(@PathParam("bettingId") Long bettingId,
                                   @QueryParam("status") BetStatus status, @QueryParam("matchKey") String matchKey, @QueryParam("strategy") BetStrategy strategy) {
         var out = serviceAdapter.getBetHistory(bettingId, status, matchKey, strategy);
         for (ReadBetSlipDto m : out.getBetHistory()) {
-            m.getLinks().add(toBetSlip(bettingId, m.getId()));
+            m.getLinks().add(toBetSlipLink(bettingId, m.getId()));
         }
         out.getLinks().addAll(baseLinks(bettingId));
 
@@ -105,10 +103,12 @@ public class BettingAccountResource {
     }
 
     @GET
-    @Path("/{bettingId}/betslips")
-    public Response getBetSlip(@PathParam("bettingId") Long bettingId, @QueryParam("id") Long id) {
-        var out = serviceAdapter.getBetSlip(id);
-        out.getLinks().add(resource.getMatchOutcomeEntity(id));
+    @Path("/{bettingId}/bet_slips")
+    public Response getBetSlip(@PathParam("bettingId") Long bettingId, @QueryParam("bet_slip_id") Long slipId) {
+        var out = serviceAdapter.getBetSlip(slipId);
+        for (ReadMatchEventPickDto pick : out.getPicks()) {
+            pick.getLinks().add(resource.updateOutComeLink(bettingId, slipId,pick));
+        }
         out.getLinks().addAll(baseLinks(bettingId));
 
         return Response.ok(out)
@@ -116,9 +116,10 @@ public class BettingAccountResource {
     }
 
     @GET
-    @Path("/{bettingId}/transaction-history")
-    public Response getTransactionHistory(@PathParam("bettingId") Long bettingId, @QueryParam("transactionType")TransactionType type) {
+    @Path("/{bettingId}/transaction_history")
+    public Response getTransactionHistory(@PathParam("bettingId") Long bettingId, @QueryParam("transactionType") TransactionType type) {
         var out = serviceAdapter.getTransactionHistory(bettingId, type);
+        addTransactionLinks(out.getTransactionHistory());
         out.getLinks().addAll(baseLinks(bettingId));
 
         return Response.ok(out)
@@ -142,7 +143,7 @@ public class BettingAccountResource {
      * makes a withdrawal from a betting account to a designated mobile money account
      */
     @PUT
-    @Path("/{bettingId}/withdraw-to-momo")
+    @Path("/{bettingId}/withdraw_to_momo")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response withdrawToMomo(@PathParam("bettingId") Long bettingId, @QueryParam("momoId") Long momoId, @Valid WithdrawDto dto) {
         serviceAdapter.withdrawFromBettingToMobileMoney(bettingId, momoId, dto);
@@ -155,7 +156,7 @@ public class BettingAccountResource {
      * adds pick to an empty slip on an account
      */
     @GET
-    @Path("/{bettingId}/draft-slip")
+    @Path("/{bettingId}/draft_slip")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getDraft(@PathParam("bettingId") Long bettingId) {
         var out = serviceAdapter.getDraftSlip(bettingId);
@@ -171,7 +172,7 @@ public class BettingAccountResource {
      * adds pick to an empty slip on an account
      */
     @PUT
-    @Path("/{bettingId}/draft-slip/add-pick")
+    @Path("/{bettingId}/draft_slip/add_pick")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addPick(@PathParam("bettingId") Long bettingId, @Valid AddPickRequestBetSlipDto dto) {
         serviceAdapter.addPickToBetSlip(bettingId, dto);
@@ -187,7 +188,7 @@ public class BettingAccountResource {
      * removes pick to an draft slip on an account
      */
     @PUT
-    @Path("/{bettingId}/draft-slip/remove-pick")
+    @Path("/{bettingId}/draft_slip/remove_pick")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response removePick(@PathParam("bettingId") Long bettingId, @QueryParam("pickIndex") Integer pickIndex) {
         serviceAdapter.removePickByNumber(bettingId, pickIndex);
@@ -203,7 +204,7 @@ public class BettingAccountResource {
      * creates a new empty draft slip in the betting
      */
     @PUT
-    @Path("/{bettingId}/empty-slip")
+    @Path("/{bettingId}/empty_slip")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response creatEmptyDraft(@PathParam("bettingId") Long bettingId) {
         serviceAdapter.creatEmptyDraftSlip(bettingId);
@@ -215,7 +216,7 @@ public class BettingAccountResource {
     }
 
     @PUT
-    @Path("/{bettingId}/bet-slips/make-bet")
+    @Path("/{bettingId}/bet_slips/make_bet")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response makeBet(@PathParam("bettingId") Long bettingId, @Valid MakeBetRequestDto dto) {
         serviceAdapter.makeBet(bettingId, dto);
@@ -226,7 +227,7 @@ public class BettingAccountResource {
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/{id}/create-bonus")
+    @Path("/{id}/create_bonus")
     public Response createBonus(@PathParam("id") Long id, @Valid BonusDto dto) {
         serviceAdapter.createBonus(id, dto);
         var out = new ArrayList<>(baseLinks(id));
@@ -247,7 +248,7 @@ public class BettingAccountResource {
         setSelfLinks(getAllResponse.bettingAccounts());
         getAllResponse.links().add(getAllAccountsLinks());
         getAllResponse.links().add(createBettingAccount());
-        getAllResponse.links().add(new Link(uriInfo.getBaseUri()+"personal-betting-system","dipatcher","GET"));
+        getAllResponse.links().add(new Link(uriInfo.getBaseUri() + "personal-betting-system", "dipatcher", "GET"));
         return Response.ok(getAllResponse)
                 .build();
     }
@@ -258,12 +259,19 @@ public class BettingAccountResource {
         }
     }
 
+    private void addTransactionLinks(List<TransactionDto> transactionHistory) {
+        for (TransactionDto t : transactionHistory) {
+            if (t.getType() == TransactionType.BET_PLACED || t.getType() == TransactionType.BET_REFUNDED || t.getType() == TransactionType.BET_WON)
+                t.getLinks().add(toBetSlipLink(t.getOwnerId(), t.getBetSlipId()));
+        }
+    }
+
     private String createSelfLink(Long id) {
         return uriInfo.getRequestUriBuilder().path(Long.toString(id)).build().toString();
     }
 
     private Link linkFactory(String baseEnding, String rel, String type) {
-        return new Link(uriInfo.getBaseUri() + "betting-accounts" + baseEnding, rel, type);
+        return new Link(uriInfo.getBaseUri() + "betting_accounts" + baseEnding, rel, type);
     }
 
     private Link createBettingAccount() {
@@ -272,27 +280,27 @@ public class BettingAccountResource {
     }
 
     protected Link toBettingAccount(Long id) {
-        return linkFactory("/"+id.toString(), " get betting account", "GET");
+        return linkFactory("/" + id.toString(), " get betting account", "GET");
     }
 
     private Link toBetHistoryLink(Long id) {
-        return linkFactory("/" + id + "/bet-history?strategy&matchKey&status", " get betting account history", "GET");
+        return linkFactory("/" + id + "/bet_history?strategy&matchKey&status", " get betting account history", "GET");
     }
 
     private Link toTransactionHistory(Long id) {
-        return linkFactory("/" + id + "/transaction-history?transactionType=", " get transaction account history", "GET");
+        return linkFactory("/" + id + "/transaction_history?transactionType=", " get transaction account history", "GET");
     }
 
-    private Link toBetSlip(Long bettingAccount, Long slipId) {
-        return linkFactory("/" + bettingAccount + "/betSlips?bet-slip-id=" + slipId, " getBetslip", "GET");
+    private Link toBetSlipLink(Long bettingAccount, Long slipId) {
+        return linkFactory("/" + bettingAccount + "/bet_slips?bet-slip-id=" + slipId, " getBetslip", "GET");
     }
 
     private Link doWithdrawal(Long id) {
-        return linkFactory("/" + id + "/withdraw-to-momo?momoId=", " withdraw from 1xbet to momo", "PUT");
+        return linkFactory("/" + id + "/withdraw_to_momo?momoId=", " withdraw from 1xbet to momo", "PUT");
     }
 
     private Link doDeposit(Long id) {
-        return linkFactory("/" + id + "/deposit-to-betting", " deposit to 1xbet from momo", "PUT");
+        return linkFactory("/" + id + "/deposit_to_betting", " deposit to 1xbet from momo", "PUT");
     }
 
     protected Link getAllAccountsLinks() {
@@ -300,11 +308,11 @@ public class BettingAccountResource {
     }
 
     private Link getDraftSlipLink(Long id) {
-        return linkFactory("/"+id+"/draft-slip", "get draft slip of account " + id, "GET");
+        return linkFactory("/" + id + "/draft_slip", "get draft slip of account " + id, "GET");
     }
 
     protected Link emptyDraftSlipLink(Long bettingId) {
-        return linkFactory("/" + bettingId + "/empty-slip", "empty draft slip", "PUT");
+        return linkFactory("/" + bettingId + "/empty_slip", "empty draft slip", "PUT");
     }
 
 
@@ -320,16 +328,16 @@ public class BettingAccountResource {
     }
 
     private Link addPickToDraft(Long id) {
-        return linkFactory("/" + id + "/draft-slip/add-pick", "add pick to draft slip", "PUT");
+        return linkFactory("/" + id + "/draft_slip/add_pick", "add pick to draft slip", "PUT");
 
     }
 
     private Link removePick(Long id) {
-        return linkFactory("/" + id + "/draft-slip/remove-pick", "remove pick to draft slip", "PUT");
+        return linkFactory("/" + id + "/draft_slip/remove_pick", "remove pick to draft slip", "PUT");
 
     }
 
     private Link placeBetLink(Long id) {
-        return linkFactory("/" + id + "/bet-slips/make-bet", "place bet", "PUT");
+        return linkFactory("/" + id + "/bet_slips/make_bet", "place bet", "PUT");
     }
 }

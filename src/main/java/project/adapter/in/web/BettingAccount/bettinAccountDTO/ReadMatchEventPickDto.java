@@ -8,6 +8,9 @@ import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.League;
 import project.domain.model.Enums.MatchKey;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ReadMatchEventPickDto {
     private Long matchId;
     private MatchKey matchKey;
@@ -21,7 +24,7 @@ public class ReadMatchEventPickDto {
     private League league;
     @NotNull
     private BetStatus status;
-    private Link update;
+    private List<Link> links=new ArrayList<>();
 
     public ReadMatchEventPickDto() {}
 
@@ -58,12 +61,12 @@ public class ReadMatchEventPickDto {
         return status;
     }
 
-    public void setUpdate(Link update) {
-        this.update = update;
+    public void setLinks(List<Link> update) {
+        this.links = update;
     }
 
-    public Link getUpdate() {
-        return update;
+    public List<Link> getLinks() {
+        return links;
     }
 
     public void setOwnerMatchName(String ownerMatchName) {

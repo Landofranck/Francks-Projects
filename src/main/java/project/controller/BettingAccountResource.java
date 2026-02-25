@@ -57,6 +57,7 @@ public class BettingAccountResource {
         var out = serviceAdapter.loadBettingAccount(bettingId);
         List<Link> list = new ArrayList<>();
         var id = out.getId();
+        list.add(getAllAccountsLinks());
         list.add(linkFactory("/" + id + "/withdraw-to-momo/momoId", "withdraw", "PUT"));
         list.add(resource.createMatchLink());
         list.add(resource.getAllMatchesForBrokerTypeLink(out.getBrokerType(), null, null));

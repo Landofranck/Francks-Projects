@@ -4,7 +4,7 @@ package project.application.service.betSlip;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import project.application.port.in.betSlip.RemoveAllPicksFromDraftSlipUseCase;
-import project.application.port.out.bettingAccount.PersistEmptyBetSlipPort;
+import project.application.port.out.bettingAccount.PersistDraftBetSlipPort;
 import project.application.port.out.bettingAccount.ReadEmptSlipByParenPort;
 import project.domain.model.DraftBetSlip;
 
@@ -13,7 +13,7 @@ public class RemoveAllPicksImpl implements RemoveAllPicksFromDraftSlipUseCase {
     @Inject
     ReadEmptSlipByParenPort readEmptSlip;
     @Inject
-    PersistEmptyBetSlipPort putBetSlip;
+    PersistDraftBetSlipPort putBetSlip;
 
     @Override
     public DraftBetSlip removeAllPicks(Long bettingId) {
@@ -33,7 +33,7 @@ public class RemoveAllPicksImpl implements RemoveAllPicksFromDraftSlipUseCase {
         }
 
         slip.removeAllMatchEventPicks();
-        putBetSlip.persistEmptySlip(bettingId, slip);
+        putBetSlip.persistDraftSlip(bettingId, slip);
         // Recalculate slip odds if you store total odds
         // (depends on your ReducerBetSlip model)
         // slip.recalculateTotalOdds();

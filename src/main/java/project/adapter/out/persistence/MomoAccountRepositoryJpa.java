@@ -23,7 +23,7 @@ import java.util.Objects;
 
 
 @ApplicationScoped
-public class MomoAccountRepositoryJpa implements PersistMobileMoneyAccount, ReadAllMomoAccounts, ReadMomoAccountByIdPort, UpdateMobileMoneyBalancePort, AppendMobileMoneyTransactionPort, ReadMomoTransactionHistoryPort,ReadSummaryMomoAccountPort {
+public class MomoAccountRepositoryJpa implements PersistMobileMoneyAccount, ReadAllMomoAccounts, ReadMomoAccountByIdPort, UpdateMobileMoneyBalancePort, AppendMobileMoneyTransactionPort, ReadMomoTransactionHistoryPort, ReadSummaryMomoAccountPort {
     @Inject
     EntityManager entityManager;
     @Inject
@@ -40,7 +40,7 @@ public class MomoAccountRepositoryJpa implements PersistMobileMoneyAccount, Read
             return entity.getId();
 
         } catch (ConstraintViolationException e) {
-            throw new ConflictException(Code.MOMO_ACCOUNT_ALREADY_EXISTS,"error while persisting MobileMoneyAccount JPA 43:" + e.getMessage(),Map.of("momoId",entity.getId()));
+            throw new ConflictException(Code.MOMO_ACCOUNT_ALREADY_EXISTS, "error while persisting MobileMoneyAccount JPA 43:" + e.getMessage(), Map.of("momoId", entity.getId()));
         }
     }
 
@@ -53,16 +53,21 @@ public class MomoAccountRepositoryJpa implements PersistMobileMoneyAccount, Read
         return accounts;
 
     }
+
     @Override
     public MobileMoneyAccount getSummaryMomoAccount(Long id) {
         var entity = entityManager.find(MobileMoneyAccountsEntity.class, id);
-        if (entity == null) throw new ResourceNotFoundException(Code.MOMO_ACCOUNT_NOT_FOUND,"MomoAccountRepositoryJpa 67", Map.of("momoId",id));
+        if (entity == null)
+            throw new ResourceNotFoundException(Code.MOMO_ACCOUNT_NOT_FOUND, "MomoAccountRepositoryJpa 67", Map.of("momoId", id));
+
         return mapper.toSummaryMobileMoneyDomain(entity);
     }
+
     @Override
     public MobileMoneyAccount getMomoAccount(Long id) {
         var entity = entityManager.find(MobileMoneyAccountsEntity.class, id);
-        if (entity == null) throw new ResourceNotFoundException(Code.MOMO_ACCOUNT_NOT_FOUND,"MomoAccountRepositoryJpa 74", Map.of("momoId",id));
+        if (entity == null)
+            throw new ResourceNotFoundException(Code.MOMO_ACCOUNT_NOT_FOUND, "MomoAccountRepositoryJpa 74", Map.of("momoId", id));
         return mapper.toMobileMoneyDomain(entity);
     }
 
@@ -70,13 +75,11 @@ public class MomoAccountRepositoryJpa implements PersistMobileMoneyAccount, Read
     @Override
     public void updateBalance(MobileMoneyAccount account) {
         var entity = entityManager.find(MobileMoneyAccountsEntity.class, account.getAccountId());
-        if (entity == null) throw new IllegalArgumentException("Momo account not found: " + account.getAccountId());
-
-        entity.setAccountBalance(account.getAccountBalance().getValue());
-        entity.setDailyLimit(account.getDailyLimit());
-        entity.setWeeklyLimit(account.getWeeklyLimit());
-        entity.setMonthlyLimit(account.getMonthlyLimit());
+        if (entity == null)
+            throw new ResourceNotFoundException(Code.MOMO_ACCOUNT_NOT_FOUND, "Momo account not found: momojpa 73" + account.getAccountId(), Map.of("momoId", account.getAccountId()));
+        mapper.applyMomoBalance(entity, account);
     }
+
     @Transactional
     @Override
     public void appendToMobileMoney(Long momoAccountId, Transaction transaction) {
@@ -92,29 +95,32 @@ public class MomoAccountRepositoryJpa implements PersistMobileMoneyAccount, Read
 
     @Override
     public List<Transaction> readMomoTransactions(Long momoId, TransactionType type) {
+        var test = entityManager.find(MobileMoneyAccountsEntity.class, momoId);
+        if (test == null)
+            throw new ResourceNotFoundException(Code.MOMO_ACCOUNT_NOT_FOUND,"There is no momo account with ID momo...jpa 100"+momoId, Map.of());
+            try {
+                StringBuilder jpql = new StringBuilder(
+                        "SELECT b FROM MomoAccountTransactionEntity b WHERE b.owner.id = :momoId"
+                );
 
-        try{StringBuilder jpql = new StringBuilder(
-                "SELECT b FROM MomoAccountTransactionEntity b WHERE b.owner.id = :momoId"
-        );
+                if (type != null) {
+                    jpql.append(" AND b.type = :type");
+                }
 
-        if (type != null) {
-            jpql.append(" AND b.type = :type");
-        }
+                jpql.append(" ORDER BY b.createdAt DESC");
 
-        jpql.append(" ORDER BY b.createdAt DESC");
+                var query = entityManager.createQuery(jpql.toString(), MomoAccountTransactionEntity.class)
+                        .setParameter("momoId", momoId);
 
-        var query = entityManager.createQuery(jpql.toString(), MomoAccountTransactionEntity.class)
-                .setParameter("momoId", momoId);
-
-        if (type != null) {
-            query.setParameter("type",type );
-        }
+                if (type != null) {
+                    query.setParameter("type", type);
+                }
 
 
-
-        var transactionHistory = query.getResultList();
-        return mapper.toMomoTransactionHistory(transactionHistory);} catch (IllegalArgumentException e) {
-            throw new ValidationException(Code.MOMO_ACCOUNT_ERROR,"Error while getting momo transactions momo..jpa 117"+e.getMessage(),Map.of());
-        }
+                var transactionHistory = query.getResultList();
+                return mapper.toMomoTransactionHistory(transactionHistory);
+            } catch (IllegalArgumentException e) {
+                throw new ValidationException(Code.MOMO_ACCOUNT_ERROR, "Error while getting momo transactions momo..jpa 117" + e.getMessage(), Map.of());
+            }
     }
 }

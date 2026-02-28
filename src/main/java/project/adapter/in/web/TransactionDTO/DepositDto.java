@@ -4,12 +4,14 @@ package project.adapter.in.web.TransactionDTO;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 public class DepositDto {
     @NotNull
     private Long bettingAccountId;
     @NotNull
     private BigDecimal amount;
+    private Instant transactionTime;
 
     private String withdrawalDescription;
     private String description;
@@ -47,6 +49,14 @@ public class DepositDto {
 
     public Long getBettingAccountId() {
         return bettingAccountId;
+    }
+
+    public Instant getTransactionTime() {
+        return transactionTime;
+    }
+
+    public void setTransactionTime(Instant transactionTime) {
+        this.transactionTime = transactionTime;
     }
 }
 

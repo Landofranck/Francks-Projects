@@ -11,18 +11,24 @@ public class Bonus {
     private Instant expiryDate;
     private BonusStatus status;
     private BonusType type;
-    public Bonus(BigDecimal amount,Instant expiry,BonusStatus status,BonusType type) {
+
+    public Bonus(BigDecimal amount, Instant expiry, BonusType type) {
         this.amount = new Money(amount);
         this.expiryDate = expiry;
-        this.status = status;
-        this.type=type;
+        if(expiry.isAfter(Instant.now())){
+            this.status = BonusStatus.ACTIVE;
+        }else {
+            this.status=BonusStatus.EXPIRED;
+        }
+        this.type = type;
     }
 
-    public void updateStatus(){
-        if(Instant.now().isAfter(expiryDate)&&status!=BonusStatus.EXPIRED){
-            status=BonusStatus.EXPIRED;
+    public void updateStatus() {
+        if (Instant.now().isAfter(expiryDate) && status != BonusStatus.EXPIRED) {
+            status = BonusStatus.EXPIRED;
         }
     }
+
     public Money getAmount() {
         return amount;
     }

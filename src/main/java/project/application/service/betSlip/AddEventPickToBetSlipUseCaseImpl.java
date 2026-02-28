@@ -6,10 +6,8 @@ import project.adapter.in.web.Utils.Code;
 import project.application.error.ValidationException;
 import project.application.port.in.betSlip.AddEventPickToBetSlipUseCase;
 import project.application.port.out.Match.ReadMatchByIdPort;
-import project.application.port.out.bettingAccount.PersistEmptyBetSlipPort;
+import project.application.port.out.bettingAccount.PersistDraftBetSlipPort;
 import project.application.port.out.bettingAccount.ReadEmptSlipByParenPort;
-import project.domain.model.DraftBetSlip;
-import project.domain.model.Enums.BetStatus;
 import project.domain.model.Match;
 import project.domain.model.MatchOutComePick;
 
@@ -22,7 +20,7 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
     @Inject
     ReadEmptSlipByParenPort readEmptSlip;
     @Inject
-    PersistEmptyBetSlipPort putBetSlip;
+    PersistDraftBetSlipPort putBetSlip;
 
     @Override
     public void addPick(Long bettingAccountId, Long matchId, String outcomeName) {
@@ -38,13 +36,13 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
             throw new IllegalArgumentException("ReducerBetSlip does not belong to betting account " + bettingAccountId);
         }
         if (matchId == null) {
-            throw new IllegalArgumentException("matchId must not be null AddEventPickToBetSlipUseCaseImpl 36");
+            throw new IllegalArgumentException("matchIds must not be null AddEventPickToBetSlipUseCaseImpl 36");
         }
         if (outcomeName == null || outcomeName.isBlank()) {
             throw new IllegalArgumentException("outcomeName must not be blank addevent impl");
         }
 
-        Match match = readMatch.getMatch(matchId); // throws NotFound/IllegalArgument if not found
+        Match match = readMatch.readMatch(matchId); // throws NotFound/IllegalArgument if not found
 
         // Find outcome in match
         var outcome = match.getMatchOutComes().stream()
@@ -66,10 +64,12 @@ public class AddEventPickToBetSlipUseCaseImpl implements AddEventPickToBetSlipUs
                 outcome.getOdd(),
                 outcome.getLeague()
         );
-        pick.setOutcomePickStatus(BetStatus.PENDING);
+        pick.setOutcomePickStatus(outcome.getOutcomePickStatus());
         pick.setOwnerMatchName(outcome.getOwnerMatchName());
+        pick.setBegins(outcome.getBegins());
         slip.addMatchEventPick(pick);
-        putBetSlip.persistEmptySlip(bettingAccountId, slip);
+
+        putBetSlip.persistDraftSlip(bettingAccountId, slip);
         // Recalculate slip odds if you store total odds
         // (depends on your ReducerBetSlip model)
         // slip.recalculateTotalOdds();

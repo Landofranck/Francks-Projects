@@ -1,4 +1,4 @@
-package project.adapter.in.web.Reducer;
+package project.adapter.in.web.Reducer.ReducerDto;
 
 import jakarta.validation.constraints.NotNull;
 import project.domain.model.Enums.BetStrategy;

@@ -5,6 +5,6 @@ import project.domain.model.Reducer.Reducer;
 
 import java.util.List;
 
-public interface GetAllReducersPort {
-    List<Reducer> getReducers(BrokerType broker);
+public interface ReadAllReducersPort {
+    List<Reducer> readReducers(BrokerType broker);
 }

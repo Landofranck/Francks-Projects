@@ -1,6 +1,8 @@
 package project.application.port.out.Match;
 
+import project.domain.model.Match;
+
 // ReadMatchByIdPort
 public interface ReadMatchByIdPort {
-    project.domain.model.Match getMatch(Long id);
+    Match readMatch(Long id);
 }

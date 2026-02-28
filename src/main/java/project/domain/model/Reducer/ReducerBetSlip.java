@@ -1,6 +1,7 @@
 package project.domain.model.Reducer;
 
 
+import project.application.error.InsufficientFundsException;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStrategy;
 import project.domain.model.Enums.BrokerType;
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ReducerBetSlip implements Event {
 
@@ -103,13 +105,6 @@ public class ReducerBetSlip implements Event {
         this.numberOfEvents = picks.size();
     }
 
-    public void removeMatchEventPicksByIndex(int i) {
-        this.picks.remove(i);
-        makeTotalOdds();
-        this.numberOfEvents = picks.size();
-        calculatePotentialWinning();
-    }
-
     public void placeParBet(Money stake, Boolean t) {
 
 
@@ -120,7 +115,7 @@ public class ReducerBetSlip implements Event {
                 setRemainingStake(this.remainingStake.subtract(stake));
 
         } else if (stake.isGreaterThan(this.remainingStake)) {
-            throw new IllegalArgumentException("the bet ammount is greater than what is left to be bet");
+            throw new InsufficientFundsException("the bet ammount is greater than what is left to be bet", Map.of());
         } else {
             setRemainingStake(this.remainingStake.subtract(stake));
         }

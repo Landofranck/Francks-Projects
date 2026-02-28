@@ -2,6 +2,7 @@ package project.domain.model;
 
 import project.adapter.in.web.Utils.Code;
 import project.application.error.InsufficientFundsException;
+import project.application.error.ResourceNotFoundException;
 import project.application.error.ValidationException;
 import project.domain.model.Enums.*;
 
@@ -29,7 +30,7 @@ public class BettingAccount implements Account {
         this.betHistory = new ArrayList<>();
         this.balance = new Money(BigDecimal.ZERO);
         this.bonuses = new ArrayList<>();
-        this.draftBetSlip=new DraftBetSlip(BetCategory.DRAFT);
+        this.draftBetSlip = new DraftBetSlip(BetCategory.DRAFT);
     }
 
     public void addBetSlip(BetSlip newBetslip) {
@@ -44,7 +45,9 @@ public class BettingAccount implements Account {
 
     public Transaction deposit(Money money, Instant createdAt, String description) {
         this.balance = this.balance.add(money);
-
+        if (money.isGreaterThan(500000)) {
+            throw new ValidationException(Code.INVALID_AMOUNT, "you cannot deposit an amount greater than 500000: betting account 82", Map.of("momoId", id));
+        }
         Transaction doneTransaction = new Transaction(
                 money,
                 new Money(balance.getValue()),
@@ -63,7 +66,8 @@ public class BettingAccount implements Account {
     }
 
     public void putEmptySlip(DraftBetSlip betSlip) {
-        if (betSlip == null) throw new ValidationException(Code.BET_SLIP_NOT_FOUND,"there must be a bet slip line 56 betting account",Map.of("bettingId",id));
+        if (betSlip == null)
+            throw new ValidationException(Code.BET_SLIP_NOT_FOUND, "there must be a bet slip line 56 betting account: betting account 70", Map.of("bettingId", id));
         betSlip.setDraftSlipOwner(this);
         this.draftBetSlip = betSlip;
     }
@@ -75,15 +79,21 @@ public class BettingAccount implements Account {
 
     public Transaction placeBetTransaction(Money money, String description, Long betSlipId) {
         if (!this.balance.isGreaterThan(money)) {
-            throw new InsufficientFundsException("Your account balance is not sufficient to place that bet " + money.getValue(),Map.of("bettingId",id));
+            throw new ValidationException(Code.INVALID_AMOUNT, "Your account balance is not sufficient to place that bet : betting account 82 " + money.getValue(), Map.of("bettingId", id));
+        }
+        if (this.brokerType == BrokerType.ONE_X_BET && !money.isGreaterThan(90)) {
+            throw new ValidationException(Code.INVALID_AMOUNT, "Your minimum betting amount is 90 : betting account 85 " + money.getValue(), Map.of("bettingId", id));
+        }
+        if (this.brokerType == BrokerType.BET_MOMO && !money.isGreaterThan(100)) {
+            throw new ValidationException(Code.INVALID_AMOUNT, "Your minimum betting amount is 90 : betting account 88" + money.getValue(), Map.of("bettingId", id));
         }
         this.balance = balance.subtract(money);
         return new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.BET_PLACED, description, betSlipId);
     }
 
-    public Transaction betWonTransaction(Money money, String description, Long betSlipId) {
+    public Transaction betWonTransaction(Money money, Instant now,String description,  Long betSlipId) {
         this.balance = balance.add(money);
-        return new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.BET_WON, description, betSlipId);
+        return new Transaction(money, new Money(balance.getValue()), now, TransactionType.BET_WON, description, betSlipId);
     }
 
     public Transaction betRefundedTransaction(Money stake, String description, Long betSlipId) {
@@ -104,7 +114,7 @@ public class BettingAccount implements Account {
             var b = this.bonuses.get(bonusIndex);
 
             if (b.getStatus().equals(BonusStatus.EXPIRED) || b.getStatus().equals(BonusStatus.REDEEMED))
-                throw new IllegalArgumentException("This bonus has expired or has been redeemed; bettingAccount 83");
+                throw new ValidationException(Code.INVALID_BONUS_INDEX, "This bonus has expired or has been redeemed; bettingAccount 117", Map.of("bettingId", id));
             b.setStatus(BonusStatus.REDEEMED);
             this.draftBetSlip.setStatus(BetStatus.PENDING);
             this.draftBetSlip.setStake(b.getAmount());
@@ -112,13 +122,16 @@ public class BettingAccount implements Account {
             this.draftBetSlip.calculatePotentialWinning();
             this.draftBetSlip.setCreatedAt(now);
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new IllegalArgumentException("that bonus does not exist in this account: betting account 100");
+            throw new ResourceNotFoundException(Code.INVALID_BONUS_INDEX, "that bonus does not exist in this account: betting account 125", Map.of("bettingId", id));
         }
     }
 
     public Transaction withdraw(Money money, String description) {
+        if (money.isGreaterThan(500000)) {
+            throw new ValidationException(Code.INVALID_AMOUNT, "you cannot withdraw an amount greater than 500000: betting account 131", Map.of("momoId", id));
+        }
         if (!this.balance.isGreaterThan(money)) {
-            throw new InsufficientFundsException("you cannot make withdrawal of " + money.getValue(), Map.of("bettingId",this.id));
+            throw new InsufficientFundsException("you cannot make withdrawal of: betting account 134 " + money.getValue(), Map.of("bettingId", this.id));
         }
         this.balance = balance.subtract(money);
         return new Transaction(money, new Money(balance.getValue()), Instant.now(), TransactionType.WITHDRAWAL, description, null);

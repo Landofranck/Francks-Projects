@@ -4,6 +4,8 @@ package project.application.service.betSlip;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import project.adapter.in.web.Utils.Code;
+import project.application.error.ValidationException;
 import project.application.port.in.betSlip.MakeBetUseCase;
 import project.application.port.out.bettingAccount.*;
 import project.config.TimeProvider;
@@ -12,6 +14,7 @@ import project.domain.model.Money;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class MakeBetUseCaseImpl implements MakeBetUseCase {
@@ -40,9 +43,8 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
         var isBonus = bonusSlip != null && bonusSlip >= 0;
 
         var test = (bonusSlip == null || bonusSlip < 0);
-        if (bettingAccountId == null) throw new IllegalArgumentException("bettingAccountId required");
         if (stake == null || stake.getValue().signum() <= 0 && test)
-            throw new IllegalArgumentException("stake must be > 0, or you choose a bonus");
+            throw new ValidationException(Code.INVALID_AMOUNT, "stake must be > 0, or you choose a bonus", Map.of("bettingId", bettingAccountId));
         if (matchIds != null) {
 
             removeAllPicks.removeAllPicks(bettingAccountId);
@@ -54,17 +56,16 @@ public class MakeBetUseCaseImpl implements MakeBetUseCase {
         }
 
         var account = readAccount.getBettingAccount(bettingAccountId);
-        Instant now = Instant.now(timeProvider.clock());
+
 
         var draftSlip = account.getDraftBetSlip();
-        draftSlip.placeBet(stake, strategy, now, isBonus);
+        draftSlip.placeBet(stake, strategy, Instant.now(timeProvider.clock()), isBonus);
         var out = persistSlip.persistSlipToAccount(bettingAccountId, draftSlip);
         var tx = account.placeBetTransaction(stake, strategy.toString(), out);
         if (isBonus) {
-            account.placeBonusBet(bonusSlip, now);
-
+            account.placeBonusBet(bonusSlip, Instant.now(timeProvider.clock()));
         } else {
-            account.placeBet(stake, now);
+            account.placeBet(stake, Instant.now(timeProvider.clock()));
 
             // Persist account balance and tx
             updateBalance.updateBalance(account);

@@ -29,7 +29,8 @@ public class MomoServiceAdapter {
 
     public void createNewMobileMoneyAccount(CreateMobileMoneyAccountDto dto) {
         var domain = momoMapper.toMobileMoneyDomain(dto);
-        createMobileMoneyAccountUseCase.createNewMobileMoneyAccount(domain);
+            createMobileMoneyAccountUseCase.createNewMobileMoneyAccount(domain);
+
     }
 
     public GetAllMomoDto getAllMomoAccounts() {
@@ -38,11 +39,11 @@ public class MomoServiceAdapter {
     }
 
     public void transferMomo(MomoTransferRequestDto dto) {
-        transferMomoUseCase.transfer(dto.fromAccountId, dto.toAccountId, dto.amount, dto.description);
+        transferMomoUseCase.transfer(dto.fromAccountId, dto.getTransactionTime(), dto.toAccountId, dto.amount, dto.description);
     }
 
     public void topUpMomo(Long id, MomoTopUpRequestDto dto) {
-        topUpMomoUseCase.topUp(id, dto.amount, dto.description);
+        topUpMomoUseCase.topUp(id, dto.getTransactionTime(), dto.amount, dto.description);
     }
 
     public ReadMomoAccountDto getMomoAccountById(Long momoId) {

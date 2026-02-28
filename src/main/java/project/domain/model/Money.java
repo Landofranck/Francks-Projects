@@ -2,10 +2,15 @@ package project.domain.model;
 
 
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import project.adapter.in.web.Utils.Code;
+import project.application.error.ValidationException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Map;
 import java.util.Objects;
+
 public final class Money {
 
     private static final int SCALE = 2; // cents
@@ -14,21 +19,21 @@ public final class Money {
     private BigDecimal value;
 
     public Money(BigDecimal value) {
-        Objects.requireNonNull(value, "money value must not be null");
+        Objects.requireNonNull(value, "money cannot be negative money 20");
 
         BigDecimal normalized = value.setScale(SCALE, ROUNDING);
         if (normalized.signum() < 0) {
-            throw new IllegalArgumentException("money cannot be negative");
+            throw new ValidationException(Code.INVALID_AMOUNT, "money cannot be negative money 24", Map.of());
         }
         this.value = normalized;
     }
-    public Money(int val) {
-        var value=BigDecimal.valueOf(val);
-        Objects.requireNonNull(value, "money value must not be null");
 
+    public Money(int val) {
+        var value = BigDecimal.valueOf(val);
+        Objects.requireNonNull(val, "money cannot be negative money 30");
         BigDecimal normalized = value.setScale(SCALE, ROUNDING);
         if (normalized.signum() < 0) {
-            throw new IllegalArgumentException("money cannot be negative");
+            throw new ValidationException(Code.INVALID_AMOUNT, "money cannot be negative 33", Map.of());
         }
         this.value = normalized;
     }
@@ -63,11 +68,27 @@ public final class Money {
         Objects.requireNonNull(other);
         return this.value.compareTo(other.value) > 0;
     }
+    public boolean isGreaterThan(Integer other) {
+        Objects.requireNonNull(other);
+        var out=BigDecimal.valueOf(other);
+        return this.value.compareTo(out) > 0;
+    }
+    public boolean isGreaterThan(Long other) {
+        Objects.requireNonNull(other);
+        var out=BigDecimal.valueOf(other);
+        return this.value.compareTo(out) > 0;
+    }
 
     public boolean isGreaterOrEqual(Money other) {
         Objects.requireNonNull(other);
         return this.value.compareTo(other.value) >= 0;
     }
+    public boolean isGreaterThanOrEqual(Long other) {
+        Objects.requireNonNull(other);
+        var out=BigDecimal.valueOf(other);
+        return this.value.compareTo(out) >= 0;
+    }
+
     public Money divide(BigDecimal divisor) {
         Objects.requireNonNull(divisor, "divisor");
         if (divisor.signum() <= 0) throw new IllegalArgumentException("divisor must be > 0");

@@ -7,6 +7,7 @@ import project.domain.model.Enums.BetStrategy;
 import project.domain.model.Enums.BlockType;
 import project.domain.model.Enums.BrokerType;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -51,6 +52,8 @@ public class Reducer implements Account {
     private Long matchVersion;
     private List<Match> betMatches;
     private List<ReducerBetSlip> slips;
+    private Money totalStaked;
+    private BigDecimal profitOrLoss;
     //determines which type of matches are to be added here
     private BrokerType broker;
 
@@ -59,6 +62,7 @@ public class Reducer implements Account {
     // Block configuration (optional; if null/empty -> FULL over all matches)
 
     private List<Block> blocks;
+    private List<Shuffle> shuffleCombinations;
     private BetStrategy strategy;
 
     public Reducer(Money stake, Money bonusAmount, BetStrategy strategy, BrokerType broker) {
@@ -67,26 +71,24 @@ public class Reducer implements Account {
         this.slips = new ArrayList<>();
         this.betMatches = new ArrayList<>();
         this.blocks = new ArrayList<>();
-        this.matchVersion=-1L;
-        this.strategy=strategy;
-        this.broker=broker;
+        this.matchVersion = -1L;
+        this.strategy = strategy;
+        this.broker = broker;
+        this.profitOrLoss = BigDecimal.ZERO;
+        this.totalStaked = new Money(0);
+        this.shuffleCombinations = new ArrayList<>();
     }
 
-    public Long updateMatchVersion(){
-        this.matchVersion=-1L;
-        for(Match m: betMatches){
-            this.matchVersion+=m.getVersion();
+    public Long updateMatchVersion() {
+        this.matchVersion = -1L;
+        for (Match m : betMatches) {
+            this.matchVersion += m.getVersion();
         }
-        return  this.matchVersion;
-    }
-    public void addMatches(Match match) {
-        this.betMatches.add(Objects.requireNonNull(match));
+        return this.matchVersion;
     }
 
 
     /* -------------------- Block API -------------------- */
-
-
 
 
     public void setBlocks(List<Block> blocks) {
@@ -94,6 +96,7 @@ public class Reducer implements Account {
     }
 
     /* -------------------- NEW computeSlips (replaces old Cartesian only) -------------------- */
+
     /**
      * Generates bet slips according to the configured block structure.
      *
@@ -122,6 +125,8 @@ public class Reducer implements Account {
 
         slips.addAll(out);
         setTheSlipStakes();
+        checkProfitvalues();
+        checkSchuffle();
     }
 
     private void validateBlocks(List<Block> blocks) {
@@ -197,6 +202,7 @@ public class Reducer implements Account {
             prefixPicks.remove(prefixPicks.size() - 1);
         }
     }
+
     /**
      * Performs cascade expansion:
      * - F/E outcomes terminate the slip immediately
@@ -244,7 +250,8 @@ public class Reducer implements Account {
     /* -------------------- Outcome mapping (CASCADE) -------------------- */
 
 
-    private enum CascadeOutcome { F, E, D;}
+    private enum CascadeOutcome {F, E, D;}
+
     private MatchOutComePick pickByCascadeOutcome(List<MatchOutComePick> outcomes, CascadeOutcome which) {
         if (outcomes.size() < 3) {
             throw new IllegalStateException("CASCADE requires >= 3 outcomes, got " + outcomes.size());
@@ -279,7 +286,7 @@ public class Reducer implements Account {
 
     /* -------------------- Slip building / copying -------------------- */
     private ReducerBetSlip buildSlipFrom(List<MatchOutComePick> picks, BetCategory category) {
-        ReducerBetSlip s = new ReducerBetSlip(category,this.strategy,this.broker);
+        ReducerBetSlip s = new ReducerBetSlip(category, this.strategy, this.broker);
         for (MatchOutComePick p : picks) {
             s.addMatchEventPick(copyPick(p));
         }
@@ -290,8 +297,11 @@ public class Reducer implements Account {
 
     private MatchOutComePick copyPick(MatchOutComePick original) {
         Objects.requireNonNull(original, "original pick");
-        MatchOutComePick copy = new MatchOutComePick(original.getIdentity(),original.getMatchKey(), original.getOutcomeName(), original.getOdd(),original.getLeague());
+        MatchOutComePick copy = new MatchOutComePick(original.getIdentity(), original.getMatchKey(), original.getOutcomeName(), original.getOdd(), original.getLeague());
         copy.setMatchKey(original.getMatchKey());
+        copy.setOwnerMatchName(original.getOwnerMatchName());
+        copy.setBegins(original.getBegins());
+        copy.setOutcomePickStatus(original.getOutcomePickStatus());
         return copy;
     }
 
@@ -309,6 +319,47 @@ public class Reducer implements Account {
         }
     }
 
+    /* -------------------- Profits (unchanged) -------------------- */
+    private void checkProfitvalues() {
+        this.totalStaked = new Money(BigDecimal.ZERO);
+        for (ReducerBetSlip s : slips) {
+            this.totalStaked = totalStaked.add(s.getPlanedStake());
+        }
+        profitOrLoss = totalStake.getValue().subtract(totalStaked.getValue());
+    }
+
+    public void checkSchuffle() {
+        shuffleCombinations.clear();
+        var ids = new ArrayList<Long>();
+        for (Match match : betMatches) {
+            ids.add(match.getMatchId());
+        }
+
+        shuffle(ids, new ArrayList<>(), new boolean[ids.size()], this.shuffleCombinations);
+    }
+
+    private static void shuffle(List<Long> ids,
+                                List<Long> current,
+                                boolean[] used,
+                                List<Shuffle> result) {
+
+        if (current.size() == ids.size()) {
+            result.add(new Shuffle(new ArrayList<>(current)));
+            return;
+        }
+
+        for (int i = 0; i < ids.size(); i++) {
+            if (used[i]) continue;
+
+            used[i] = true;
+            current.add(ids.get(i));
+
+            shuffle(ids, current, used, result);
+            current.remove(current.size() - 1);
+            used[i] = false;
+        }
+
+    }
 
     /* -------------------- Account + getters/setters (unchanged) -------------------- */
     @Override
@@ -383,5 +434,31 @@ public class Reducer implements Account {
 
     public void setBroker(BrokerType broker) {
         this.broker = broker;
+    }
+
+    public Money getTotalStaked() {
+        return totalStaked;
+    }
+
+    public void setTotalStaked(Money totalStaked) {
+        this.totalStaked = totalStaked;
+    }
+
+    public BigDecimal getProfitOrLoss() {
+        return profitOrLoss;
+    }
+
+    public void setProfitOrLoss(BigDecimal profitOrLoss) {
+        this.profitOrLoss = profitOrLoss;
+    }
+
+    public void setShuffleCombinations(List<Shuffle> shuffleCombinations) {
+        this.shuffleCombinations = new ArrayList<>(
+                Objects.requireNonNull(shuffleCombinations)
+        );
+    }
+
+    public List<Shuffle> getShuffleCombinations() {
+        return shuffleCombinations;
     }
 }

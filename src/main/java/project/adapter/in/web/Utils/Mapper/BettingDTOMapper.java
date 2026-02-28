@@ -2,10 +2,10 @@ package project.adapter.in.web.Utils.Mapper;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.*;
-import project.adapter.in.web.Reducer.*;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.betslip.BetHistoryDto;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.betslip.DraftDto;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.betslip.ReadBetSlipDto;
+import project.adapter.in.web.Reducer.ReducerDto.UpdateMatchDto;
 import project.adapter.in.web.TransactionDTO.TransactionDto;
 import project.domain.model.*;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class BettingDTOMapper {
     }
 
     public BonusDto toBonusDto(Bonus b) {
-        return new BonusDto(b.getAmount().getValue(), b.getExpiryDate(), b.getStatus(),b.getType());
+        return new BonusDto(b.getAmount().getValue(), b.getExpiryDate(),b.getType(),b.getStatus());
     }
 
     public DraftDto toDraftSlipDto(DraftBetSlip domain) {
@@ -142,6 +142,7 @@ public class BettingDTOMapper {
         dto.setOdd(mP.getOdd());
         dto.setOwnerMatchName(mP.getOwnerMatchName());
         dto.setMatchId(mP.getIdentity());
+        dto.setBegins(mP.getBegins());
         dto.setOutcomeName(mP.getOutcomeName());
         dto.setStatus(mP.getOutcomePickStatus());
         dto.setLeague(mP.getLeague());
@@ -149,7 +150,7 @@ public class BettingDTOMapper {
     }
 
     public Bonus toBonusDomain(BonusDto bonus) {
-        return new Bonus(bonus.amount(), bonus.expiryDate(), bonus.status(), bonus.type());
+        return new Bonus(bonus.amount(), bonus.expiryDate(), bonus.type());
     }
 
     public BetHistoryDto toBetHistoryDto(List<BetSlip> history) {

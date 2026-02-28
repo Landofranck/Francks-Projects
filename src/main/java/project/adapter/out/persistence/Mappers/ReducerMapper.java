@@ -4,21 +4,18 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import project.adapter.out.persistence.Embeddables.BlockEmb;
 import project.adapter.out.persistence.EntityModels.MomoEntites.MatchEventPickEmbd;
-import project.adapter.out.persistence.EntityModels.MomoEntites.MomoAccountTransactionEntity;
 import project.adapter.out.persistence.EntityModels.ReducerBetSlipEntity;
 import project.adapter.out.persistence.EntityModels.ReducerEntity;
-import project.domain.model.BetSlip;
+import project.adapter.out.persistence.EntityModels.ReducerSummaryEntity;
+import project.adapter.out.persistence.EntityModels.ShuffleEmb;
 import project.domain.model.Match;
 import project.domain.model.MatchOutComePick;
 import project.domain.model.Money;
-import project.domain.model.Reducer.Block;
-import project.domain.model.Reducer.Reducer;
-import project.domain.model.Reducer.ReducerBetSlip;
+import project.domain.model.Reducer.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @ApplicationScoped
 public class ReducerMapper {
@@ -26,11 +23,14 @@ public class ReducerMapper {
     BettingAccountMapper betMapper;
 
     public Reducer toReducerDomain(ReducerEntity entity) {
-        var domain = new Reducer(new Money(entity.getTotalStake()), new Money(entity.getBonusAmount()), entity.getStrategy(),entity.getBroker());
+        var domain = new Reducer(new Money(entity.getTotalStake()), new Money(entity.getBonusAmount()), entity.getStrategy(), entity.getBroker());
         domain.setId(entity.getId());
         domain.setMatchVersion(entity.getMatchVersion());
         domain.setStrategy(entity.getStrategy());
         domain.setBroker(entity.getBroker());
+        domain.setProfitOrLoss(entity.getProfitOrLoss());
+        domain.setTotalStaked(new Money(entity.getTotalStaked()));
+        domain.setShuffleCombinations(entity.getShuffleCombinations().stream().map(this::toShuffleDomain).toList());
         if (entity.getBlockEmbs() != null)
             domain.setBlocks(entity.getBlockEmbs().stream().map(this::toBlockDomain).collect(Collectors.toCollection(ArrayList::new)));
 
@@ -49,11 +49,14 @@ public class ReducerMapper {
         entity.setMatchVersion(entity.getMatchVersion());
         entity.setStrategy(dom.getStrategy());
         entity.setBroker(dom.getBroker());
+        entity.setProfitOrLoss(dom.getProfitOrLoss());
+        entity.setTotalStaked(dom.getTotalStaked().getValue());
+        entity.setShuffleCombinations(dom.getShuffleCombinations().stream().map(this::toshuffleEntity).collect(Collectors.toCollection(ArrayList::new)));
         if (dom.getBlocks() != null)
             entity.setBlockEmbs(dom.getBlocks().stream().map(this::toEmbedBlock).collect(Collectors.toCollection(ArrayList::new)));
         if (dom.getSlips() != null)
             for (ReducerBetSlip e : dom.getSlips()) {
-                entity.addBetSlipEntity(toBetSlipEmbed(e));
+                entity.addBetSlipEntity(toBetSlipEntity(e));
             }
         if (dom.getBetMatches() != null)
             for (Match m : dom.getBetMatches()) {
@@ -62,16 +65,27 @@ public class ReducerMapper {
         return entity;
     }
 
+    private ShuffleEmb toshuffleEntity(Shuffle shuf) {
+        return new ShuffleEmb(shuf.matchIds());
+    }
+
+    private Shuffle toShuffleDomain(ShuffleEmb longs) {
+        return new Shuffle(longs.getShuffle());
+    }
+
     public void applyChangesToReducer(ReducerEntity entity, Reducer dom) {
 
         entity.setBonusAmount(dom.getBonusAmount().getValue());
         entity.setTotalStake(dom.getTotalStake().getValue());
+        entity.setShuffleCombinations(dom.getShuffleCombinations().stream().map(this::toshuffleEntity).toList());
         entity.setStrategy(dom.getStrategy());
         entity.setBroker(dom.getBroker());
+        entity.setProfitOrLoss(dom.getProfitOrLoss());
+        entity.setTotalStaked(dom.getTotalStaked().getValue());
         if (dom.getSlips() != null) {
             entity.getSlips().clear();
             for (ReducerBetSlip e : dom.getSlips()) {
-                entity.addBetSlipEntity(toBetSlipEmbed(e));
+                entity.addBetSlipEntity(toBetSlipEntity(e));
             }
         }
 
@@ -112,7 +126,7 @@ public class ReducerMapper {
 
     }
 
-    public ReducerBetSlipEntity toBetSlipEmbed(ReducerBetSlip betSlip) {
+    public ReducerBetSlipEntity toBetSlipEntity(ReducerBetSlip betSlip) {
         try {
             var out = new ReducerBetSlipEntity();
             out.setPotentialWinning(betSlip.getPotentialWinning().getValue());
@@ -126,7 +140,11 @@ public class ReducerMapper {
             out.setBonusOdds(betSlip.getBonusOdds());
             if (betSlip.getPicks() != null) {
                 for (MatchOutComePick p : betSlip.getPicks()) {
-                    out.addMatchEventPickEntity(new MatchEventPickEmbd(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague()));
+                    var in = new MatchEventPickEmbd(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague());
+                    in.setBegins(p.getBegins());
+                    in.setOwnerMatchName(p.getOwnerMatchName());
+                    in.setOutComePickStatus(p.getOutcomePickStatus());
+                    out.addMatchEventPickEntity(in);
                 }
             }
             return out;
@@ -137,11 +155,13 @@ public class ReducerMapper {
 
     public ReducerBetSlip toReducerBetSlipDomain(ReducerBetSlipEntity betSlip) {
         try {
-            var out = new ReducerBetSlip(betSlip.getCategory(), betSlip.getBetStrategy(),betSlip.getBrokerType());
+            var out = new ReducerBetSlip(betSlip.getCategory(), betSlip.getBetStrategy(), betSlip.getBrokerType());
             if (betSlip.getPicks() != null) {
                 for (MatchEventPickEmbd p : betSlip.getPicks()) {
-                    var in=new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague());
+                    var in = new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague());
                     in.setOwnerMatchName(p.getOwnerMatchName());
+                    in.setBegins(p.getBegins());
+                    in.setOutcomePickStatus(p.getOutcomePickStatus());
                     out.addMatchEventPick(in);
                 }
             }
@@ -175,5 +195,37 @@ public class ReducerMapper {
 
     public List<Reducer> toReducerDomains(List<ReducerEntity> reducers) {
         return reducers.stream().map(this::toReducerDomain).toList();
+    }
+
+    public ReducerSummaryEntity toReducerSummaryEntity(ReducerSummary summary) {
+        var out = new ReducerSummaryEntity();
+        out.setDescription(summary.getDescription());
+        out.setStake(summary.getStake().getValue());
+        out.setLossOrGain(summary.getLossOrGain());
+        out.setTotalStaked(summary.getTotalStaked().getValue());
+        if (summary.getReducers() != null)
+            for (Reducer r : summary.getReducers())
+                out.addReducerEntity(this.toReducerEntity(r));
+        if (summary.getBlocks() != null)
+            out.setBlocks(summary.getBlocks().stream().map(this::toEmbedBlock).toList());
+        return out;
+    }
+
+    public ReducerSummary toReducerSummaryDomain(ReducerSummaryEntity reducerSummary) {
+
+        var out = new ReducerSummary(reducerSummary.getDescription());
+        out.setReducerSummaryId(reducerSummary.getReducerSummaryId());
+        out.setStake(new Money(reducerSummary.getStake()));
+        out.setLossOrGain(reducerSummary.getLossOrGain());
+        out.setTotalStaked(new Money(reducerSummary.getTotalStaked()));
+        if (reducerSummary.getBlocks() != null)
+            out.setBlocks(reducerSummary.getBlocks().stream().map(this::toBlockDomain).collect(Collectors.toCollection(ArrayList::new)));
+        if (reducerSummary.getReducerEntities() != null)
+            out.setReducers(reducerSummary.getReducerEntities().stream().map(this::toReducerDomain).collect(Collectors.toCollection(ArrayList::new)));
+        return out;
+    }
+
+    public List<ReducerSummary> toReducerSummaryEntityList(List<ReducerSummaryEntity> out) {
+        return out.stream().map(this::toReducerSummaryDomain).toList();
     }
 }

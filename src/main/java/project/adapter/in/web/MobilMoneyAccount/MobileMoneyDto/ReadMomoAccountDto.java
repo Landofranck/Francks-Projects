@@ -11,9 +11,9 @@ public class ReadMomoAccountDto {
     private Long id;
     private MomoAccountType accountType;
     private BigDecimal accountBalance;
-    private Boolean dailyLimit;
-    private Boolean weeklyLimit;
-    private Boolean monthlyLimit;
+    private BigDecimal dailyLimitAmount;
+    private BigDecimal weeklyLimitAmount;
+    private BigDecimal monthlyLimitAmount;
     private List<Link> links=new ArrayList<>();
 
     public void addLink(Link link) {
@@ -32,18 +32,6 @@ public class ReadMomoAccountDto {
         this.id = id;
     }
 
-    public void setMonthlyLimit(Boolean monthlyLimit) {
-        this.monthlyLimit = monthlyLimit;
-    }
-
-    public void setDailyLimit(Boolean dailyLimit) {
-        this.dailyLimit = dailyLimit;
-    }
-
-    public void setWeeklyLimit(Boolean weeklyLimit) {
-        this.weeklyLimit = weeklyLimit;
-    }
-
     public MomoAccountType getAccountType() {
         return accountType;
     }
@@ -56,17 +44,6 @@ public class ReadMomoAccountDto {
         return accountBalance;
     }
 
-    public Boolean getDailyLimit() {
-        return dailyLimit;
-    }
-
-    public Boolean getWeeklyLimit() {
-        return weeklyLimit;
-    }
-
-    public Boolean getMonthlyLimit() {
-        return monthlyLimit;
-    }
 
     public void setLinks(List<Link> selfLinks) {
         this.links = selfLinks;
@@ -74,5 +51,29 @@ public class ReadMomoAccountDto {
 
     public List<Link> getLinks() {
         return links;
+    }
+
+    public BigDecimal getDailyLimitAmount() {
+        return dailyLimitAmount;
+    }
+
+    public void setDailyLimitAmount(BigDecimal dailyLimitAmount) {
+        this.dailyLimitAmount = dailyLimitAmount;
+    }
+
+    public BigDecimal getWeeklyLimitAmount() {
+        return weeklyLimitAmount;
+    }
+
+    public void setWeeklyLimitAmount(BigDecimal weeklyLimitAmount) {
+        this.weeklyLimitAmount = weeklyLimitAmount;
+    }
+
+    public BigDecimal getMonthlyLimitAmount() {
+        return monthlyLimitAmount;
+    }
+
+    public void setMonthlyLimitAmount(BigDecimal monthlyLimitAmount) {
+        this.monthlyLimitAmount = monthlyLimitAmount;
     }
 }

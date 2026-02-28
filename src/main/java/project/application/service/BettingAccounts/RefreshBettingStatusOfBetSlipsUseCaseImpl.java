@@ -10,6 +10,9 @@ import project.domain.model.BetSlip;
 import project.domain.model.Enums.BetStatus;
 import project.domain.model.MatchOutComePick;
 
+import java.time.Instant;
+import java.util.Objects;
+
 @ApplicationScoped
 public class RefreshBettingStatusOfBetSlipsUseCaseImpl implements refreshBettingAccoutSlipsUseCase {
     @Inject
@@ -28,9 +31,13 @@ public class RefreshBettingStatusOfBetSlipsUseCaseImpl implements refreshBetting
     public void updateBettingAccountBets(Long bettingAccountId) {
         var account = getAccount.getBettingAccount(bettingAccountId);
         for (BetSlip b : account.getBetHistory()) {
-            if (b.getStatus() != BetStatus.PENDING) continue;
+            Instant now = null;
             BetStatus finalstatus = null;
             for (MatchOutComePick p : b.getPicks()) {
+                if (now == null) now = p.getBegins();
+                if (now.isBefore(p.getBegins())) now = p.getBegins();
+
+                if (b.getStatus() != BetStatus.PENDING) continue;
                 if (p.getOutcomePickStatus() == BetStatus.PENDING) {
                     finalstatus = BetStatus.PENDING;
                     break;
@@ -43,10 +50,12 @@ public class RefreshBettingStatusOfBetSlipsUseCaseImpl implements refreshBetting
                     finalstatus = BetStatus.PAID_OUT;
                 }
             }
+
+            Objects.requireNonNull(now.plusSeconds(7200), "match outcome pick time is null refreshbettingstatusimpl 54");
             b.setStatus(finalstatus);
 
             if (b.getStatus() == BetStatus.PAID_OUT) {
-                var tx = account.betWonTransaction(b.getPotentialWinning(), b.getStrategy().toString(),b.getId());
+                var tx = account.betWonTransaction(b.getPotentialWinning(), now,b.getStrategy().toString(), b.getId());
                 updateBalance.updateBalance(account);
                 appendTx.appendToBettingAccount(bettingAccountId, tx);
                 updateBettingAccount.updateBettingAccount(bettingAccountId, account);

@@ -60,6 +60,7 @@ public class Match implements Event {
     public void addPick(MatchOutComePick pick) {
         Objects.requireNonNull(pick, "error while adding pick to match");
         pick.setOwnerMatchName(home+" vs "+ away);
+        pick.setBegins(begins);
         pick.setOwner(this);
         pick.setIdentity(matchId);
         pick.setLeague(this.matchLeague);

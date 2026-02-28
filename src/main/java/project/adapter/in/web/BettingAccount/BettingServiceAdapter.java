@@ -4,7 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.AllMatchEventPickDto;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.*;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.betslip.*;
-import project.adapter.in.web.Reducer.UpdateMatchDto;
+import project.adapter.in.web.Reducer.ReducerDto.UpdateMatchDto;
 import project.adapter.in.web.TransactionDTO.WithdrawDto;
 import project.adapter.in.web.Utils.Mapper.BettingDTOMapper;
 import project.adapter.in.web.Utils.IdDto;
@@ -46,7 +46,7 @@ public class BettingServiceAdapter {
     @Inject
     DeleteMatchByIdUsecase deleteMatchFromSystem;
     @Inject
-    GetMatchByIdUseCase getMatchByIdUseCase;
+    LoadMatchByIdUseCase loadMatchByIdUseCase;
     @Inject
     MakeWithdrawalUseCase makeWithdrawal;
     @Inject
@@ -145,7 +145,7 @@ public class BettingServiceAdapter {
     }
 
     public ReadMatchDto getMatchByid(Long id) {
-        return mapper.toMatchDto(getMatchByIdUseCase.getMatchById(id));
+        return mapper.toMatchDto(loadMatchByIdUseCase.loadMatch(id));
     }
 
     public void createBonus(Long bettingAccountId, BonusDto bonus) {
@@ -154,7 +154,7 @@ public class BettingServiceAdapter {
     }
 
     public void withdrawFromBettingToMobileMoney(Long bettingId, Long momoId, WithdrawDto dto) {
-        makeWithdrawal.withdrawFromBettingToMobileMoney(bettingId, momoId, dto.getAmount(), dto.getDescription());
+        makeWithdrawal.withdrawFromBettingToMobileMoney(bettingId, momoId, dto.getAmount(),dto.getTransactionTime(), dto.getDescription());
     }
 
     public AllMatchEventPickDto getMatchOutcomesByParam(String ownerName, MatchKey matchKey, String outComeName, League league) {

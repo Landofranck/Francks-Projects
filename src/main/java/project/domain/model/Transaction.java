@@ -12,7 +12,7 @@ public class Transaction {
     private final TransactionType type;
     private final String description;
     private final Long betslipId;
-    private Long owner;
+    private Long ownerId;
 
     public Transaction(Money transactionAmmount, Money accountBalanceAfterTransaction, Instant createdAt, TransactionType transactionType, String description,Long betslipId) {
         this.transactionAmmount = transactionAmmount;
@@ -43,12 +43,12 @@ public class Transaction {
         return transactionAmmount;
     }
 
-    public void setOwnerId(Long owner) {
-        this.owner = owner;
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 
     public Long getOwnerId() {
-        return owner;
+        return ownerId;
     }
 
     public void setId(long id) {

@@ -7,13 +7,12 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-import org.hibernate.annotations.MapKeyCompositeType;
 import project.adapter.in.web.BettingAccount.BettingServiceAdapter;
 import project.adapter.in.web.Utils.IdDto;
 import project.adapter.in.web.Utils.Link;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.CreateMatchDto;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.ReadMatchDto;
-import project.adapter.in.web.Reducer.UpdateMatchDto;
+import project.adapter.in.web.Reducer.ReducerDto.UpdateMatchDto;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.ReadMatchEventPickDto;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.betslip.UpdateMatchOutcomeDto;
 import project.domain.model.Enums.BrokerType;
@@ -97,8 +96,8 @@ public class MatchResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{matchId}/updateMatchOutcome")
-    public Response updateMatchOutcomeEntity(@PathParam("matchId") Long id,@NotNull @QueryParam("ownerMatchName") String ownerMatchName, @NotNull @QueryParam("MatchKey") MatchKey matchKey, @NotNull @QueryParam("outcomeName") String outComeName, @NotNull @QueryParam("league") League league, @Valid UpdateMatchOutcomeDto dto) {
-        serviceAdapter.updateMatchOutcomes(id,ownerMatchName,matchKey,outComeName,league,dto);
+    public Response updateMatchOutcomeEntity(@PathParam("matchId") Long matchId,@NotNull @QueryParam("ownerMatchName") String ownerMatchName, @NotNull @QueryParam("MatchKey") MatchKey matchKey, @NotNull @QueryParam("outcomeName") String outComeName, @NotNull @QueryParam("league") League league, @Valid UpdateMatchOutcomeDto dto) {
+        serviceAdapter.updateMatchOutcomes(matchId,ownerMatchName,matchKey,outComeName,league,dto);
         List<Link> out = new ArrayList<>();
       if(bettingId!=null&&slipId!=null){
           out.add(new Link(uriInfo.getBaseUri() + "betting_accounts/"+bettingId +"/bet_slips?bet_slip_id="+slipId,"get bet slip", "GET"));
@@ -107,7 +106,7 @@ public class MatchResource {
       }
         out.add(getAllMatchesLink());
         out.add(getAllMatchOutComesByParams(dto.matchKey(), ""));
-        out.add(toMatchLink(id));
+        out.add(toMatchLink(matchId));
         return Response.ok(out).build();
 
     }

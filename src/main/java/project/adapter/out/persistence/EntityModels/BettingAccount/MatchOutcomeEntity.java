@@ -5,6 +5,8 @@ import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.League;
 import project.domain.model.Enums.MatchKey;
 
+import java.time.Instant;
+
 @Entity
 public class MatchOutcomeEntity {
     @Id
@@ -21,6 +23,7 @@ public class MatchOutcomeEntity {
     @Enumerated
     private League league;
     private BetStatus outComePickStatus;
+    private Instant begins;
 
     public MatchOutcomeEntity() {
 
@@ -92,5 +95,13 @@ public class MatchOutcomeEntity {
 
     public String getOwnerMatchName() {
         return ownerMatchName;
+    }
+
+    public Instant getBegins() {
+      return  this.begins;
+    }
+
+    public void setBegins(Instant begins) {
+        this.begins = begins;
     }
 }

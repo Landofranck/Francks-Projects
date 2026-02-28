@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import jakarta.ws.rs.BadRequestException;
+import project.adapter.in.web.Utils.Code;
+import project.application.error.AccountLimitException;
 import project.application.error.InsufficientFundsException;
 import project.domain.model.Enums.MomoAccountType;
 import project.domain.model.Enums.TransactionType;
@@ -20,20 +23,64 @@ public class MobileMoneyAccount implements Account {
     private final String name;
     public final MomoAccountType accountType;
     private Money accountBalance;
-    private Boolean dailyLimit;
-    private Boolean weeklyLimit;
-    private Boolean monthlyLimit;
-    private List<Transaction> transactionHistory;
+    private Money dailyLimitAmount;
+    private Money weeklyLimitAmount;
+    private Money monthlyLimitAmount;
+    private Instant updatedAt;
+    private final List<Transaction> transactionHistory;
 
-    public MobileMoneyAccount(Long id, MomoAccountType accountType,String name) {
+    public MobileMoneyAccount(Long id, MomoAccountType accountType, String name, BigDecimal dailyLimitAmount, BigDecimal weeklyLimitAmount, BigDecimal monthlyLimitAmount) {
+        this.id = id;
+        this.updatedAt = Instant.now();
         this.accountType = accountType;
-        this.name=name;
+        this.name = name;
         this.accountBalance = new Money(BigDecimal.ZERO);
-        this.dailyLimit = false;
-        this.weeklyLimit = false;
-        this.monthlyLimit = false;
-        transactionHistory = new ArrayList<>();
-        this.id=id;
+        this.transactionHistory = new ArrayList<>();
+        this.dailyLimitAmount = new Money(dailyLimitAmount);
+        this.weeklyLimitAmount = new Money(weeklyLimitAmount);
+        this.monthlyLimitAmount = new Money(monthlyLimitAmount);
+
+        refreshLimits();
+
+    }
+
+    public void refreshLimits() {
+        // Day
+        Instant now = Instant.now();
+
+        ZoneId zone = ZoneId.of("Europe/Berlin");
+        Instant todayStart = now.atZone(zone).toLocalDate().atStartOfDay(zone).toInstant();
+        if (accountType == null || Objects.requireNonNull(updatedAt).isBefore(todayStart)) {
+            if (accountType == MomoAccountType.MTN) {
+                dailyLimitAmount = new Money(2500000);
+            } else {
+                dailyLimitAmount = new Money(2000000);
+            }
+        }
+
+
+        // Week (ISO week, Monday start)
+        LocalDate weekStartDate = now.atZone(zone).toLocalDate().with(java.time.DayOfWeek.MONDAY);
+        Instant weekStart = weekStartDate.atStartOfDay(zone).toInstant();
+        if (accountType == null || updatedAt.isBefore(weekStart)) {
+            if (accountType == MomoAccountType.MTN) {
+                dailyLimitAmount = new Money(10000000);
+            } else {
+                dailyLimitAmount = new Money(5000000);
+            }
+        }
+
+        // Month
+        LocalDate monthStartDate = now.atZone(zone).toLocalDate().withDayOfMonth(1);
+        Instant monthStart = monthStartDate.atStartOfDay(zone).toInstant();
+        if (accountType == null || updatedAt.isBefore(monthStart)) {
+            if (accountType == MomoAccountType.MTN) {
+                dailyLimitAmount = new Money(20000000);
+            } else {
+                dailyLimitAmount = new Money(10000000);
+            }
+        }
+        updatedAt = now;
     }
 
     public void addTransaction(Transaction transaction) {
@@ -46,102 +93,35 @@ public class MobileMoneyAccount implements Account {
         Objects.requireNonNull(money);
         Objects.requireNonNull(createdAt);
         this.accountBalance = this.accountBalance.add(money);
-        Transaction done = new Transaction(money, this.accountBalance, createdAt, TransactionType.DEPOSIT, description,null);
+        Transaction done = new Transaction(money, this.accountBalance, createdAt, TransactionType.DEPOSIT, description, null);
         addTransaction(done);
         return done;
     }
 
-    public Transaction withdraw(Money money, Instant createdAt,String description) {
+    public Transaction withdraw(Money money, Instant createdAt, String description) {
         if (!this.accountBalance.isGreaterOrEqual(money)) {
-            throw new InsufficientFundsException("you cannot make withdrawal from this Momo account of " + money.getValue()+ " because account balane is "+this.accountBalance.getValue(), Map.of("momoId",this.id));
+            throw new InsufficientFundsException("you cannot make withdrawal from this Momo account of " + money.getValue() + " because account balane is " + this.accountBalance.getValue(), Map.of("momoId", this.id));
         }
-
+        refreshLimits();
+        if (money.isGreaterThan(dailyLimitAmount)) {
+            throw new AccountLimitException(Code.DAILY_LIMIT_ERROR, "Daily limit reached, you can only deposit: " + dailyLimitAmount + " or less: mobile money account 107", Map.of("momoId", id));
+        }
+        if (money.isGreaterThan(weeklyLimitAmount)) {
+            throw new AccountLimitException(Code.WEEKLY_LIMIT_ERROR, "Weekly limit reached, you can only deposit: " + dailyLimitAmount + " or less: mobile money account 107", Map.of("momoId", id));
+        }
+        if (money.isGreaterThan(monthlyLimitAmount)) {
+            throw new AccountLimitException(Code.MONTHLY_LIMIT_ERROR, "Monthly limit reached, you can only deposit: " + dailyLimitAmount + " or less: mobile money account 107", Map.of("momoId", id));
+        }
         this.accountBalance = this.accountBalance.subtract(money);
 
-        Transaction doneTransaction = new Transaction(
-                money,
-                new Money(accountBalance.getValue()),
-                createdAt,
-                TransactionType.WITHDRAWAL,
-                description,
-                null
-        );
-
+        Transaction doneTransaction = new Transaction(money, new Money(accountBalance.getValue()), createdAt, TransactionType.WITHDRAWAL, description, null);
+        dailyLimitAmount=dailyLimitAmount.subtract(money);
+        weeklyLimitAmount=weeklyLimitAmount.subtract(money);
+        monthlyLimitAmount=monthlyLimitAmount.subtract(money);
         addTransaction(doneTransaction);
         return doneTransaction;
     }
 
-    /**
-     * Recomputes daily/weekly/monthly withdrawal limits based on transactionHistory.
-     */
-    public void updateLimits(Instant now, ZoneId zoneId) {
-        Objects.requireNonNull(now, "now");
-        Objects.requireNonNull(zoneId, "zoneId");
-
-        BigDecimal dailyThreshold;
-        BigDecimal weeklyThreshold;
-        BigDecimal monthlyThreshold;
-
-        // Set thresholds by account type
-        switch (accountType) {
-            case MTN -> {
-                dailyThreshold = BigDecimal.valueOf(2_500_000);
-                weeklyThreshold = BigDecimal.valueOf(10_000_000);
-                monthlyThreshold = BigDecimal.valueOf(20_000_000);
-            }
-            case ORANGE -> {
-                dailyThreshold = BigDecimal.valueOf(2_000_000);
-                weeklyThreshold = BigDecimal.valueOf(5_000_000);
-                monthlyThreshold = BigDecimal.valueOf(10_000_000);
-            }
-            default -> throw new IllegalStateException("Unsupported account type: " + accountType);
-        }// Period starts
-        Instant dayStart = startOfDay(now, zoneId);
-        Instant weekStart = startOfWeekMonday(now, zoneId);
-        Instant monthStart = startOfMonth(now, zoneId);
-
-        BigDecimal dailyWithdrawals = sumWithdrawalsSince(dayStart);
-        BigDecimal weeklyWithdrawals = sumWithdrawalsSince(weekStart);
-        BigDecimal monthlyWithdrawals = sumWithdrawalsSince(monthStart);
-
-        this.dailyLimit = dailyWithdrawals.compareTo(dailyThreshold) >= 0;
-        this.weeklyLimit = weeklyWithdrawals.compareTo(weeklyThreshold) >= 0;
-        this.monthlyLimit = monthlyWithdrawals.compareTo(monthlyThreshold) >= 0;
-    }
-
-    private BigDecimal sumWithdrawalsSince(Instant startInclusive) {
-        BigDecimal total = BigDecimal.ZERO;
-
-        for (Transaction t : transactionHistory) {
-            if (t.getType() == TransactionType.WITHDRAWAL
-                    && !t.getCreatedAt().isBefore(startInclusive)) {
-                total = total.add(t.getTransactionAmmount().getValue());
-            }
-        }
-
-        return total;
-    }
-
-    private static Instant startOfDay(Instant now, ZoneId zoneId) {
-        LocalDate date = now.atZone(zoneId).toLocalDate();
-        return date.atStartOfDay(zoneId).toInstant();
-    }
-
-    private static Instant startOfWeekMonday(Instant now, ZoneId zoneId) {
-        LocalDate date = now.atZone(zoneId).toLocalDate();
-        LocalDate monday = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        return monday.atStartOfDay(zoneId).toInstant();
-    }
-
-    private static Instant startOfMonth(Instant now, ZoneId zoneId) {
-        LocalDate date = now.atZone(zoneId).toLocalDate();
-        LocalDate firstDay = date.withDayOfMonth(1);
-        return firstDay.atStartOfDay(zoneId).toInstant();
-    }
-
-    public void setTransactionHistory(List<Transaction> transactionHistory) {
-        this.transactionHistory = transactionHistory;
-    }
 
     public List<Transaction> getTransactionHistory() {
         return transactionHistory;
@@ -151,36 +131,12 @@ public class MobileMoneyAccount implements Account {
         return accountType;
     }
 
-    public Money getAccountBalance() {
-        return accountBalance;
-    }
-
-    public Boolean getDailyLimit() {
-        return dailyLimit;
-    }
-
     public void setAccountBalance(Money accountBalance) {
         this.accountBalance = accountBalance;
     }
 
-    public Boolean getMonthlyLimit() {
-        return monthlyLimit;
-    }
-
-    public void setDailyLimit(Boolean dailyLimit) {
-        this.dailyLimit = dailyLimit;
-    }
-
-    public Boolean getWeeklyLimit() {
-        return weeklyLimit;
-    }
-
-    public void setWeeklyLimit(Boolean weeklyLimit) {
-        this.weeklyLimit = weeklyLimit;
-    }
-
-    public void setMonthlyLimit(Boolean monthlyLimit) {
-        this.monthlyLimit = monthlyLimit;
+    public Money getAccountBalance() {
+        return accountBalance;
     }
 
     public String getName() {
@@ -195,5 +151,29 @@ public class MobileMoneyAccount implements Account {
     @Override
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Money getWeeklyLimitAmount() {
+        return weeklyLimitAmount;
+    }
+
+    public void setWeeklyLimitAmount(Money weeklyLimitAmount) {
+        this.weeklyLimitAmount = weeklyLimitAmount;
+    }
+
+    public Money getMonthlyLimitAmount() {
+        return monthlyLimitAmount;
+    }
+
+    public void setMonthlyLimitAmount(Money monthlyLimitAmount) {
+        this.monthlyLimitAmount = monthlyLimitAmount;
+    }
+
+    public Money getDailyLimitAmount() {
+        return dailyLimitAmount;
+    }
+
+    public void setDailyLimitAmount(Money dailyLimitAmount) {
+        this.dailyLimitAmount = dailyLimitAmount;
     }
 }

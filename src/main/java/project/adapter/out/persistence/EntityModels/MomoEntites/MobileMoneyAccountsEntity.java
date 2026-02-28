@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import project.domain.model.Enums.MomoAccountType;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,12 +28,15 @@ public class MobileMoneyAccountsEntity {
     private Boolean dailyLimit;
     private Boolean weeklyLimit;
     private Boolean monthlyLimit;
+    private BigDecimal dailyLimitAmount;
+    private BigDecimal weeklyLimitAmount;
+    private BigDecimal monthlyLimitAmount;
+    private Instant time;
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MomoAccountTransactionEntity> transactionHistory=new ArrayList<>();
 
     public MobileMoneyAccountsEntity() {
     }
-
 
     public void addBettingaccoutTransactionEntity(MomoAccountTransactionEntity transaction) {
         this.transactionHistory.add(transaction);
@@ -101,5 +105,29 @@ public class MobileMoneyAccountsEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public BigDecimal getDailyLimitAmount() {
+        return dailyLimitAmount;
+    }
+
+    public void setDailyLimitAmount(BigDecimal dailyLimitAmount) {
+        this.dailyLimitAmount = dailyLimitAmount;
+    }
+
+    public BigDecimal getWeeklyLimitAmount() {
+        return weeklyLimitAmount;
+    }
+
+    public void setWeeklyLimitAmount(BigDecimal weeklyLimitAmount) {
+        this.weeklyLimitAmount = weeklyLimitAmount;
+    }
+
+    public BigDecimal getMonthlyLimitAmount() {
+        return monthlyLimitAmount;
+    }
+
+    public void setMonthlyLimitAmount(BigDecimal monthlyLimitAmount) {
+        this.monthlyLimitAmount = monthlyLimitAmount;
     }
 }

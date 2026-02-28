@@ -5,11 +5,13 @@ import jakarta.inject.Inject;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.ReadMatchDto;
 import project.adapter.in.web.BettingAccount.bettinAccountDTO.betslip.ReadBetSlipDto;
 import project.adapter.in.web.Reducer.*;
+import project.adapter.in.web.Reducer.ReducerDto.*;
 import project.domain.model.BetSlip;
 import project.domain.model.Money;
 import project.domain.model.Reducer.Block;
 import project.domain.model.Reducer.Reducer;
 import project.domain.model.Reducer.ReducerBetSlip;
+import project.domain.model.Reducer.ReducerSummary;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -68,10 +70,13 @@ public class ReducerDtoMapper {
         return new ReadReducerDto(
                 domain.getAccountId(),
                 totalStake,
+                domain.getTotalStaked().getValue(),
+                domain.getProfitOrLoss(),
                 slipCount,
                 specifics,
                 domain.getStrategy(),
                 domain.getBroker(),
+                domain.getShuffleCombinations(),
                 matches,
                 betSlips,
                 bonusAmount,
@@ -81,7 +86,7 @@ public class ReducerDtoMapper {
 
     public ReducerSlipDto toReducerSlipDto(ReducerBetSlip domain) {
         var picks = domain.getPicks().stream().map(betMapper::toMatchEventPickDto).collect(Collectors.toCollection(ArrayList::new));
-        return new ReducerSlipDto(domain.getCategory(), domain.getBrokerType(), domain.getPlanedStake().getValue(), domain.getRemainingStake().getValue(), domain.getTotalOdds(), domain.getBetStrategy(), domain.getNumberOfEvents(), domain.getPotentialWinning().getValue(), domain.getBonusOdds(),picks);
+        return new ReducerSlipDto(domain.getCategory(), domain.getBrokerType(), domain.getPlanedStake().getValue(), domain.getRemainingStake().getValue(), domain.getTotalOdds(), domain.getBetStrategy(), domain.getNumberOfEvents(), domain.getPotentialWinning().getValue(), domain.getBonusOdds(), picks);
     }
 
     public Block toBlockDomain(BlockDto dto) {
@@ -98,5 +103,29 @@ public class ReducerDtoMapper {
 
     public List<ReadReducerDto> toReducerDomains(List<Reducer> reducers) {
         return reducers.stream().map(this::toReducerDto).toList();
+    }
+
+    public ReadReducerSummaryDto toReducerSummaryDto(ReducerSummary reducerSummary) {
+
+        var out = new ReadReducerSummaryDto();
+        out.setReducerSummaryId(reducerSummary.getReducerSummaryId());
+        out.setLossOrGain(reducerSummary.getLossOrGain());
+        out.setTotalStaked(reducerSummary.getTotalStaked().getValue());
+        out.setDescription(reducerSummary.getDescription());
+        out.setReducerDtos(reducerSummary.getReducers().stream().map(this::toReducerDto).toList());
+        out.setReducerBetSlipDtos(reducerSummary.getReducerBetSlips().stream().map(this::toReducerSlipDto).toList());
+        out.setBlockDtos(reducerSummary.getBlocks().stream().map(this::toBlockDto).collect(Collectors.toList()));
+        out.setMatchDtos(reducerSummary.getMatches().stream().map(betMapper::toMatchDto).collect(Collectors.toList()));
+        out.setStake(reducerSummary.getStake().getValue());
+        out.setShuffleCombinations(reducerSummary.getShuffleCombinations());
+        return out;
+    }
+
+    public ReducerSummary toReducerSummaryDomain(CreateReducerSummaryDto dto) {
+        return new ReducerSummary(dto.description());
+    }
+
+    public List<ReadReducerSummaryDto> toListReducerSummaryDtos(List<ReducerSummary> allReducerSummary) {
+        return allReducerSummary.stream().map(this::toReducerSummaryDto).toList();
     }
 }

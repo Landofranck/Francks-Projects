@@ -39,7 +39,7 @@ public class BetSlipEntity {
     }
 
 
-    public void addMatchEventPickEntity(SlipEventPickEntity entity) {
+    public void addSlipEventPickEntity(SlipEventPickEntity entity) {
         this.picks.add(entity);
         entity.setParent(this);
     }

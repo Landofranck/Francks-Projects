@@ -5,6 +5,8 @@ import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.League;
 import project.domain.model.Enums.MatchKey;
 
+import java.time.Instant;
+
 @Entity
 public class SlipEventPickEntity {
     @Id
@@ -21,6 +23,7 @@ public class SlipEventPickEntity {
     @Enumerated
     private League league;
     private BetStatus outComePickStatus;
+    private Instant begins;
 
     public SlipEventPickEntity(){}
 
@@ -106,5 +109,13 @@ public class SlipEventPickEntity {
 
     public String getOwnerMatchName() {
         return ownerMatchName;
+    }
+
+    public void setBegins(Instant begins) {
+        this.begins=begins;
+    }
+
+    public Instant getBegins() {
+        return begins;
     }
 }

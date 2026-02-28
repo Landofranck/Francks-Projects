@@ -35,7 +35,7 @@ public class BettingAccountEntity {
     @OneToMany(mappedBy = "parentAccountEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BetSlipEntity> betHistory = new ArrayList<>();
     @ElementCollection
-    private List<BonusEmb> bounuses = new ArrayList<>();
+    private List<BonusEmb> bonuses = new ArrayList<>();
 
     public BettingAccountEntity() {
     }
@@ -95,8 +95,8 @@ public class BettingAccountEntity {
         transaction.setOwner(this);
     }
 
-    public void addBounusEmb(BonusEmb b) {
-        this.bounuses.add(b);
+    public void addBonusEmb(BonusEmb b) {
+        this.bonuses.add(b);
     }
 
 
@@ -138,12 +138,12 @@ public class BettingAccountEntity {
         this.accountName = accountName;
     }
 
-    public List<BonusEmb> getBounuses() {
-        return bounuses;
+    public List<BonusEmb> getBonuses() {
+        return bonuses;
     }
 
-    public void setBounuses(List<BonusEmb> bounuses) {
-        this.bounuses = bounuses;
+    public void setBonuses(List<BonusEmb> bonuses) {
+        this.bonuses = bonuses;
     }
 
 }

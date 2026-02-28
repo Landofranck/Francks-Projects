@@ -1,4 +1,4 @@
-package project.adapter.in.web.Reducer;
+package project.adapter.in.web.Reducer.ReducerDto;
 
 import project.adapter.in.web.Utils.Link;
 

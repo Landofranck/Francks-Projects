@@ -1,10 +1,14 @@
 package project.domain.model;
 
 
+import project.adapter.in.web.Utils.Code;
+import project.application.error.ValidationException;
 import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.League;
 import project.domain.model.Enums.MatchKey;
 
+import java.time.Instant;
+import java.util.Map;
 import java.util.Objects;
 
 public class MatchOutComePick {
@@ -12,6 +16,7 @@ public class MatchOutComePick {
     private Long identity;
     private MatchKey matchKey;
     private String ownerMatchName;
+    private Instant begins;
     private final String outcomeName;
     private final double odd;
     private Event owner;
@@ -19,14 +24,14 @@ public class MatchOutComePick {
     private BetStatus outcomePickStatus;
 
     //when a pick is created we should only know the outcome  and odds first, match key and owner is added later
-    public MatchOutComePick(Long id, MatchKey matchKey, String outcomeName, double odd, League league) {
-        if(odd <=0)throw new IllegalArgumentException("odd must be > 0");
+    public MatchOutComePick(Long matchId, MatchKey matchKey, String outcomeName, double odd, League league) {
+        if(odd <=0)throw new ValidationException(Code.INVALID_AMOUNT,"odd must be > 0 MatchOutcomePick 27", Map.of("matchIds",matchId));
         this.outcomeName = outcomeName;
-        this.odd = Objects.requireNonNull(odd, "odd");
+        this.odd = odd;
         this.matchKey=matchKey;
-        this.identity =id;
+        this.identity = matchId;
         this.league=league;
-        this.outcomePickStatus=BetStatus.PENDING;
+        this.outcomePickStatus=BetStatus.CREATING;
     }
 
     public MatchKey getMatchKey() {
@@ -91,5 +96,13 @@ public class MatchOutComePick {
 
     public void setOwnerMatchName(String ownerMatchName) {
         this.ownerMatchName = ownerMatchName;
+    }
+
+    public void setBegins(Instant begins) {
+        this.begins = begins;
+    }
+
+    public Instant getBegins() {
+        return begins;
     }
 }

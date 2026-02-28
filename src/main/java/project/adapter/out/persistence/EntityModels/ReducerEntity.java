@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import project.adapter.in.web.Utils.Code;
 import project.adapter.out.persistence.Embeddables.BlockEmb;
 import project.adapter.out.persistence.EntityModels.BettingAccount.BetSlipEntity;
+import project.adapter.out.persistence.EntityModels.BettingAccount.BettingAccountEntity;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 import project.adapter.out.persistence.EntityModels.BettingAccount.SlipEventPickEntity;
 import project.application.error.ValidationException;
@@ -19,6 +20,8 @@ public class ReducerEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @ElementCollection
+    private List<ShuffleEmb> shuffleCombinations=new ArrayList<>(){};
     private BigDecimal totalStake;
     @ManyToMany
     @JoinTable(name = "reducer_matches",
@@ -34,6 +37,11 @@ public class ReducerEntity {
     private BetStrategy strategy;
     @Enumerated
     private BrokerType broker;
+    private BigDecimal profitOrLoss;
+    private BigDecimal totalStaked;
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "parentReducerSummaryEntity_id",nullable = true)
+    private ReducerSummaryEntity parentReducerSummaryEntity;
 
     public ReducerEntity() {
     }
@@ -46,11 +54,13 @@ public class ReducerEntity {
         Objects.requireNonNull(match, "match");
         betMatchEntities.add(match);
         match.addParent(this);
+        slips.clear();
     }
     public void deleteMatch(MatchEntity match) {
         Objects.requireNonNull(match, "match");
         betMatchEntities.remove(match);
         match.removeParent(this);
+        slips.clear();
     }
 
     public void addBetSlipEntity(ReducerBetSlipEntity b) {
@@ -78,7 +88,7 @@ public class ReducerEntity {
         BetSlipEntity copy = new BetSlipEntity();
         copy.setCategory(category);
         for (SlipEventPickEntity p : original.getPicks()) {
-            copy.addMatchEventPickEntity(copyPick(p));
+            copy.addSlipEventPickEntity(copyPick(p));
         }
 
         // copy.setCreatedAt(original.getCreatedAt()); // if you want
@@ -162,5 +172,36 @@ public class ReducerEntity {
 
     public void setBroker(BrokerType broker) {
         this.broker = broker;
+    }
+
+    public BigDecimal getProfitOrLoss() {
+        return this.profitOrLoss;
+    }
+    public void setProfitOrLoss(BigDecimal profitOrLoss) {
+        this.profitOrLoss = profitOrLoss;
+    }
+
+    public void setTotalStaked(BigDecimal totalStaked) {
+        this.totalStaked = totalStaked;
+    }
+
+    public BigDecimal getTotalStaked() {
+        return totalStaked;
+    }
+
+    public void setParentReducerSummaryEntity(ReducerSummaryEntity parentReducerSummaryEntity) {
+        this.parentReducerSummaryEntity = parentReducerSummaryEntity;
+    }
+
+    public ReducerSummaryEntity getParentReducerSummaryEntity() {
+        return parentReducerSummaryEntity;
+    }
+
+    public List<ShuffleEmb> getShuffleCombinations() {
+        return shuffleCombinations;
+    }
+
+    public void setShuffleCombinations(List<ShuffleEmb> shuffleCombinations) {
+        this.shuffleCombinations = shuffleCombinations;
     }
 }

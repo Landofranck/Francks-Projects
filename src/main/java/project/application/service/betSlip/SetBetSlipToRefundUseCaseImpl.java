@@ -20,14 +20,14 @@ public class SetBetSlipToRefundUseCaseImpl implements SetBetSlipToRefundUseCase 
     @Inject
     AppendBettingAccountTransactionPort appendTx;
     @Inject
-    GetBetSlipByIdPort getBetSlipById;
+    ReadBetSlipByIdPort getBetSlipById;
 
     @Inject
     UpdateBettingAccountPort updateBettingAccount;
 
     @Override
     public void setSlipToRefund(Long betAccountId, Long slipId) {
-        var b = getBetSlipById.getBetSlip(slipId);
+        var b = getBetSlipById.readBetSlip(slipId);
         if(b.getStatus()!= BetStatus.PENDING)
             throw new IllegalArgumentException("you cannot set this slip to refunded, it has already concluded: setsliprefund 32");
         Long bettingAccountId = refundPort.setSlipStatusToRefund(slipId);

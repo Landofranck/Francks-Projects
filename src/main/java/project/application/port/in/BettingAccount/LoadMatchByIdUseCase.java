@@ -1,4 +1,4 @@
-package project.application.port.out;
+package project.application.port.in.BettingAccount;
 
 import project.domain.model.Match;
 

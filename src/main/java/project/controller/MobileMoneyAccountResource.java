@@ -9,8 +9,10 @@ import project.adapter.in.web.BettingAccount.BettingServiceAdapter;
 import project.adapter.in.web.MobilMoneyAccount.MobileMoneyDto.CreateMobileMoneyAccountDto;
 
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.validation.Valid;
 import project.adapter.in.web.MobilMoneyAccount.MobileMoneyDto.MomoTopUpRequestDto;
@@ -32,6 +34,7 @@ public class MobileMoneyAccountResource {
     MakeDepositUseCase makeDepositUseCase;
     @Inject
     UriInfo uriInfo;
+    private Boolean systemTime;
 
     /**
      * creates new mobile money account
@@ -49,6 +52,11 @@ public class MobileMoneyAccountResource {
     @Path("/{momoId}/transfers")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response transfer(@PathParam("momoId") Long momoId, @QueryParam("destinator") Long to, @Valid MomoTransferRequestDto dto) {
+        if (systemTime) {
+            dto.setTransactionTime(null);
+        }else{
+            Objects.requireNonNull(dto.getTransactionTime());
+        }
         dto.fromAccountId = momoId;
         dto.toAccountId = to;
         serviceAdapter.transferMomo(dto);
@@ -67,6 +75,11 @@ public class MobileMoneyAccountResource {
     @Path("/{id}/topups")
 
     public Response topUpAccount(@PathParam("id") Long id, @Valid MomoTopUpRequestDto dto) {
+        if (systemTime) {
+            dto.setTransactionTime(null);
+        }else{
+            Objects.requireNonNull(dto.getTransactionTime());
+        }
         serviceAdapter.topUpMomo(id, dto);
         List<Link> out = new ArrayList<>();
         out.add(getAllMomoLink());
@@ -116,7 +129,12 @@ public class MobileMoneyAccountResource {
         out = new ArrayList<>(baseLinks(momoId));
         out.add(getAllMomoLink());
         out.add(new Link(uriInfo.getBaseUri() + "/betting-accounts/" + dto.getBettingAccountId(), "get BettingAccount", "GET"));
-        makeDepositUseCase.depositFromMobileMoneyToBettingAccount(momoId, dto.getBettingAccountId(), dto.getAmount(), dto.getDescription());
+        if (systemTime) {
+            dto.setTransactionTime(null);
+        }else{
+            Objects.requireNonNull(dto.getTransactionTime());
+        }
+        makeDepositUseCase.depositFromMobileMoneyToBettingAccount(momoId,dto.getTransactionTime(),dto.getBettingAccountId(), dto.getAmount(), dto.getDescription());
         return Response.ok(out).build();
     }
 
@@ -173,5 +191,9 @@ public class MobileMoneyAccountResource {
         out.add(doTransfer(id));
         out.add(getTransactions(id));
         return out;
+    }
+
+    public void setSystemTime(Boolean systemTime) {
+        this.systemTime=systemTime;
     }
 }

@@ -45,6 +45,10 @@ public class DraftBetSlip implements Event {
         setBonusSlip(isBonus);
         calculatePotentialWinning();
         setStrategy(strategy);
+        for (MatchOutComePick pick : picks) {
+            if (pick.getBegins().isBefore(now))
+                now = pick.getBegins();
+        }
         setCreatedAt(now);
     }
 
@@ -56,14 +60,13 @@ public class DraftBetSlip implements Event {
             } else {
                 this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf((totalOdds))));
             }
-        }else if (brokerType == BrokerType.BET_MOMO) {
+        } else if (brokerType == BrokerType.BET_MOMO) {
             if (bonusSlip) {
                 this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf(totalOdds - 1)));
             } else {
                 this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf((totalOdds))));
             }
-        }
-        else {
+        } else {
             this.potentialWinning = new Money(stake.getValue().multiply(BigDecimal.valueOf((totalOdds))));
         }
 

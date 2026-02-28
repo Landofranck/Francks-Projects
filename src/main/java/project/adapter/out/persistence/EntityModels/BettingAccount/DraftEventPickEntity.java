@@ -1,8 +1,11 @@
 package project.adapter.out.persistence.EntityModels.BettingAccount;
 
 import jakarta.persistence.*;
+import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.League;
 import project.domain.model.Enums.MatchKey;
+
+import java.time.Instant;
 
 
 @Entity
@@ -21,6 +24,8 @@ public class DraftEventPickEntity {
     private DraftSlipEntity parentBetSlipEntity;
     @Enumerated
     private League league;
+    private Instant begins;
+    private BetStatus draftOutcomeStatus;
 
     public DraftEventPickEntity() {
     }
@@ -92,6 +97,22 @@ public class DraftEventPickEntity {
 
     public String getOwnerMatchName() {
         return OwnerMatchName;
+    }
+
+    public Instant getBegins() {
+        return this.begins;
+    }
+
+    public void setBegins(Instant begins) {
+        this.begins = begins;
+    }
+
+    public BetStatus getDraftOutcomeStatus() {
+        return draftOutcomeStatus;
+    }
+
+    public void setDraftOutcomeStatus(BetStatus draftOutcomeStatus) {
+        this.draftOutcomeStatus = draftOutcomeStatus;
     }
 }
 

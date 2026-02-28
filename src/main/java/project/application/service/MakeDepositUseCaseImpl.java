@@ -45,30 +45,29 @@ public class MakeDepositUseCaseImpl implements MakeDepositUseCase {
 
     @Transactional
     @Override
-    public void depositFromMobileMoneyToBettingAccount(Long momoAccountId, Long bettingAccountId, BigDecimal amount, String description) {
+    public void depositFromMobileMoneyToBettingAccount(Long momoAccountId, Instant time, Long bettingAccountId, BigDecimal amount, String description) {
         Objects.requireNonNull(momoAccountId, "momoAccountId");
         Objects.requireNonNull(bettingAccountId, "bettingAccountId");
         Objects.requireNonNull(amount, "amount");
-        if (amount.signum() <= 0) throw new ValidationException(Code.INVALID_AMOUNT,"amount must be > 0 deposit..impl", Map.of("bettingId",bettingAccountId,"momoId",momoAccountId));
+        if (amount.signum() <= 0)
+            throw new ValidationException(Code.INVALID_AMOUNT, "amount must be > 0 deposit..impl", Map.of("bettingId", bettingAccountId, "momoId", momoAccountId));
         var momo = momoReader.getMomoAccount(momoAccountId);
         var betting = bettingReader.getBettingAccount(bettingAccountId);
 
         Money transfer = new Money(amount);
         Money fee = calculateFee(momo.getAccountType(), transfer);
 
-        var now = Instant.now(timeProvider.clock());
 
         // 1) withdraw transfer from momo -> DOMAIN creates tx
-        Transaction momoTransferTx = momo.withdraw(transfer, now,": "+description+" from "+momo.getAccountId() );
-
+        Transaction momoTransferTx = momo.withdraw(transfer, checkTime(time), ": " + description + " from " + momo.getAccountId());
 
         // 1) withdraw transfer from momo -> DOMAIN creates tx
         // 2) withdraw fee from momo -> DOMAIN creates tx
-        Transaction momoFeeTx = fee.isZero() ? null : momo.withdraw(fee, now, ": "+description+" transaction fee");
+        Transaction momoFeeTx = fee.isZero() ? null : momo.withdraw(fee, checkTime(time), ": " + description + " transaction fee");
 
 
         // 3) deposit transfer into betting -> DOMAIN creates tx
-        Transaction bettingDepositTx = betting.deposit(transfer, now,description+" from "+ momo.getAccountId()); // ensure BettingAccount.deposit assigns back (Money immutable fix!)
+        Transaction bettingDepositTx = betting.deposit(transfer, checkTime(time), description + " from " + momo.getAccountId()); // ensure BettingAccount.deposit assigns back (Money immutable fix!)
 
         // --- STEP 4: append transactions (append-only) ---
         // You must append the SAME transactions the domain created OR recreate them consistently.
@@ -84,6 +83,13 @@ public class MakeDepositUseCaseImpl implements MakeDepositUseCase {
         // --- Persist balances only (no history overwrite) ---
         momoBalanceUpdater.updateBalance(momo);
         bettingBalanceUpdater.updateBalance(betting);
+    }
+
+    private Instant checkTime(Instant time) {
+        if (time == null) {
+            return Instant.now(timeProvider.clock());
+        } else
+            return time;
     }
 
     private Money calculateFee(MomoAccountType type, Money transferAmount) {

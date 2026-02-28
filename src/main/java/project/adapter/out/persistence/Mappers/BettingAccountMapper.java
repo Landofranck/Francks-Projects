@@ -32,7 +32,7 @@ public class BettingAccountMapper {
         }
         if (domainModel.getBonuses() != null) {
             for (Bonus b : domainModel.getBonuses()) {
-                entityModel.addBounusEmb(toBonusEmb(b));
+                entityModel.addBonusEmb(toBonusEmb(b));
             }
         }
         return entityModel;
@@ -56,8 +56,8 @@ public class BettingAccountMapper {
                 domainModel.addBetSlip(toBetSlipDomain(b));
             }
         }
-        if (entityModel.getBounuses() != null) {
-            for (BonusEmb b : entityModel.getBounuses()) {
+        if (entityModel.getBonuses() != null) {
+            for (BonusEmb b : entityModel.getBonuses()) {
                 domainModel.addBonus(toBonusDomain(b));
             }
         }
@@ -72,8 +72,8 @@ public class BettingAccountMapper {
         if (entityModel.getDraftBetSlip() != null) {
             domainModel.putEmptySlip(toDraftSlipDomain(entityModel.getDraftBetSlip()));
         }
-        if (entityModel.getBounuses() != null) {
-            for (BonusEmb b : entityModel.getBounuses()) {
+        if (entityModel.getBonuses() != null) {
+            for (BonusEmb b : entityModel.getBonuses()) {
                 domainModel.addBonus(toBonusDomain(b));
             }
         }
@@ -81,7 +81,9 @@ public class BettingAccountMapper {
     }
 
     private Bonus toBonusDomain(BonusEmb b) {
-        return new Bonus(b.getAmount(), b.getExpiryDate(), b.getStatus(), b.getType());
+        var out = new Bonus(b.getAmount(), b.getExpiryDate(), b.getType());
+        out.setStatus(b.getStatus());
+        return out;
     }
 
     private BonusEmb toBonusEmb(Bonus b) {
@@ -125,6 +127,7 @@ public class BettingAccountMapper {
         matchEventPickEntity.setIdentity(domainPick.getIdentity());
         matchEventPickEntity.setMatchKey(domainPick.getMatchKey());
         matchEventPickEntity.setOwnerMatchName(domainPick.getOwnerMatchName());
+        matchEventPickEntity.setBegins(domainPick.getBegins());
         matchEventPickEntity.setOdd(domainPick.getOdd());
         matchEventPickEntity.setOutcomeName(domainPick.getOutcomeName());
         matchEventPickEntity.setLeague(domainPick.getLeague());
@@ -142,6 +145,7 @@ public class BettingAccountMapper {
         outcomeEntity.setIdentity(m.getIdentity());
         outcomeEntity.setOwnerMatchName(m.getOwnerMatchName());
         outcomeEntity.setOutcomePickStatus(m.getOutcomePickStatus());
+        outcomeEntity.setBegins(m.getBegins());
         return outcomeEntity;
     }
 
@@ -193,7 +197,7 @@ public class BettingAccountMapper {
             betSlipentity.setStrategy(betSlip.getStrategy());
             if (betSlip.getPicks() != null) {
                 for (MatchOutComePick p : betSlip.getPicks()) {
-                    betSlipentity.addMatchEventPickEntity(toMatchEventEntity(p));
+                    betSlipentity.addSlipEventPickEntity(toMatchEventEntity(p));
                 }
             }
             return betSlipentity;
@@ -258,16 +262,20 @@ public class BettingAccountMapper {
         var draftEventPickEntity = new DraftEventPickEntity();
         draftEventPickEntity.setIdentity(domainPick.getIdentity());
         draftEventPickEntity.setMatchKey(domainPick.getMatchKey());
+        draftEventPickEntity.setDraftOutcomeStatus(domainPick.getOutcomePickStatus());
         draftEventPickEntity.setOdd(domainPick.getOdd());
         draftEventPickEntity.setOutcomeName(domainPick.getOutcomeName());
         draftEventPickEntity.setOwnerMatchName(domainPick.getOwnerMatchName());
         draftEventPickEntity.setLeague(domainPick.getLeague());
+        draftEventPickEntity.setBegins(domainPick.getBegins());
         return draftEventPickEntity;
     }
 
     public MatchOutComePick toDraftEventDomain(DraftEventPickEntity p) {
         var draftEvent = new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.outcomeName(), p.getOdd(), p.getLeague());
         draftEvent.setMatchKey(p.getMatchKey());
+        draftEvent.setBegins(p.getBegins());
+        draftEvent.setOutcomePickStatus(p.getDraftOutcomeStatus());
         draftEvent.setOwnerMatchName(p.getOwnerMatchName());
         return draftEvent;
     }
@@ -278,6 +286,7 @@ public class BettingAccountMapper {
         matchEventPickDomain.setId(p.getId());
         matchEventPickDomain.setOutcomePickStatus(p.getOutComePickStatus());
         matchEventPickDomain.setOwnerMatchName(p.getOwnerMatchName());
+        matchEventPickDomain.setBegins(p.getBegins());
         return matchEventPickDomain;
     }
 
@@ -285,6 +294,7 @@ public class BettingAccountMapper {
         var out = new MatchOutComePick(p.getIdentity(), p.getMatchKey(), p.getOutcomeName(), p.getOdd(), p.getLeague());
         out.setOutcomePickStatus(p.getOutComePickStatus());
         out.setOwnerMatchName(p.getOwnerMatchName());
+        out.setBegins(p.getBegins());
         out.setId(p.getId());
         return out;
     }
@@ -328,6 +338,7 @@ public class BettingAccountMapper {
     public List<MatchOutComePick> toListOfMatchOutComePick(List<MatchOutcomeEntity> list) {
         return list.stream().map(this::toMatchOutcomeDomain).collect(Collectors.toCollection(ArrayList::new));
     }
+
     public List<MatchOutComePick> toListOfSlipOutComePick(List<SlipEventPickEntity> list) {
         return list.stream().map(this::toSlipEventDomain).collect(Collectors.toCollection(ArrayList::new));
     }
@@ -350,24 +361,28 @@ public class BettingAccountMapper {
         betSlipentity.setBonusOdds(draftSlip.getBonusOdds());
         if (draftSlip.getPicks() != null) {
             for (MatchOutComePick p : draftSlip.getPicks()) {
-                betSlipentity.addMatchEventPickEntity(toMatchEventEntity(p));
+                betSlipentity.addSlipEventPickEntity(toMatchEventEntity(p));
             }
         }
         return betSlipentity;
     }
 
     public void applyTobettingAccount(BettingAccountEntity oldVersion, BettingAccount updated) {
-        oldVersion.getBounuses().clear();
+        oldVersion.getBonuses().clear();
         var old = oldVersion.getBetHistory();
 
         var newVersion = this.toBettingAccountEntity(updated).getBetHistory();
-        oldVersion.setBounuses(updated.getBonuses().stream().map(this::toBonusEmb).collect(Collectors.toCollection(ArrayList::new)));
-        for (int i = 0; i < old.size(); i++) {
-           if (old.get(i).getStatus() != BetStatus.PENDING) {
-                continue;
+        oldVersion.setBonuses(updated.getBonuses().stream().map(this::toBonusEmb).collect(Collectors.toCollection(ArrayList::new)));
+
+            if (newVersion != null && !newVersion.isEmpty()&&old.size()==newVersion.size()) {
+                for (int i = 0; i < old.size(); i++) {
+                    if (old.get(i).getStatus() != BetStatus.PENDING) {
+                        continue;
+                    }
+                    old.get(i).setStatus(newVersion.get(i).getStatus());
+                }
             }
-            old.get(i).setStatus(newVersion.get(i).getStatus());
-        }
+
     }
 
     public void applyToManagedDraftSlip(DraftSlipEntity managed, DraftBetSlip domain) {

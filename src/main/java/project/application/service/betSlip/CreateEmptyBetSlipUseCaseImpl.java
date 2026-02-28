@@ -2,7 +2,7 @@ package project.application.service.betSlip;
 
 import project.adapter.in.web.Utils.Code;
 import project.application.error.ConflictException;
-import project.application.port.out.bettingAccount.PersistEmptyBetSlipPort;
+import project.application.port.out.bettingAccount.PersistDraftBetSlipPort;
 
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,7 +20,7 @@ public class CreateEmptyBetSlipUseCaseImpl implements CreateEmptyBetSlipUseCase 
     @Inject
     ReadBettingAccountByIdPort readAccountByIdPort;
     @Inject
-    PersistEmptyBetSlipPort putEmptySlip;
+    PersistDraftBetSlipPort putEmptySlip;
 
     @Override
     public void createEmpty(Long bettingAccountId, BetCategory category) {
@@ -37,7 +37,7 @@ public class CreateEmptyBetSlipUseCaseImpl implements CreateEmptyBetSlipUseCase 
         }else {
             return;
         }
-        putEmptySlip.persistEmptySlip(bettingAccountId, slip);//this is where the error seems to stem
+        putEmptySlip.persistDraftSlip(bettingAccountId, slip);//this is where the error seems to stem
 // ✅ not saved
 
     }

@@ -7,6 +7,6 @@ import project.domain.model.Enums.BonusType;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public record BonusDto(@NotNull BigDecimal amount, @NotNull Instant expiryDate, @NotNull BonusStatus status, @NotNull
-BonusType type) {
+public record BonusDto(@NotNull BigDecimal amount, @NotNull Instant expiryDate, @NotNull
+BonusType type, BonusStatus bonusStatus) {
 }

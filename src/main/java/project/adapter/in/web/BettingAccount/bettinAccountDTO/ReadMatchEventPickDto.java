@@ -8,6 +8,7 @@ import project.domain.model.Enums.BetStatus;
 import project.domain.model.Enums.League;
 import project.domain.model.Enums.MatchKey;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class ReadMatchEventPickDto {
     @NotNull
     private BetStatus status;
     private List<Link> links=new ArrayList<>();
+    private Instant begins;
 
     public ReadMatchEventPickDto() {}
 
@@ -75,5 +77,12 @@ public class ReadMatchEventPickDto {
 
     public String getOwnerMatchName() {
         return ownerMatchName;
+    }
+
+    public void setBegins(Instant begins) {
+        this.begins=begins;
+    }
+    public Instant getBegins() {
+        return begins;
     }
 }

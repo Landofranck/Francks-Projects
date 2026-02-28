@@ -27,12 +27,15 @@ public class MomoAccountMapper {
     public MobileMoneyAccountsEntity toMobileMoneyEntity(MobileMoneyAccount momo) {
         var entitMomo = new MobileMoneyAccountsEntity();
         entitMomo.setId(momo.getAccountId());
+        entitMomo.setDailyLimitAmount(momo.getDailyLimitAmount().getValue());
+        entitMomo.setWeeklyLimitAmount(momo.getWeeklyLimitAmount().getValue());
+        entitMomo.setMonthlyLimitAmount(momo.getMonthlyLimitAmount().getValue());
         entitMomo.setAccountBalance(momo.getAccountBalance().getValue());
         entitMomo.setAccountType(momo.getAccountType());
         entitMomo.setName(momo.getName());
-        entitMomo.setDailyLimit(momo.getDailyLimit());
-        entitMomo.setMonthlyLimit(momo.getMonthlyLimit());
-        entitMomo.setWeeklyLimit(momo.getWeeklyLimit());
+        entitMomo.setDailyLimitAmount(momo.getDailyLimitAmount().getValue());
+        entitMomo.setMonthlyLimitAmount(momo.getMonthlyLimitAmount().getValue());
+        entitMomo.setWeeklyLimitAmount(momo.getWeeklyLimitAmount().getValue());
         if (momo.getTransactionHistory() != null) {
             for (Transaction t : momo.getTransactionHistory()) {
                 entitMomo.addBettingaccoutTransactionEntity(toMomoTransactionEntity(t));
@@ -40,12 +43,20 @@ public class MomoAccountMapper {
         }
         return entitMomo;
     }
+
+    public void applyMomoBalance(MobileMoneyAccountsEntity managedEntity, MobileMoneyAccount updatedAccount) {
+        managedEntity.setDailyLimitAmount(updatedAccount.getDailyLimitAmount().getValue());
+        managedEntity.setWeeklyLimitAmount(updatedAccount.getWeeklyLimitAmount().getValue());
+        managedEntity.setMonthlyLimitAmount(updatedAccount.getMonthlyLimitAmount().getValue());
+        managedEntity.setAccountBalance(updatedAccount.getAccountBalance().getValue());
+    }
     public Transaction toMomoTransactionDomain(MomoAccountTransactionEntity e) {
         var transacttionDomain = new Transaction(new Money(e.getTransactionAmmount()), new Money(e.getAccountBalanceAfterTransaction()), e.getCreatedAt(), e.getType(), e.getDescription(),null);
         //set owner not created because this is done in parent class already with setParent(this)
         transacttionDomain.setId(e.getId());
         return transacttionDomain;
     }
+
     public MobileMoneyAccount toMobileMoneyDomain(MobileMoneyAccountsEntity m) {
         var domainMomo=toMomo(m);
         if (m.getTransactionHistory() != null) {
@@ -61,12 +72,9 @@ public class MomoAccountMapper {
     }
 
     private MobileMoneyAccount toMomo(MobileMoneyAccountsEntity m) {
-        var domainMomo = new MobileMoneyAccount(m.getId(), m.getAccountType(),m.getName());
+        var domainMomo = new MobileMoneyAccount(m.getId(), m.getAccountType(),m.getName(),m.getDailyLimitAmount(),m.getWeeklyLimitAmount(),m.getMonthlyLimitAmount());
         domainMomo.setId(m.getId());
         domainMomo.setAccountBalance(new Money(m.getAccountBalance()));
-        domainMomo.setDailyLimit(m.getDailyLimit());
-        domainMomo.setMonthlyLimit(m.getMonthlyLimit());
-        domainMomo.setWeeklyLimit(m.getWeeklyLimit());
         return domainMomo;
     }
 

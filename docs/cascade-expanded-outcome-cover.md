@@ -6,7 +6,7 @@ The Cascade-Expanded Outcome Cover (CEOC) is a deterministic enumeration strateg
 for generating betting slips (or scenario combinations) from a discrete outcome space
 while avoiding full cartesian explosion.
 
-Instead of expanding all outcomes uniformly, CEOC expands matches left-to-right
+Instead of expanding all outcomes uniformly, CEOC expands matchDtos left-to-right
 and continues expansion only along a designated *dominant* outcome.
 
 This guarantees full coverage of the outcome space while producing significantly
@@ -28,7 +28,7 @@ The ordering expresses priority, not probability.
 
 ## Block Types
 
-Slip generation is configured using ordered blocks.
+Slip generation is configured using ordered blockDtos.
 
 ### FULL Block
 
@@ -43,7 +43,7 @@ Slip generation is configured using ordered blocks.
 - For each match:
     - **F or E** → emit slip and stop
     - **D** → continue to next match
-- If all matches in the block are D:
+- If all matchDtos in the block are D:
     - expansion continues to the next block
     - or emits a final slip if this is the last block
 

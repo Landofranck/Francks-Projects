@@ -6,5 +6,5 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.List;
 
-public record ComputeDto(@NotNull List<@Valid BlockDto> specifications) {
+public record ComputeSummaryDto(@NotNull BigDecimal newBalance, @NotNull List<@Valid BlockDto> specifications) {
 }

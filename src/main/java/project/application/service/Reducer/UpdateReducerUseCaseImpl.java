@@ -13,6 +13,5 @@ public class UpdateReducerUseCaseImpl implements UpdateUpdateUsecase {
     public Reducer updateReducer(Long reducerId, Reducer update) {
         update.updateMatchVersion();
         return updateReducerPort.updateReducer(reducerId, update);
-
     }
 }

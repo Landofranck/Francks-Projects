@@ -88,6 +88,7 @@ public class ReducerBetSlip implements Event {
             for (MatchOutComePick m : picks) {
                 output *= m.getOdd();
             }
+            this.totalOdds = output;
         }
         this.bonusOdds = bonusOutput;
     }

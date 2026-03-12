@@ -30,7 +30,7 @@ public class ReducerMapper {
         domain.setBroker(entity.getBroker());
         domain.setProfitOrLoss(entity.getProfitOrLoss());
         domain.setTotalStaked(new Money(entity.getTotalStaked()));
-        domain.setShuffleCombinations(entity.getShuffleCombinations().stream().map(this::toShuffleDomain).toList());
+        domain.setShuffleCombinations(entity.getShuffleCombinationEmbs().stream().map(this::toShuffleDomain).toList());
         if (entity.getBlockEmbs() != null)
             domain.setBlocks(entity.getBlockEmbs().stream().map(this::toBlockDomain).collect(Collectors.toCollection(ArrayList::new)));
 
@@ -51,7 +51,7 @@ public class ReducerMapper {
         entity.setBroker(dom.getBroker());
         entity.setProfitOrLoss(dom.getProfitOrLoss());
         entity.setTotalStaked(dom.getTotalStaked().getValue());
-        entity.setShuffleCombinations(dom.getShuffleCombinations().stream().map(this::toshuffleEntity).collect(Collectors.toCollection(ArrayList::new)));
+        entity.setShuffleCombinationEmbs(dom.getShuffleCombinations().stream().map(this::toshuffleEntity).collect(Collectors.toCollection(ArrayList::new)));
         if (dom.getBlocks() != null)
             entity.setBlockEmbs(dom.getBlocks().stream().map(this::toEmbedBlock).collect(Collectors.toCollection(ArrayList::new)));
         if (dom.getSlips() != null)
@@ -77,11 +77,18 @@ public class ReducerMapper {
 
         entity.setBonusAmount(dom.getBonusAmount().getValue());
         entity.setTotalStake(dom.getTotalStake().getValue());
-        entity.setShuffleCombinations(dom.getShuffleCombinations().stream().map(this::toshuffleEntity).toList());
+        entity.setShuffleCombinationEmbs(dom.getShuffleCombinations().stream().map(this::toshuffleEntity).collect(Collectors.toCollection(ArrayList::new)));
         entity.setStrategy(dom.getStrategy());
         entity.setBroker(dom.getBroker());
         entity.setProfitOrLoss(dom.getProfitOrLoss());
         entity.setTotalStaked(dom.getTotalStaked().getValue());
+            if (dom.getShuffleCombinations() != null) {
+                if (entity.getShuffleCombinationEmbs() == null)
+                    throw new RuntimeException("ReducerEntity: ShuffleCombinations is null: reducer mapper 87");
+               entity.getShuffleCombinationEmbs().clear();
+                entity.setShuffleCombinationEmbs(dom.getShuffleCombinations().stream().map(this::toshuffleEntity).toList());
+            }
+
         if (dom.getSlips() != null) {
             entity.getSlips().clear();
             for (ReducerBetSlip e : dom.getSlips()) {

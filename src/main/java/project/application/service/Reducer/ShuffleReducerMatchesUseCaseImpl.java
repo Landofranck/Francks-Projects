@@ -19,7 +19,6 @@ public class ShuffleReducerMatchesUseCaseImpl implements ShuffleReducerMatchesUs
     @Override
     public void shuffle(Long reducerId, Integer index) {
         var out = loadReducerByIdUseCase.loadReducer(reducerId);
-        out.checkSchuffle();
         var shuffleOrder = out.getShuffleCombinations().get(index);
         clearMatchesFromReducer.clearAllMatchesFromReducer(reducerId);
         addAllMatchesToReducerUseCase.addMatchesToReducer(reducerId,shuffleOrder.matchIds());

@@ -1,5 +1,5 @@
 package project.application.port.in.Reducer;
 
 public interface DeleteMatchFromReducerUseCase {
-    void deletMatchFromReducer(Long reducerId,Long matchId);
+    void deleteMatchFromReducer(Long reducerId, Long matchId);
 }

@@ -1,6 +1,8 @@
 package project.domain.model.Reducer;
 
 
+import project.adapter.in.web.Utils.Code;
+import project.application.error.ValidationException;
 import project.domain.model.*;
 import project.domain.model.Enums.BetCategory;
 import project.domain.model.Enums.BetStrategy;
@@ -10,6 +12,7 @@ import project.domain.model.Enums.BrokerType;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -122,11 +125,10 @@ public class Reducer implements Account {
 
         List<ReducerBetSlip> out = new ArrayList<>();
         backtrackBlocks(category, 0, new ArrayList<>(), out);
-
         slips.addAll(out);
         setTheSlipStakes();
         checkProfitvalues();
-        checkSchuffle();
+
     }
 
     private void validateBlocks(List<Block> blocks) {
@@ -312,7 +314,8 @@ public class Reducer implements Account {
 
         for (ReducerBetSlip s : slips) {
             double odds = s.getTotalOdds();
-            if (odds <= 0) throw new IllegalStateException("totalOdds must be > 0");
+            if (odds <= 0)
+                throw new ValidationException(Code.INVALID_AMOUNT, "totalOdds must be > 0: reducer 318", Map.of("reducerId", id));
             s.setPlanedStake(totalStake.divide(odds));
             s.setRemainingStake(totalStake.divide(odds));
             s.calculatePotentialWinning();

@@ -14,11 +14,11 @@ import java.util.Objects;
 public class ReducerSummary {
     private Long reducerSummaryId;
     private String description;
-    private List<Shuffle> shuffleCombinations;
-    private List<Reducer> reducers;
     private Money stake;
     private Money totalStaked;
     private BigDecimal lossOrGain;
+    private List<Shuffle> shuffleCombinations;
+    private List<Reducer> reducers;
     private List<ReducerBetSlip> reducerBetSlips;
     private List<Match> matches;
     private List<Block> blocks;
@@ -55,7 +55,7 @@ public class ReducerSummary {
         if (reducers.isEmpty())
             return;
         reducerBetSlips = reducers.getFirst().getSlips();
-        for (int i = 1; i < reducerBetSlips.size(); i++) {
+        for (int i = 1; i < reducers.size(); i++) {
             var slip = reducers.get(i).getSlips();
             for (int j=0;j<slip.size();j++) {
                 if (reducerBetSlips.get(j).getTotalOdds() > slip.get(j).getTotalOdds()) {}

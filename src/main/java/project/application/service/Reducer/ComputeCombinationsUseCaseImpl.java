@@ -23,7 +23,6 @@ public class ComputeCombinationsUseCaseImpl implements ComputeCombinationUseCase
         var reducer = getReducer.readReducer(id);
         reducer.setBlocks(specifications);
         reducer.computeSlips(BetCategory.SINGLE);
-
         return updateReducer.updateReducer(id, reducer);
     }
 }

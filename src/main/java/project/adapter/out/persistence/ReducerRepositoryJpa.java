@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
-public class ReducerRepositoryJpa implements PersistReducerPort, DeleteReducerSummaryPort, ReadReducerByIdPort, UpdateReducerPort, AddMatchToReducerPort, DeleteMatchFromReducerPort, RefreshReducerByIdPort, DeleteReducerByIdPort, ReadAllReducersPort, UpdateReducerStakePort, ReadSummaryReducerPort, PersistReducerSummaryPort, ReadAllReducerSummaryPort, AddReducerToSummaryPort {
+public class ReducerRepositoryJpa implements PersistReducerPort, DeleteReducerSummaryPort, ReadReducerByIdPort, UpdateReducerPort, AddMatchToReducerPort, DeleteMatchFromReducerPort, RefreshReducerByIdPort, DeleteReducerByIdPort, ReadAllReducersPort, UpdateReducerStakePort, ReadSummaryReducerPort, PersistReducerSummaryPort, ReadAllReducerSummaryPort, AddReducerToSummaryPort, RemoveReducerFromSummaryPort, UpdateReducerSummaryBalancePort {
     @Inject
     EntityManager entityManager;
     @Inject
@@ -205,13 +205,34 @@ public class ReducerRepositoryJpa implements PersistReducerPort, DeleteReducerSu
     @Transactional
     @Override
     public void addReducerToSummary(Long summaryId, Long reducerId) {
-        var summary=entityManager.find(ReducerSummaryEntity.class, summaryId);
-        if (summary==null)
-            throw new ResourceNotFoundException(Code.REDUCER_SUMMARY_NOT_FOUND,"The reducer summary with id "+summaryId+" does not exist reducerjpa...210",Map.of());
-        var reducer=entityManager.find(ReducerEntity.class, reducerId);
-        if (reducer==null)
-            throw new ResourceNotFoundException(Code.REDUCER_NOT_FOUND,"The reducer with id "+summaryId+" does not exist reducerjpa...213",Map.of());
+        var summary = entityManager.find(ReducerSummaryEntity.class, summaryId);
+        if (summary == null)
+            throw new ResourceNotFoundException(Code.REDUCER_SUMMARY_NOT_FOUND, "The reducer summary with id " + summaryId + " does not exist reducerjpa...210", Map.of());
+        var reducer = entityManager.find(ReducerEntity.class, reducerId);
+        if (reducer == null)
+            throw new ResourceNotFoundException(Code.REDUCER_NOT_FOUND, "The reducer with id " + summaryId + " does not exist reducerjpa...213", Map.of());
         summary.addReducerEntity(reducer);
         entityManager.flush();
+    }
+
+    @Override
+    public void removeReducerFromSummary(Long summaryId, Long reducerId) {
+        var summary = entityManager.find(ReducerSummaryEntity.class, summaryId);
+        if (summary == null)
+            throw new ResourceNotFoundException(Code.REDUCER_SUMMARY_NOT_FOUND, "The reducer summary with id " + summaryId + " does not exist reducerjpa...210", Map.of());
+        var reducer = entityManager.find(ReducerEntity.class, reducerId);
+        if (reducer == null)
+            throw new ResourceNotFoundException(Code.REDUCER_NOT_FOUND, "The reducer with id " + summaryId + " does not exist reducerjpa...213", Map.of());
+        summary.removeReducerEntity(reducer);
+        entityManager.flush();
+    }
+
+    @Transactional
+    @Override
+    public void updateReducerSummary(Long summaryId, Money newBalance) {
+        var managed = entityManager.find(ReducerSummaryEntity.class, summaryId);
+        if (managed == null)
+            throw new ResourceNotFoundException(Code.REDUCER_SUMMARY_NOT_FOUND, "The reducer summary with id " + summaryId + " does not exist reducerjpa...210", Map.of());
+        managed.setStake(newBalance.getValue());
     }
 }

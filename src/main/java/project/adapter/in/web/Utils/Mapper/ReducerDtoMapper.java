@@ -97,8 +97,8 @@ public class ReducerDtoMapper {
         return new BlockDto(dom.getType(), dom.getStartMatchIdx(), dom.getEndMatchIdx());
     }
 
-    public List<Block> toListOfBlocks(ComputeDto specifications) {
-        return specifications.specifications().stream().map(this::toBlockDomain).collect(Collectors.toCollection(ArrayList::new));
+    public List<Block> toListOfBlocks(List<BlockDto> specifications) {
+        return specifications.stream().map(this::toBlockDomain).collect(Collectors.toCollection(ArrayList::new));
     }
 
     public List<ReadReducerDto> toReducerDomains(List<Reducer> reducers) {

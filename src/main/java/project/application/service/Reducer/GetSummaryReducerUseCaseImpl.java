@@ -16,7 +16,7 @@ public class GetSummaryReducerUseCaseImpl implements LoadSummaryReducerUseCase {
     public ReducerSummary loadReducer(Long summaryId) {
         var reducerSummary = readSummaryReducer.getSummaryById(summaryId);
         reducerSummary.placeMatches();
-            reducerSummary.computeSummaryReducerSlips();
-            return reducerSummary;
+        reducerSummary.computeSummaryReducerSlips();
+        return reducerSummary;
     }
 }

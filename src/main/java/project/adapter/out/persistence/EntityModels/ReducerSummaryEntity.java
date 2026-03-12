@@ -29,6 +29,10 @@ public class ReducerSummaryEntity {
         reducerEntity.setParentReducerSummaryEntity(this);
         this.reducerEntities.add(reducerEntity);
     }
+    public void removeReducerEntity(ReducerEntity reducerEntity) {
+        reducerEntity.setParentReducerSummaryEntity(null);
+        this.reducerEntities.remove(reducerEntity);
+    }
 
     public Long getReducerSummaryId() {
         return reducerSummaryId;

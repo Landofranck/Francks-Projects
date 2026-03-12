@@ -52,9 +52,13 @@ public class ReducerServiceAdapter {
     @Inject
     DeleteReducerSummaryUseCase deleteReducerSummaryUseCase;
     @Inject
-    LoadallReducerSummaryUseCase getallReducerSummary;
+    LoadallReducerSummaryUseCase getAllReducerSummary;
     @Inject
     AddReducerToSummaryUseCase addReducerToSummary;
+    @Inject
+    UpdateReducerShuffleComboUseCase updateReducerShuffle;
+    @Inject
+    RemoveReducerFromSummaryUseCase removeReducerFromSummary;
     @Inject
     ReducerDtoMapper mapper;
 
@@ -70,18 +74,21 @@ public class ReducerServiceAdapter {
     }
 
     public ReadReducerDto addMatchToReducer(Long reducerId, IdDto match) {
-        return mapper.toReducerDto(addMatchToReducer.addMatchToReducer(reducerId, match.Id()));
+        addMatchToReducer.addMatchToReducer(reducerId, match.Id());
+        updateReducerShuffle.updateShuffleComboInReducer(reducerId);
+        return loadReducer(reducerId);
     }
 
     public ReadReducerDto getComputeCombinations(Long id, ComputeDto specifications) {
-        var rule = mapper.toListOfBlocks(specifications);
+        var rule = mapper.toListOfBlocks(specifications.specifications());
         var comp = computeCombinations.computeCombination(id, rule);
-        var out = mapper.toReducerDto(comp);
-        return out;
+        return mapper.toReducerDto(comp);
     }
 
-    public void deletMatchFromReducer(Long id, IdDto matchId) {
-        deleteMatchFromReducer.deletMatchFromReducer(id, matchId.Id());
+    public void deleteMatchFromReducer(Long id, IdDto matchId) {
+        deleteMatchFromReducer.deleteMatchFromReducer(id, matchId.Id());
+        updateReducerShuffle.updateShuffleComboInReducer(id);
+
     }
 
     public ReadReducerDto placeReducerBet(Long reducerId, Integer index, ReducerPlaceBetDto dto) {
@@ -113,8 +120,8 @@ public class ReducerServiceAdapter {
         return createReducerSummaryUseCase.createReducerSummary(mapper.toReducerSummaryDomain(dto));
     }
 
-    public ReadReducerSummaryDto computeReducerSummarySlips(Long summaryId, ComputeDto specifications) {
-        comuteReducerSummaryUseCase.comuteReducerSummary(summaryId, mapper.toListOfBlocks(specifications));
+    public ReadReducerSummaryDto computeReducerSummarySlips(Long summaryId, ComputeSummaryDto specifications) {
+        comuteReducerSummaryUseCase.comuteReducerSummary(summaryId, mapper.toListOfBlocks(specifications.specifications()),specifications.newBalance());
         return getReducerSummary(summaryId);
     }
 
@@ -124,11 +131,13 @@ public class ReducerServiceAdapter {
 
     public ReadReducerDto clearAllReducerMatches(Long reducerId) {
         clearAllMatchesFromReducer.clearAllMatchesFromReducer(reducerId);
+        updateReducerShuffle.updateShuffleComboInReducer(reducerId);
         return loadReducer(reducerId);
     }
 
     public ReadReducerDto AddAllMatchesToReducer(Long reducerId, AddAllMatchesDto dto) {
         addAllMatchesToReducerUseCase.addMatchesToReducer(reducerId, dto.matchIds());
+        updateReducerShuffle.updateShuffleComboInReducer(reducerId);
         return loadReducer(reducerId);
     }
 
@@ -143,12 +152,22 @@ public class ReducerServiceAdapter {
     }
 
     public AllReducerSummaryDto getAllReducerSummaries() {
-        var out = getallReducerSummary.loadAllReducerSummary();
+        var out = getAllReducerSummary.loadAllReducerSummary();
         return new AllReducerSummaryDto(mapper.toListReducerSummaryDtos(out), new ArrayList<>());
     }
 
     public ReadReducerSummaryDto addReducerToSummary(Long summaryId, Long reducerId) {
-           addReducerToSummary.addReducerToSummary(summaryId, reducerId);
-       return getReducerSummary(summaryId);
+        addReducerToSummary.addReducerToSummary(summaryId, reducerId);
+        return getReducerSummary(summaryId);
+    }
+
+    public ReadReducerDto updateShuffleComboInReducer(Long reducerId) {
+        updateReducerShuffle.updateShuffleComboInReducer(reducerId);
+        return loadReducer(reducerId);
+    }
+
+    public ReadReducerSummaryDto removeReducerFromSummary(Long summaryId, Long reducerId) {
+        removeReducerFromSummary.removeReducerFromSummary(summaryId, reducerId);
+        return getReducerSummary(summaryId);
     }
 }

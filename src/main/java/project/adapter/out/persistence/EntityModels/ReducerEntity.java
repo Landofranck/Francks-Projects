@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import project.adapter.in.web.Utils.Code;
 import project.adapter.out.persistence.Embeddables.BlockEmb;
 import project.adapter.out.persistence.EntityModels.BettingAccount.BetSlipEntity;
-import project.adapter.out.persistence.EntityModels.BettingAccount.BettingAccountEntity;
 import project.adapter.out.persistence.EntityModels.BettingAccount.MatchEntity;
 import project.adapter.out.persistence.EntityModels.BettingAccount.SlipEventPickEntity;
 import project.application.error.ValidationException;
@@ -21,7 +20,7 @@ public class ReducerEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @ElementCollection
-    private List<ShuffleEmb> shuffleCombinations=new ArrayList<>(){};
+    private List<ShuffleEmb> shuffleCombinationEmbs=new ArrayList<>(){};
     private BigDecimal totalStake;
     @ManyToMany
     @JoinTable(name = "reducer_matches",
@@ -197,11 +196,11 @@ public class ReducerEntity {
         return parentReducerSummaryEntity;
     }
 
-    public List<ShuffleEmb> getShuffleCombinations() {
-        return shuffleCombinations;
+    public List<ShuffleEmb> getShuffleCombinationEmbs() {
+        return shuffleCombinationEmbs;
     }
 
-    public void setShuffleCombinations(List<ShuffleEmb> shuffleCombinations) {
-        this.shuffleCombinations = shuffleCombinations;
+    public void setShuffleCombinationEmbs(List<ShuffleEmb> shuffleCombinations) {
+        this.shuffleCombinationEmbs = shuffleCombinations;
     }
 }

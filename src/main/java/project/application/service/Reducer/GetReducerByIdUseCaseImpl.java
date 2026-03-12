@@ -14,8 +14,6 @@ public class GetReducerByIdUseCaseImpl implements LoadReducerByIdUseCase {
 
     @Override
     public Reducer loadReducer(Long id) {
-        var out=getReducer.readReducer(id);
-
-        return out;
+        return getReducer.readReducer(id);
     }
 }

@@ -2,6 +2,7 @@ package project.controller;
 
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -16,8 +17,6 @@ import project.domain.model.Enums.BrokerType;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static io.quarkus.hibernate.orm.panache.PanacheEntity_.id;
 
 @Path("/reducer")
 @Produces(MediaType.APPLICATION_JSON)
@@ -58,6 +57,18 @@ public class ReducerResource {
         out.links().add(createReducerLink());
         out.links().add(getAllReducersLink());
         return Response.ok().entity(out).build();
+    }
+
+    private void setReducerSummaryLinks(List<ReadReducerDto> list) {
+        for (ReadReducerDto dto : list) {
+            dto.links().add(getReducerLink(dto.id()));
+            dto.links().add(deleteReducerLink(dto.id()));
+            dto.links().add(removerReducerFromSummaryLink(dto.id()));
+        }
+    }
+
+    private Link getAllReducerSummaryLink() {
+        return linkFactory("/reducer_summary", "get all reducer summaries", "GET");
     }
 
     private void setSummaryLinks(List<ReadReducerSummaryDto> list) {
@@ -130,11 +141,11 @@ public class ReducerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{ReducerId}/delete_match")
     public Response deleteMatchFromReducer(@PathParam("ReducerId") Long id, @Valid IdDto matchId) {
-        adapter.deletMatchFromReducer(id, matchId);
+        adapter.deleteMatchFromReducer(id, matchId);
         List<Link> out = new ArrayList<>(baseLinks(id));
         out.add(dispatcherLink());
         out.add(shuffleMatcheLink(id));
-        return Response.noContent().build();
+        return Response.ok(out).build();
     }
 
     @POST
@@ -171,10 +182,10 @@ public class ReducerResource {
 
     @GET
     @Path("reducer_summary/{id}")
-    public Response getReducerSummary(@PathParam("id") Long id) {
-        var out = adapter.getReducerSummary(id);
-        out.getLinks().add(shuffleAllReducerMatchesInSummaryLink(id));
-        out.getLinks().add(addReducerToSummaryLink(id));
+    public Response getReducerSummary(@PathParam("id") Long summaryId) {
+        var out = adapter.getReducerSummary(summaryId);
+        setReducerSummaryLinks(out.getReducerDtos());
+        out.getLinks().addAll(reducerSummaryBaseLinks(summaryId));
         return Response.ok(out).build();
     }
 
@@ -186,7 +197,7 @@ public class ReducerResource {
         List<Link> out = new ArrayList<>();
         out.add(toReducerSummaryLink(id));
         out.add(deleteReducerSummaryLink(id));
-        out.add(getAllReducerSummaryLink());
+        out.add(getAllReducersLink());
         return Response.ok(out).build();
     }
 
@@ -219,19 +230,19 @@ public class ReducerResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("{id}/summary/shuffle_all_matches")
-    public Response shuffleAllReducerMatchesInSummary(@PathParam("id") Long id, @Valid IndexDto index) {
-        var out = adapter.shuffleAllMatches(id, index.index());
-        out.getLinks().addAll(baseLinks(id));
+    public Response shuffleAllReducerMatchesInSummary(@PathParam("id") Long summaryId, @Valid IndexDto index) {
+        var out = adapter.shuffleAllMatches(summaryId, index.index());
+        out.getLinks().addAll(reducerSummaryBaseLinks(summaryId));
         return Response.ok().entity(out).build();
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("{id}/shuffle_matches")
-    public Response shuffleReducerMatches(@PathParam("id") Long id, @Valid IndexDto index) {
-        var out = adapter.shuffleMatches(id, index.index());
-        out.links().addAll(baseLinks(id));
-        out.links().add(shuffleMatcheLink(id));
+    public Response shuffleReducerMatches(@PathParam("id") Long reducerId, @Valid IndexDto index) {
+        var out = adapter.shuffleMatches(reducerId, index.index());
+        out.links().addAll(baseLinks(reducerId));
+        out.links().add(shuffleMatcheLink(reducerId));
         return Response.ok().entity(out).build();
     }
 
@@ -239,8 +250,50 @@ public class ReducerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/add_reducer_to_summary")
     public Response addReducerToSummary(@QueryParam("summaryId") Long summaryId, @QueryParam("reducerId") Long reducerId) {
-            var out = adapter.addReducerToSummary(summaryId, reducerId);
-            return Response.ok().entity(out).build();
+        var out = adapter.addReducerToSummary(summaryId, reducerId);
+        setReducerSummaryLinks(out.getReducerDtos());
+        out.getLinks().addAll(reducerSummaryBaseLinks(summaryId));
+
+
+        return Response.ok().entity(out).build();
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{summaryId}/remove_reducer_from_summary")
+    public Response removeReducerFromSummary(@PathParam("summaryId") Long summaryId, @QueryParam("reducerId") Long reducerId) {
+        var out = adapter.removeReducerFromSummary(summaryId, reducerId);
+        setReducerSummaryLinks(out.getReducerDtos());
+        out.getLinks().addAll(reducerSummaryBaseLinks(summaryId));
+        return Response.ok().entity(out).build();
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{summaryId}/compute_summary_bet_slips")
+    public Response computeReducerSummarySlips(@PathParam("summaryId") Long summaryId, @Valid ComputeSummaryDto dto) {
+        var out = adapter.computeReducerSummarySlips(summaryId, dto);
+        setReducerSummaryLinks(out.getReducerDtos());
+        out.getLinks().addAll(reducerSummaryBaseLinks(summaryId));
+        return Response.ok().entity(out).build();
+    }
+
+
+    private Link computeReducerSummaryLink(Long id) {
+        return linkFactory("/" + id + "/compute_summary_bet_slips", "compute summary slips", "PUT");
+    }
+
+    private Link removerReducerFromSummaryLink(Long id) {
+        return linkFactory("/" + id + "/remove_reducer_from_summary?reducerId=", "Remover reducer from summary", "PUT");
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{id}/update_shuffle_combo")
+    public Response updateShuffleComboInReducer(@PathParam("id") Long reducerId) {
+        var out = adapter.updateShuffleComboInReducer(reducerId);
+        out.links().addAll(baseLinks(reducerId));
+        return Response.ok().entity(out).build();
     }
 
     // ---------------- links ----------------
@@ -270,7 +323,6 @@ public class ReducerResource {
     }
 
     public Link getAllReducersLink() {
-        this.systemTime = systemTime;
         return linkFactory("", "get all reducers", "GET");
     }
 
@@ -326,10 +378,6 @@ public class ReducerResource {
         return resource.getAllMatchesForBrokerTypeLink(brokerType, null, null);
     }
 
-    private Link getAllReducerSummaryLink() {
-        return linkFactory("/reducer_summary", "get all reducer summary", "GET");
-    }
-
     private Link creatReducerSummaryLink() {
         return linkFactory("/create_reducer_summary", "create reducer summary", "POST");
     }
@@ -346,7 +394,25 @@ public class ReducerResource {
         out.add(upDateStakeLink(reducerId));
         out.add(clearAllMatchesLink(reducerId));
         out.add(addAllMatcheToReducerLink(reducerId));
+        out.add(upDateShuffleLink(reducerId));
+
         return out;
+    }
+
+    private List<Link> reducerSummaryBaseLinks(Long reducerSummaryId) {
+        List<Link> out = new ArrayList<>();
+        out.add(getAllReducersLink());
+        out.add(toReducerSummaryLink(reducerSummaryId));
+        out.add(deleteReducerSummaryLink(reducerSummaryId));
+        out.add(computeReducerSummaryLink(reducerSummaryId));
+        out.add(shuffleAllReducerMatchesInSummaryLink(reducerSummaryId));
+        out.add(addReducerToSummaryLink(reducerSummaryId));
+        return out;
+    }
+
+    private Link upDateShuffleLink(Long reducerId) {
+        return linkFactory("/" + reducerId + "/update_shuffle_combo", "update shuffle combo", "POST");
+
     }
 
     private void addLinksToMatches(ReadReducerDto reducer) {

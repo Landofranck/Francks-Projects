@@ -18,18 +18,19 @@ public class DeleteMatchFromReducerUseCaseImpl implements DeleteMatchFromReducer
     ReadReducerByIdPort readReducerByIdPort;
 
     @Override
-    public void deletMatchFromReducer(Long reducerId, Long matchId) {
+    public void deleteMatchFromReducer(Long reducerId, Long matchId) {
         deleteMatchFromReducer.deleteMatch(reducerId, matchId);
     }
+
     @Override
     public void clearAllMatchesFromReducer(Long reducerId) {
-       var red= readReducerByIdPort.readReducer(reducerId);
-       var ids=new ArrayList<Long>();
-       for (Match m:red.getBetMatches()){
-           ids.add(m.getMatchId());
-       }
-       for (Long id:ids){
-           deleteMatchFromReducer.deleteMatch(reducerId,id);
-       }
+        var red = readReducerByIdPort.readReducer(reducerId);
+        var ids = new ArrayList<Long>();
+        for (Match m : red.getBetMatches()) {
+            ids.add(m.getMatchId());
+        }
+        for (Long id : ids) {
+            deleteMatchFromReducer.deleteMatch(reducerId, id);
+        }
     }
 }

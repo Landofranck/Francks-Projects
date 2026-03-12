@@ -17,10 +17,10 @@ import java.util.List;
 public class ReadReducerSummaryDto {
     private Long reducerSummaryId;
     private String description;
-    private List<Shuffle> shuffleCombinations;
     private BigDecimal stake;
     private BigDecimal totalStaked;
     private BigDecimal lossOrGain;
+    private List<Shuffle> shuffleCombinations;
     private List<BlockDto> blockDtos;
     private List<ReadReducerDto> reducerDtos;
     private List<ReducerSlipDto> reducerBetSlipDtos;
